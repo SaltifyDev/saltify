@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import org.ntqqrev.lagrange.exception.LagrangeException
 import org.ntqqrev.lagrange.internal.LagrangeClient
 import org.ntqqrev.lagrange.internal.service.system.BotOnline
 import org.ntqqrev.lagrange.internal.service.system.FetchQrCode
@@ -76,6 +77,11 @@ class LagrangeContext internal constructor(
             val qrCodeState = client.callService(QueryQrCodeState)
             logger.debug { "QrCodeState: ${QueryQrCodeState.Result.getString(qrCodeState)}" }
             if (qrCodeState.value == QueryQrCodeState.Result.Confirmed.value) {
+                if (client.sessionStore.uin != init.uin) {
+                    client.packetLogic.disconnect()
+                    instanceState = Context.State.TERMINATED
+                    throw LagrangeException("Uin mismatch: expected ${init.uin}, got ${client.sessionStore.uin}")
+                }
                 break
             }
             delay(3000)
