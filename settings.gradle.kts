@@ -12,5 +12,6 @@ plugins {
 include(":saltify")
 include(":saltify-api")
 include(":saltify-adapter-lagrange")
+include(":saltify-adapter-milky")
 
 rootProject.name = "saltify"
