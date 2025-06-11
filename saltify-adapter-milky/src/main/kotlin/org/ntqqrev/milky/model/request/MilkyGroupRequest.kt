@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.request
 
-internal data class MilkyGroupRequest(
+internal class MilkyGroupRequest(
     val requestId: String,
     val time: Long,
     val isFiltered: Boolean,

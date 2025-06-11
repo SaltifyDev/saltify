@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.struct
 
-internal data class MilkyGroupFile(
+internal class MilkyGroupFile(
     val groupId: Long,
     val fileId: String,
     val fileName: String,
