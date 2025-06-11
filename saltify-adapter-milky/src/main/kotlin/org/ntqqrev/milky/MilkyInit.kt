@@ -1,10 +1,8 @@
 package org.ntqqrev.milky
 
-import kotlinx.serialization.Serializable
 import org.ntqqrev.saltify.config.Configurable
 import org.ntqqrev.saltify.config.LongRange
 
-@Serializable
 class MilkyInit {
     @Configurable(
         "Milky 服务 URL",

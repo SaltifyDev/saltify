@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
@@ -120,9 +118,6 @@ class MilkyContext internal constructor(
         }
         TODO("Parse API call result")
     }
-
-    suspend fun callApi(name: String, params: JsonElement)
-        = callApi(name, Json.encodeToString(params))
 
     override suspend fun stop() {
         client.close()

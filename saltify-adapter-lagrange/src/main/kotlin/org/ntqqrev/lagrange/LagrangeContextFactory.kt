@@ -1,8 +1,9 @@
 package org.ntqqrev.lagrange
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.serialization.json.Json
 import org.ntqqrev.lagrange.common.AppInfo
 import org.ntqqrev.lagrange.common.SessionStore
 import org.ntqqrev.lagrange.internal.LagrangeClient
@@ -16,6 +17,7 @@ import kotlin.io.path.writeText
 
 object LagrangeContextFactory : ContextFactory<LagrangeInit> {
     private val logger = KotlinLogging.logger { }
+    private val objectMapper = jacksonObjectMapper()
 
     private val fallbackAppInfo = AppInfo(
         os = "Linux",
@@ -51,10 +53,10 @@ object LagrangeContextFactory : ContextFactory<LagrangeInit> {
         if (!keystorePath.exists()) {
             logger.debug { "Generating new keystore" }
             sessionStore = SessionStore.empty()
-            keystorePath.writeText(Json.encodeToString(sessionStore))
+            keystorePath.writeText(objectMapper.writeValueAsString(sessionStore))
         } else {
             logger.debug { "Using existing session" }
-            sessionStore = Json.decodeFromString(keystorePath.readText())
+            sessionStore = objectMapper.readValue(keystorePath.readText())
         }
 
         val client = LagrangeClient(appInfo, sessionStore, signProvider, env.scope)

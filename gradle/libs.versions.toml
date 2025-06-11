@@ -7,15 +7,16 @@ kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ver
 
 ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCIO = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-ktorClientJSON = { module = "io.ktor:ktor-client-json", version.ref = "ktor" }
 ktorClientWebsockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
-ktorClientSerialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
+ktorSerializationJackson = { module = "io.ktor:ktor-serialization-jackson", version.ref = "ktor" }
 ktorClientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktorSerializationKotlinxJSON = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
-kotlinxSerializationJSON = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.1" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.9.0" }
+
+jacksonModuleKotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version = "2.19.0" }
+
+kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
 kotlinLogging = { module = "io.github.oshai:kotlin-logging-jvm", version = "7.0.7" }
 logbackClassic = { module = "ch.qos.logback:logback-classic", version = "1.5.18" }
@@ -28,21 +29,15 @@ saltifyProtobuf = { module = "org.ntqqrev.saltify:saltify-protobuf", version = "
 ktor = [
     "ktorClientCore",
     "ktorClientCIO",
-    "ktorClientJSON",
-    "ktorClientSerialization",
     "ktorClientWebsockets",
     "ktorClientContentNegotiation",
-    "ktorSerializationKotlinxJSON",
+    "ktorSerializationJackson",
 ]
 kotlinx = [
     "kotlinxDatetime",
-    "kotlinxSerializationJSON",
     "kotlinxCoroutines",
 ]
 logging = [
     "kotlinLogging",
     "logbackClassic"
 ]
-
-[plugins]
-kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

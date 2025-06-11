@@ -1,11 +1,9 @@
 package org.ntqqrev.lagrange.common
 
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.ntqqrev.lagrange.internal.util.ext.toHex
 import kotlin.random.Random
 
-@Serializable
 internal class SessionStore(
     @JvmField var uin: Long,
     @JvmField var uid: String,
@@ -22,13 +20,13 @@ internal class SessionStore(
     val guid: ByteArray,
     val deviceName: String,
 ) {
-    @Transient
+    @JsonIgnore
     internal var keySig: ByteArray? = null
 
-    @Transient
+    @JsonIgnore
     internal var exchangeKey: ByteArray? = null
 
-    @Transient
+    @JsonIgnore
     internal var unusualCookies: String? = null
 
     companion object {

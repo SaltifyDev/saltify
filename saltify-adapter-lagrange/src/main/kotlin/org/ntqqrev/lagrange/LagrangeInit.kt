@@ -1,9 +1,7 @@
 package org.ntqqrev.lagrange
 
-import kotlinx.serialization.Serializable
 import org.ntqqrev.saltify.config.Configurable
 
-@Serializable
 class LagrangeInit {
     @Configurable(
         "签名 API URL"

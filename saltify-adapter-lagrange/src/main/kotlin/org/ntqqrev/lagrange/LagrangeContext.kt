@@ -1,11 +1,11 @@
 package org.ntqqrev.lagrange
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.serialization.json.Json
 import org.ntqqrev.lagrange.exception.LagrangeException
 import org.ntqqrev.lagrange.internal.LagrangeClient
 import org.ntqqrev.lagrange.internal.service.system.BotOnline
@@ -43,6 +43,7 @@ class LagrangeContext internal constructor(
     val channel: MutableSharedFlow<Event>,
 ) : Context {
     private val logger = KotlinLogging.logger { }
+    internal val objectMapper = jacksonObjectMapper()
 
     private var instanceState by Delegates.observable(Context.State.INITIALIZED) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -97,7 +98,7 @@ class LagrangeContext internal constructor(
         logger.info { "Credentials retrieved, trying online" }
         env.scope.launch {
             env.rootDataPath.resolve(sessionStoreFileName)
-                .writeText(Json.encodeToString(client.sessionStore))
+                .writeText(objectMapper.writeValueAsString(client.sessionStore))
         }
 
         val onlineResult = client.callService(BotOnline)
