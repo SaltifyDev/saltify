@@ -1,16 +1,24 @@
 package org.ntqqrev.milky
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.headers
+import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
+import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
@@ -59,7 +67,16 @@ class MilkyContext internal constructor(
         "${base}event?access_token=${init.milkyAccessToken}"
 
     private val client = HttpClient(CIO) {
-        install(WebSockets)
+        install(WebSockets) {
+            val objectMapper = jacksonObjectMapper()
+            objectMapper.propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
+            contentConverter = JacksonWebsocketContentConverter(objectMapper)
+        }
+        install(ContentNegotiation) {
+            jackson {
+                propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
+            }
+        }
     }
 
     private var instanceState by Delegates.observable(Context.State.INITIALIZED) { _, oldValue, newValue ->
@@ -97,7 +114,7 @@ class MilkyContext internal constructor(
         }
     }
 
-    suspend fun callApi(name: String, body: String): String {
+    private suspend inline fun <reified T, reified R> callApi(name: String, body: T): R {
         val response = client.post("${base}api/$name") {
             headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -116,7 +133,7 @@ class MilkyContext internal constructor(
             }
             throw MilkyException("API call failed with status ${response.status.value}")
         }
-        TODO("Parse API call result")
+        return response.body<R>()
     }
 
     override suspend fun stop() {
