@@ -7,17 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = "request_type",
-    visible = true
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(
-        value = MilkyGroupJoinRequest::class,
-        name = "join"
-    ),
-    JsonSubTypes.Type(
-        value = MilkyGroupInviteRequest::class,
-        name = "invite"
-    )
+    JsonSubTypes.Type(MilkyGroupJoinRequest::class, "join"),
+    JsonSubTypes.Type(MilkyGroupInviteRequest::class, "invite")
 )
 internal sealed class MilkyGroupRequest(
     val requestId: String,
