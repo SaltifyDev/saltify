@@ -7,7 +7,7 @@ import org.ntqqrev.milky.model.request.MilkyFriendRequest
 import org.ntqqrev.milky.model.request.MilkyGroupInvitation
 import org.ntqqrev.milky.model.request.MilkyGroupRequest
 
-class MilkyEvent(
+internal class MilkyEvent(
     val time: Long,
     val selfId: Long,
     val data: MilkyEventBody
@@ -38,7 +38,7 @@ class MilkyEvent(
     JsonSubTypes.Type(MilkyGroupNudgeEvent::class, "group_nudge"),
     JsonSubTypes.Type(MilkyGroupFileUploadEvent::class, "group_file_upload")
 )
-interface MilkyEventBody
+internal interface MilkyEventBody
 
 internal class MilkyBotOfflineEvent(
     val reason: String,
