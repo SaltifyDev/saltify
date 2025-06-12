@@ -13,5 +13,6 @@ include(":saltify")
 include(":saltify-api")
 include(":saltify-adapter-lagrange")
 include(":saltify-adapter-milky")
+include(":saltify-utils")
 
 rootProject.name = "saltify"
