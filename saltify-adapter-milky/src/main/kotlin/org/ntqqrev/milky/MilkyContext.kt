@@ -219,11 +219,7 @@ class MilkyContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun recallPrivateMessage(
-        userUin: Long,
-        sequence: Long,
-        clientSequence: Long
-    ): Boolean {
+    override suspend fun recallPrivateMessage(userUin: Long, sequence: Long): Boolean {
         TODO("Not yet implemented")
     }
 

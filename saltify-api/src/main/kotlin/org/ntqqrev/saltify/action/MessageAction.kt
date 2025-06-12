@@ -50,7 +50,7 @@ interface MessageAction {
      * Recall a private message.
      * @return true if the message was recalled successfully, false otherwise.
      */
-    suspend fun recallPrivateMessage(userUin: Long, sequence: Long, clientSequence: Long): Boolean
+    suspend fun recallPrivateMessage(userUin: Long, sequence: Long): Boolean
 
     /**
      * Recall a group message.
