@@ -1,10 +1,12 @@
 package org.ntqqrev.milky
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -17,6 +19,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.headers
+import io.ktor.serialization.jackson.JacksonConverter
 import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
 import io.ktor.serialization.jackson.jackson
 import kotlinx.coroutines.delay
@@ -55,6 +58,9 @@ class MilkyContext internal constructor(
     val channel: MutableSharedFlow<Event>,
 ) : Context {
     private val logger = KotlinLogging.logger { }
+    private val objectMapper = jacksonObjectMapper().apply {
+        propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
+    }
 
     private val base = if (init.milkyUrl.endsWith("/"))
         init.milkyUrl
@@ -68,14 +74,10 @@ class MilkyContext internal constructor(
 
     private val client = HttpClient(CIO) {
         install(WebSockets) {
-            val objectMapper = jacksonObjectMapper()
-            objectMapper.propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
             contentConverter = JacksonWebsocketContentConverter(objectMapper)
         }
         install(ContentNegotiation) {
-            jackson {
-                propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
-            }
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
         }
     }
 
@@ -133,7 +135,13 @@ class MilkyContext internal constructor(
             }
             throw MilkyException("API call failed with status ${response.status.value}")
         }
-        return response.body<R>()
+        val callResult = response.body<JsonNode>()
+        val retcode = callResult.get("retcode").asInt()
+        if (retcode != 0) {
+            throw MilkyException("API '$name' failed with code $retcode: ${callResult.get("message").asText()}")
+        } else {
+            return objectMapper.treeToValue(callResult.get("data"))
+        }
     }
 
     override suspend fun stop() {
