@@ -2,6 +2,7 @@ package org.ntqqrev.milky.model.request
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.ntqqrev.milky.model.event.MilkyEventBody
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -20,7 +21,7 @@ internal sealed class MilkyGroupRequest(
     val state: String,
     val groupId: Long,
     val operatorId: Long? = null,
-)
+) : MilkyEventBody
 
 internal class MilkyGroupJoinRequest(
     requestId: String,

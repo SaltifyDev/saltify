@@ -2,6 +2,7 @@ package org.ntqqrev.milky.model.message
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.ntqqrev.milky.model.event.MilkyEventBody
 import org.ntqqrev.milky.model.struct.MilkyFriend
 import org.ntqqrev.milky.model.struct.MilkyGroup
 import org.ntqqrev.milky.model.struct.MilkyGroupMember
@@ -22,7 +23,7 @@ internal sealed class MilkyIncomingMessage(
     val senderId: Long,
     val time: Long,
     val segments: List<MilkyIncomingSegment>,
-)
+) : MilkyEventBody
 
 internal class MilkyFriendMessage(
     peerId: Long,

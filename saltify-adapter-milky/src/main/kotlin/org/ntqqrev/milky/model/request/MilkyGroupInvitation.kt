@@ -1,5 +1,7 @@
 package org.ntqqrev.milky.model.request
 
+import org.ntqqrev.milky.model.event.MilkyEventBody
+
 internal class MilkyGroupInvitation(
     val requestId: String,
     val time: Long,
@@ -7,4 +9,4 @@ internal class MilkyGroupInvitation(
     val initiatorId: Long,
     val state: String,
     val groupId: Long,
-)
+) : MilkyEventBody
