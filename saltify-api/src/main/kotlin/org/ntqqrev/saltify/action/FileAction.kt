@@ -7,11 +7,13 @@ import java.io.InputStream
 interface FileAction {
     /**
      * Upload a file to the specified user.
+     * @return The uploaded file ID
      */
     suspend fun uploadPrivateFile(userUin: Long, file: InputStream): String
 
     /**
      * Get the download URL of a private file.
+     * @return The download URL
      */
     suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String, fileHash: String): String
 
@@ -49,13 +51,14 @@ interface FileAction {
 
     /**
      * Create a folder in the group file system.
+     * @return The created folder ID
      */
     suspend fun createGroupFolder(groupUin: Long, folderName: String): String
 
     /**
      * Rename a folder in the group file system.
      */
-    suspend fun renameGroupFolder(groupUin: Long, folderId: String, newName: String): String
+    suspend fun renameGroupFolder(groupUin: Long, folderId: String, newName: String)
 
     /**
      * Delete a folder from the group file system.

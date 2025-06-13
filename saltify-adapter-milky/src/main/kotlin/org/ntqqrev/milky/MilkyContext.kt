@@ -381,7 +381,7 @@ class MilkyContext internal constructor(
         groupUin: Long,
         folderId: String,
         newName: String
-    ): String {
+    ) {
         TODO("Not yet implemented")
     }
 

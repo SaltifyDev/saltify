@@ -38,6 +38,7 @@ interface MessageAction {
 
     /**
      * Get a URL for a resource.
+     * @return The temporary URL of the resource
      */
     suspend fun getResourceTempUrl(resourceId: String): String
 
