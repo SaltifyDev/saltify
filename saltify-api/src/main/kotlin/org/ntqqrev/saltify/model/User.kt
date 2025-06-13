@@ -12,11 +12,6 @@ interface User : Entity {
     val uin: Long
 
     /**
-     * Another identifier of the user, if defined.
-     */
-    val qid: String?
-
-    /**
      * The nickname of the user.
      */
     val nickname: String

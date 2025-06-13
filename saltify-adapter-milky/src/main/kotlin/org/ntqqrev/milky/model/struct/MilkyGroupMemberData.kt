@@ -2,7 +2,6 @@ package org.ntqqrev.milky.model.struct
 
 class MilkyGroupMemberData(
     val userId: Long,
-    val qid: String? = null,
     val nickname: String,
     val sex: String,
     val card: String? = null,

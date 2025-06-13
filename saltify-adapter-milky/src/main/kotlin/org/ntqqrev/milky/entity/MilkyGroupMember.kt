@@ -21,8 +21,6 @@ class MilkyGroupMember(
         get() = group.ctx
     override val uin: Long
         get() = dataBinding.userId
-    override val qid: String?
-        get() = dataBinding.qid
     override val nickname: String
         get() = dataBinding.nickname
     override val gender: Gender

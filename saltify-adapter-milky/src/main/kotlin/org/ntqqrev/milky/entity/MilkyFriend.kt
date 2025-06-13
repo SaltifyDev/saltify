@@ -16,12 +16,12 @@ class MilkyFriend(
 ) : Friend, CachedEntity<MilkyFriendData> {
     override val uin: Long
         get() = dataBinding.userId
-    override val qid: String?
-        get() = dataBinding.qid
     override val nickname: String
         get() = dataBinding.nickname
     override val gender: Gender
         get() = dataBinding.sex.toSaltifyGender()
+    override val qid: String?
+        get() = dataBinding.qid
     override val remark: String?
         get() = dataBinding.remark
     override val category: Int
