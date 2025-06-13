@@ -45,7 +45,7 @@ interface FileAction {
     /**
      * Delete a file from the group file system.
      */
-    suspend fun deleteGroupFile(groupUin: Long, fileId: String): Boolean
+    suspend fun deleteGroupFile(groupUin: Long, fileId: String)
 
     /**
      * Create a folder in the group file system.
@@ -60,5 +60,5 @@ interface FileAction {
     /**
      * Delete a folder from the group file system.
      */
-    suspend fun deleteGroupFolder(groupUin: Long, folderId: String): Boolean
+    suspend fun deleteGroupFolder(groupUin: Long, folderId: String)
 }

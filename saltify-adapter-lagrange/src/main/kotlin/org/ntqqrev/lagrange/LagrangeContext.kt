@@ -217,19 +217,19 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun recallPrivateMessage(userUin: Long, sequence: Long): Boolean {
+    override suspend fun recallPrivateMessage(userUin: Long, sequence: Long) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun recallGroupMessage(groupUin: Long, sequence: Long): Boolean {
+    override suspend fun recallGroupMessage(groupUin: Long, sequence: Long) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun sendPrivateNudge(userUin: Long, isSelf: Boolean): Boolean {
+    override suspend fun sendPrivateNudge(userUin: Long, isSelf: Boolean) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun sendProfileLike(userUin: Long, count: Int): Boolean {
+    override suspend fun sendProfileLike(userUin: Long, count: Int) {
         TODO("Not yet implemented")
     }
 
@@ -370,7 +370,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteGroupFile(groupUin: Long, fileId: String): Boolean {
+    override suspend fun deleteGroupFile(groupUin: Long, fileId: String) {
         TODO("Not yet implemented")
     }
 
@@ -386,7 +386,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteGroupFolder(groupUin: Long, folderId: String): Boolean {
+    override suspend fun deleteGroupFolder(groupUin: Long, folderId: String) {
         TODO("Not yet implemented")
     }
 }
