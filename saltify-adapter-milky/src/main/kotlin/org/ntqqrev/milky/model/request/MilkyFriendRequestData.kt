@@ -2,7 +2,7 @@ package org.ntqqrev.milky.model.request
 
 import org.ntqqrev.milky.model.event.MilkyEventBody
 
-internal class MilkyFriendRequest(
+internal class MilkyFriendRequestData(
     val requestId: String,
     val time: Long,
     val isFiltered: Boolean,

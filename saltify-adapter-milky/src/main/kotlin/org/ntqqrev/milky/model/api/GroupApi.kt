@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.api
 
-import org.ntqqrev.milky.model.struct.MilkyGroupAnnouncement
+import org.ntqqrev.milky.model.struct.MilkyGroupAnnouncementData
 
 internal class MilkySetGroupNameRequest(
     val groupId: Long,
@@ -52,7 +52,7 @@ internal class MilkyGetGroupAnnouncementListRequest(
 )
 
 internal class MilkyGetGroupAnnouncementListResponse(
-    val announcements: List<MilkyGroupAnnouncement>,
+    val announcements: List<MilkyGroupAnnouncementData>,
 )
 
 internal class MilkySendGroupAnnouncementRequest(

@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.struct
 
-internal class MilkyGroupFolder(
+internal class MilkyGroupFolderData(
     val groupId: Long,
     val folderId: String,
     val parentFolderId: String? = null,

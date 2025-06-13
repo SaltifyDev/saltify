@@ -1,12 +1,12 @@
 package org.ntqqrev.milky.model.api
 
-import org.ntqqrev.milky.model.message.MilkyIncomingForwardedMessage
-import org.ntqqrev.milky.model.message.MilkyIncomingMessage
-import org.ntqqrev.milky.model.message.MilkyOutgoingSegment
+import org.ntqqrev.milky.model.message.MilkyIncomingForwardedMessageData
+import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.model.message.MilkyOutgoingSegmentModel
 
 internal class MilkySendPrivateMessageRequest(
     val userId: Long,
-    val message: List<MilkyOutgoingSegment>,
+    val message: List<MilkyOutgoingSegmentModel>,
 )
 
 internal class MilkySendPrivateMessageResponse(
@@ -16,7 +16,7 @@ internal class MilkySendPrivateMessageResponse(
 
 internal class MilkySendGroupMessageRequest(
     val groupId: Long,
-    val message: List<MilkyOutgoingSegment>,
+    val message: List<MilkyOutgoingSegmentModel>,
 )
 
 internal class MilkySendGroupMessageResponse(
@@ -31,7 +31,7 @@ internal class MilkyGetMessageRequest(
 )
 
 internal class MilkyGetMessageResponse(
-    val message: MilkyIncomingMessage,
+    val message: MilkyIncomingMessageData,
 )
 
 internal class MilkyGetHistoryMessagesRequest(
@@ -43,7 +43,7 @@ internal class MilkyGetHistoryMessagesRequest(
 )
 
 internal class MilkyGetHistoryMessagesResponse(
-    val messages: List<MilkyIncomingMessage>,
+    val messages: List<MilkyIncomingMessageData>,
 )
 
 internal class MilkyGetResourceTempUrlRequest(
@@ -59,7 +59,7 @@ internal class MilkyGetForwardedMessagesRequest(
 )
 
 internal class MilkyGetForwardedMessagesResponse(
-    val messages: List<MilkyIncomingForwardedMessage>,
+    val messages: List<MilkyIncomingForwardedMessageData>,
 )
 
 internal class MilkyRecallPrivateMessageRequest(

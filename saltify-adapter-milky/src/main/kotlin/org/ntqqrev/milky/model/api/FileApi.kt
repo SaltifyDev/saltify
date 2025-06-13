@@ -1,7 +1,7 @@
 package org.ntqqrev.milky.model.api
 
-import org.ntqqrev.milky.model.struct.MilkyGroupFile
-import org.ntqqrev.milky.model.struct.MilkyGroupFolder
+import org.ntqqrev.milky.model.struct.MilkyGroupFileData
+import org.ntqqrev.milky.model.struct.MilkyGroupFolderData
 
 internal class MilkyUploadPrivateFileRequest(
     val userId: Long,
@@ -37,8 +37,8 @@ internal class MilkyGetGroupFilesRequest(
 )
 
 internal class MilkyGetGroupFilesResponse(
-    val files: List<MilkyGroupFile>,
-    val folders: List<MilkyGroupFolder>,
+    val files: List<MilkyGroupFileData>,
+    val folders: List<MilkyGroupFolderData>,
 )
 
 internal class MilkyMoveGroupFileRequest(

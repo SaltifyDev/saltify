@@ -3,7 +3,7 @@ package org.ntqqrev.milky.model.message
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-internal class MilkyIncomingSegment(
+internal class MilkyIncomingSegmentModel(
     val type: String,
     val data: MilkyIncomingData,
 )

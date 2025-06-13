@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.struct
 
-internal class MilkyGroup(
+internal class MilkyGroupData(
     val groupId: Long,
     val name: String,
     val memberCount: Int,

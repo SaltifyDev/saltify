@@ -10,10 +10,10 @@ import org.ntqqrev.milky.model.event.MilkyEventBody
     property = "request_type",
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(MilkyGroupJoinRequest::class, "join"),
-    JsonSubTypes.Type(MilkyGroupInviteRequest::class, "invite")
+    JsonSubTypes.Type(MilkyGroupJoinRequestData::class, "join"),
+    JsonSubTypes.Type(MilkyGroupInviteRequestData::class, "invite")
 )
-internal sealed class MilkyGroupRequest(
+internal sealed class MilkyGroupRequestData(
     val requestId: String,
     val time: Long,
     val isFiltered: Boolean,
@@ -23,7 +23,7 @@ internal sealed class MilkyGroupRequest(
     val operatorId: Long? = null,
 ) : MilkyEventBody
 
-internal class MilkyGroupJoinRequest(
+internal class MilkyGroupJoinRequestData(
     requestId: String,
     time: Long,
     isFiltered: Boolean,
@@ -32,9 +32,9 @@ internal class MilkyGroupJoinRequest(
     groupId: Long,
     operatorId: Long? = null,
     val comment: String? = null,
-) : MilkyGroupRequest(requestId, time, isFiltered, initiatorId, state, groupId, operatorId)
+) : MilkyGroupRequestData(requestId, time, isFiltered, initiatorId, state, groupId, operatorId)
 
-internal class MilkyGroupInviteRequest(
+internal class MilkyGroupInviteRequestData(
     requestId: String,
     time: Long,
     isFiltered: Boolean,
@@ -43,4 +43,4 @@ internal class MilkyGroupInviteRequest(
     groupId: Long,
     operatorId: Long? = null,
     val inviteeId: Long,
-) : MilkyGroupRequest(requestId, time, isFiltered, initiatorId, state, groupId, operatorId)
+) : MilkyGroupRequestData(requestId, time, isFiltered, initiatorId, state, groupId, operatorId)

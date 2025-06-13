@@ -1,15 +1,15 @@
 package org.ntqqrev.milky.model.api
 
-import org.ntqqrev.milky.model.request.MilkyFriendRequest
-import org.ntqqrev.milky.model.request.MilkyGroupInvitation
-import org.ntqqrev.milky.model.request.MilkyGroupRequest
+import org.ntqqrev.milky.model.request.MilkyFriendRequestData
+import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
+import org.ntqqrev.milky.model.request.MilkyGroupRequestData
 
 internal class MilkyGetFriendRequestsRequest(
     val limit: Int,
 )
 
 internal class MilkyGetFriendRequestsResponse(
-    val requests: List<MilkyFriendRequest>,
+    val requests: List<MilkyFriendRequestData>,
 )
 
 internal class MilkyGetGroupRequestsRequest(
@@ -17,7 +17,7 @@ internal class MilkyGetGroupRequestsRequest(
 )
 
 internal class MilkyGetGroupRequestsResponse(
-    val requests: List<MilkyGroupRequest>,
+    val requests: List<MilkyGroupRequestData>,
 )
 
 internal class MilkyGetGroupInvitationsRequest(
@@ -25,7 +25,7 @@ internal class MilkyGetGroupInvitationsRequest(
 )
 
 internal class MilkyGetGroupInvitationsResponse(
-    val invitations: List<MilkyGroupInvitation>,
+    val invitations: List<MilkyGroupInvitationData>,
 )
 
 internal class MilkyAcceptRequestRequest(

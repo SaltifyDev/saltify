@@ -1,8 +1,8 @@
 package org.ntqqrev.milky.model.api
 
-import org.ntqqrev.milky.model.struct.MilkyFriend
-import org.ntqqrev.milky.model.struct.MilkyGroup
-import org.ntqqrev.milky.model.struct.MilkyGroupMember
+import org.ntqqrev.milky.model.struct.MilkyFriendData
+import org.ntqqrev.milky.model.struct.MilkyGroupData
+import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
 
 internal class MilkyGetLoginInfoResponse(
     val uin: Long,
@@ -22,7 +22,7 @@ internal class MilkyGetFriendListRequest(
 )
 
 internal class MilkyGetFriendListResponse(
-    val friends: List<MilkyFriend>,
+    val friends: List<MilkyFriendData>,
 )
 
 internal class MilkyGetFriendInfoRequest(
@@ -31,7 +31,7 @@ internal class MilkyGetFriendInfoRequest(
 )
 
 internal class MilkyGetFriendInfoResponse(
-    val friend: MilkyFriend,
+    val friend: MilkyFriendData,
 )
 
 internal class MilkyGetGroupListRequest(
@@ -39,7 +39,7 @@ internal class MilkyGetGroupListRequest(
 )
 
 internal class MilkyGetGroupListResponse(
-    val groups: List<MilkyGroup>,
+    val groups: List<MilkyGroupData>,
 )
 
 internal class MilkyGetGroupInfoRequest(
@@ -48,7 +48,7 @@ internal class MilkyGetGroupInfoRequest(
 )
 
 internal class MilkyGetGroupInfoResponse(
-    val group: MilkyGroup,
+    val group: MilkyGroupData,
 )
 
 internal class MilkyGetGroupMemberListRequest(
@@ -57,7 +57,7 @@ internal class MilkyGetGroupMemberListRequest(
 )
 
 internal class MilkyGetGroupMemberListResponse(
-    val members: List<MilkyGroupMember>,
+    val members: List<MilkyGroupMemberData>,
 )
 
 internal class MilkyGetGroupMemberInfoRequest(
@@ -67,5 +67,5 @@ internal class MilkyGetGroupMemberInfoRequest(
 )
 
 internal class MilkyGetGroupMemberInfoResponse(
-    val member: MilkyGroupMember,
+    val member: MilkyGroupMemberData,
 )

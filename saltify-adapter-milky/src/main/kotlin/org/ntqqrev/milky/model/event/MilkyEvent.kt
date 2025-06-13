@@ -2,10 +2,10 @@ package org.ntqqrev.milky.model.event
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.ntqqrev.milky.model.message.MilkyIncomingMessage
-import org.ntqqrev.milky.model.request.MilkyFriendRequest
-import org.ntqqrev.milky.model.request.MilkyGroupInvitation
-import org.ntqqrev.milky.model.request.MilkyGroupRequest
+import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.model.request.MilkyFriendRequestData
+import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
+import org.ntqqrev.milky.model.request.MilkyGroupRequestData
 
 internal class MilkyEvent(
     val time: Long,
@@ -20,11 +20,11 @@ internal class MilkyEvent(
 )
 @JsonSubTypes(
     JsonSubTypes.Type(MilkyBotOfflineEvent::class, "bot_offline"),
-    JsonSubTypes.Type(MilkyIncomingMessage::class, "message_receive"),
+    JsonSubTypes.Type(MilkyIncomingMessageData::class, "message_receive"),
     JsonSubTypes.Type(MilkyMessageRecallEvent::class, "message_recall"),
-    JsonSubTypes.Type(MilkyFriendRequest::class, "friend_request"),
-    JsonSubTypes.Type(MilkyGroupRequest::class, "group_request"),
-    JsonSubTypes.Type(MilkyGroupInvitation::class, "group_invitation"),
+    JsonSubTypes.Type(MilkyFriendRequestData::class, "friend_request"),
+    JsonSubTypes.Type(MilkyGroupRequestData::class, "group_request"),
+    JsonSubTypes.Type(MilkyGroupInvitationData::class, "group_invitation"),
     JsonSubTypes.Type(MilkyFriendNudgeEvent::class, "friend_nudge"),
     JsonSubTypes.Type(MilkyFriendFileUploadEvent::class, "friend_file_upload"),
     JsonSubTypes.Type(MilkyGroupAdminChangeEvent::class, "group_admin_change"),
