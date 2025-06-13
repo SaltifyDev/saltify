@@ -27,7 +27,7 @@ class MilkyIncomingSegmentModel(
     JsonSubTypes.Type(MilkyIncomingLightAppData::class, "light_app"),
     JsonSubTypes.Type(MilkyIncomingXmlData::class, "xml"),
 )
-internal sealed class MilkyIncomingData
+sealed class MilkyIncomingData
 
 class MilkyIncomingTextData(
     val text: String,

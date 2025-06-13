@@ -17,7 +17,7 @@ import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
     JsonSubTypes.Type(MilkyGroupMessageData::class, "group"),
     JsonSubTypes.Type(MilkyTempMessageData::class, "temp"),
 )
-internal sealed class MilkyIncomingMessageData(
+sealed class MilkyIncomingMessageData(
     val peerId: Long,
     val messageSeq: Long,
     val senderId: Long,

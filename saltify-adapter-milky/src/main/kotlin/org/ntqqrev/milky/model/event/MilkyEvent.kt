@@ -38,7 +38,7 @@ class MilkyEvent(
     JsonSubTypes.Type(MilkyGroupNudgeEvent::class, "group_nudge"),
     JsonSubTypes.Type(MilkyGroupFileUploadEvent::class, "group_file_upload")
 )
-internal interface MilkyEventBody
+interface MilkyEventBody
 
 class MilkyBotOfflineEvent(
     val reason: String,

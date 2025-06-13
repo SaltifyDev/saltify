@@ -3,7 +3,7 @@ package org.ntqqrev.milky.model.message
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-internal sealed class MilkyOutgoingSegmentModel(
+class MilkyOutgoingSegmentModel(
     val type: String,
     val data: MilkyOutgoingData,
 )
@@ -24,7 +24,7 @@ internal sealed class MilkyOutgoingSegmentModel(
     JsonSubTypes.Type(MilkyOutgoingVideoData::class, "video"),
     JsonSubTypes.Type(MilkyOutgoingForwardData::class, "forward"),
 )
-internal sealed class MilkyOutgoingData
+sealed class MilkyOutgoingData
 
 class MilkyOutgoingTextData(
     val text: String,

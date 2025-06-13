@@ -13,7 +13,7 @@ import org.ntqqrev.milky.model.event.MilkyEventBody
     JsonSubTypes.Type(MilkyGroupJoinRequestData::class, "join"),
     JsonSubTypes.Type(MilkyGroupInviteRequestData::class, "invite")
 )
-internal sealed class MilkyGroupRequestData(
+sealed class MilkyGroupRequestData(
     val requestId: String,
     val time: Long,
     val isFiltered: Boolean,
