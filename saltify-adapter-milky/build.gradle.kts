@@ -9,4 +9,5 @@ dependencies {
     implementation(libs.jacksonModuleKotlin)
     implementation(libs.kotlinReflect)
     implementation(project(":saltify-api"))
+    implementation(project(":saltify-utils"))
 }

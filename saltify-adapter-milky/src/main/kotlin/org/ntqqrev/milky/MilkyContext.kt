@@ -20,9 +20,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.ntqqrev.milky.entity.MilkyFriend
+import org.ntqqrev.milky.entity.MilkyGroup
+import org.ntqqrev.milky.entity.MilkyGroupMember
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
+import org.ntqqrev.milky.model.api.MilkyApiEmptyRequest
+import org.ntqqrev.milky.model.api.MilkyGetLoginInfoResponse
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.*
@@ -87,6 +92,9 @@ class MilkyContext internal constructor(
     override val state: Context.State
         get() = instanceState
 
+    private val friendCache = MilkyFriend.Cache(this)
+    private val groupCache = MilkyGroup.Cache(this)
+
     override suspend fun start() {
         while (env.scope.isActive) {
             try {
@@ -138,43 +146,35 @@ class MilkyContext internal constructor(
         instanceState = Context.State.STOPPED
     }
 
-    override suspend fun getLoginInfo(): Pair<Long, String> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getLoginInfo(): Pair<Long, String> = callApi<MilkyApiEmptyRequest, MilkyGetLoginInfoResponse>(
+        "get_login_info",
+        MilkyApiEmptyRequest()
+    ).let { Pair(it.uin, it.nickname) }
 
-    override suspend fun getAllFriends(cacheFirst: Boolean): Iterable<Friend> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getAllFriends(cacheFirst: Boolean): Iterable<MilkyFriend> =
+        friendCache.getAll(cacheFirst)
 
-    override suspend fun getFriend(
-        friendUin: Long,
-        cacheFirst: Boolean
-    ): Friend? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getFriend(friendUin: Long, cacheFirst: Boolean): MilkyFriend? =
+        friendCache.get(friendUin, cacheFirst)
 
-    override suspend fun getAllGroups(cacheFirst: Boolean): Iterable<Group> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getAllGroups(cacheFirst: Boolean): Iterable<MilkyGroup> =
+        groupCache.getAll(cacheFirst)
 
-    override suspend fun getGroup(groupUin: Long, cacheFirst: Boolean): Group? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getGroup(groupUin: Long, cacheFirst: Boolean): MilkyGroup? =
+        groupCache.get(groupUin, cacheFirst)
 
     override suspend fun getAllGroupMembers(
         groupUin: Long,
         cacheFirst: Boolean
-    ): Iterable<GroupMember> {
-        TODO("Not yet implemented")
-    }
+    ): Iterable<MilkyGroupMember> =
+        getGroup(groupUin)?.groupMemberCache?.getAll(cacheFirst) ?: emptyList()
 
     override suspend fun getGroupMember(
         groupUin: Long,
         memberUin: Long,
         cacheFirst: Boolean
-    ): GroupMember? {
-        TODO("Not yet implemented")
-    }
+    ): MilkyGroupMember? =
+        getGroup(groupUin)?.groupMemberCache?.get(memberUin, cacheFirst)
 
     override suspend fun sendPrivateMessage(
         userUin: Long,
