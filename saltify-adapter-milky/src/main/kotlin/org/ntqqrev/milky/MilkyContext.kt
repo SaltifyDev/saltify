@@ -1,27 +1,20 @@
 package org.ntqqrev.milky
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
+import io.ktor.http.*
 import io.ktor.http.headers
-import io.ktor.serialization.jackson.JacksonConverter
-import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
@@ -32,11 +25,7 @@ import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
-import org.ntqqrev.saltify.event.ContextStateChangeEvent
-import org.ntqqrev.saltify.event.Event
-import org.ntqqrev.saltify.event.FriendRequestEvent
-import org.ntqqrev.saltify.event.GroupInvitationEvent
-import org.ntqqrev.saltify.event.GroupRequestEvent
+import org.ntqqrev.saltify.event.*
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.message.incoming.ForwardedIncomingMessage
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
@@ -53,9 +42,9 @@ import java.io.InputStream
 import kotlin.properties.Delegates
 
 class MilkyContext internal constructor(
-    val init: MilkyInit,
-    val env: Environment,
-    val channel: MutableSharedFlow<Event>,
+    internal val init: MilkyInit,
+    internal val env: Environment,
+    internal val channel: MutableSharedFlow<Event>,
 ) : Context {
     private val logger = KotlinLogging.logger { }
     private val objectMapper = jacksonObjectMapper().apply {
@@ -116,7 +105,7 @@ class MilkyContext internal constructor(
         }
     }
 
-    private suspend inline fun <reified T, reified R> callApi(name: String, body: T): R {
+    internal suspend inline fun <reified T, reified R> callApi(name: String, body: T): R {
         val response = client.post("${base}api/$name") {
             headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
