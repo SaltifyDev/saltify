@@ -7,7 +7,7 @@ import org.ntqqrev.milky.model.request.MilkyFriendRequestData
 import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
 import org.ntqqrev.milky.model.request.MilkyGroupRequestData
 
-internal class MilkyEvent(
+class MilkyEvent(
     val time: Long,
     val selfId: Long,
     val data: MilkyEventBody
@@ -40,11 +40,11 @@ internal class MilkyEvent(
 )
 internal interface MilkyEventBody
 
-internal class MilkyBotOfflineEvent(
+class MilkyBotOfflineEvent(
     val reason: String,
 ) : MilkyEventBody
 
-internal class MilkyMessageRecallEvent(
+class MilkyMessageRecallEvent(
     val messageScene: String,
     val peerId: Long,
     val messageSeq: Long,
@@ -52,13 +52,13 @@ internal class MilkyMessageRecallEvent(
     val operatorId: Long? = null,
 ) : MilkyEventBody
 
-internal class MilkyFriendNudgeEvent(
+class MilkyFriendNudgeEvent(
     val userId: Long,
     val isSelfSend: Boolean,
     val isSelfReceive: Boolean,
 ) : MilkyEventBody
 
-internal class MilkyFriendFileUploadEvent(
+class MilkyFriendFileUploadEvent(
     val userId: Long,
     val fileId: String,
     val fileName: String,
@@ -66,38 +66,38 @@ internal class MilkyFriendFileUploadEvent(
     val isSelf: Boolean,
 ) : MilkyEventBody
 
-internal class MilkyGroupAdminChangeEvent(
+class MilkyGroupAdminChangeEvent(
     val groupId: Long,
     val userId: Long,
     val isSet: Boolean,
 ) : MilkyEventBody
 
-internal class MilkyGroupEssenceMessageChangeEvent(
+class MilkyGroupEssenceMessageChangeEvent(
     val groupId: Long,
     val messageSeq: Long,
     val isSet: Boolean,
 ) : MilkyEventBody
 
-internal class MilkyGroupMemberIncreaseEvent(
+class MilkyGroupMemberIncreaseEvent(
     val groupId: Long,
     val userId: Long,
     val operatorId: Long? = null,
     val invitorId: Long? = null,
 ) : MilkyEventBody
 
-internal class MilkyGroupMemberDecreaseEvent(
+class MilkyGroupMemberDecreaseEvent(
     val groupId: Long,
     val userId: Long,
     val operatorId: Long? = null,
 ) : MilkyEventBody
 
-internal class MilkyGroupNameChangeEvent(
+class MilkyGroupNameChangeEvent(
     val groupId: Long,
     val name: String,
     val operatorId: Long,
 ) : MilkyEventBody
 
-internal class MilkyGroupMessageReactionEvent(
+class MilkyGroupMessageReactionEvent(
     val groupId: Long,
     val userId: Long,
     val messageSeq: Long,
@@ -105,26 +105,26 @@ internal class MilkyGroupMessageReactionEvent(
     val isAdd: Boolean = true,
 ) : MilkyEventBody
 
-internal class MilkyGroupMuteEvent(
+class MilkyGroupMuteEvent(
     val groupId: Long,
     val userId: Long,
     val operatorId: Long,
     val duration: Int, // 0 means unmute
 ) : MilkyEventBody
 
-internal class MilkyGroupWholeMuteEvent(
+class MilkyGroupWholeMuteEvent(
     val groupId: Long,
     val operatorId: Long,
     val isMute: Boolean,
 ) : MilkyEventBody
 
-internal class MilkyGroupNudgeEvent(
+class MilkyGroupNudgeEvent(
     val groupId: Long,
     val senderId: Long,
     val receiverId: Long,
 ) : MilkyEventBody
 
-internal class MilkyGroupFileUploadEvent(
+class MilkyGroupFileUploadEvent(
     val groupId: Long,
     val userId: Long,
     val fileId: String,

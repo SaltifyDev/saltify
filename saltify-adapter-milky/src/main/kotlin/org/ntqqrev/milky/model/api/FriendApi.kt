@@ -1,11 +1,11 @@
 package org.ntqqrev.milky.model.api
 
-internal class MilkySendFriendNudgeRequest(
+class MilkySendFriendNudgeRequest(
     val userId: Long,
     val isSelf: Boolean,
 )
 
-internal class MilkySendProfileLikeRequest(
+class MilkySendProfileLikeRequest(
     val userId: Long,
     val count: Int,
 )

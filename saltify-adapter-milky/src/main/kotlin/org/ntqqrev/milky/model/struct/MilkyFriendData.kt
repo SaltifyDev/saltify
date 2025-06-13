@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.struct
 
-internal class MilkyFriendData(
+class MilkyFriendData(
     val userId: Long,
     val qid: String? = null,
     val nickname: String,

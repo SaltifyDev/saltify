@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.message
 
-internal class MilkyIncomingForwardedMessageData(
+class MilkyIncomingForwardedMessageData(
     val userId: Long,
     val name: String,
     val segments: List<MilkyIncomingSegmentModel>,

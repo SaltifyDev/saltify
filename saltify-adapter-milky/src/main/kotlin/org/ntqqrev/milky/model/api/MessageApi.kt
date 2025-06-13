@@ -4,37 +4,37 @@ import org.ntqqrev.milky.model.message.MilkyIncomingForwardedMessageData
 import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.model.message.MilkyOutgoingSegmentModel
 
-internal class MilkySendPrivateMessageRequest(
+class MilkySendPrivateMessageRequest(
     val userId: Long,
     val message: List<MilkyOutgoingSegmentModel>,
 )
 
-internal class MilkySendPrivateMessageResponse(
+class MilkySendPrivateMessageResponse(
     val messageSeq: Long,
     val time: Long,
 )
 
-internal class MilkySendGroupMessageRequest(
+class MilkySendGroupMessageRequest(
     val groupId: Long,
     val message: List<MilkyOutgoingSegmentModel>,
 )
 
-internal class MilkySendGroupMessageResponse(
+class MilkySendGroupMessageResponse(
     val messageSeq: Long,
     val time: Long,
 )
 
-internal class MilkyGetMessageRequest(
+class MilkyGetMessageRequest(
     val messageScene: String,
     val peerId: Long,
     val messageSeq: Long,
 )
 
-internal class MilkyGetMessageResponse(
+class MilkyGetMessageResponse(
     val message: MilkyIncomingMessageData,
 )
 
-internal class MilkyGetHistoryMessagesRequest(
+class MilkyGetHistoryMessagesRequest(
     val messageScene: String,
     val peerId: Long,
     val startMessageSeq: Long?,
@@ -42,32 +42,32 @@ internal class MilkyGetHistoryMessagesRequest(
     val limit: Int = 20,
 )
 
-internal class MilkyGetHistoryMessagesResponse(
+class MilkyGetHistoryMessagesResponse(
     val messages: List<MilkyIncomingMessageData>,
 )
 
-internal class MilkyGetResourceTempUrlRequest(
+class MilkyGetResourceTempUrlRequest(
     val resourceId: String,
 )
 
-internal class MilkyGetResourceTempUrlResponse(
+class MilkyGetResourceTempUrlResponse(
     val url: String,
 )
 
-internal class MilkyGetForwardedMessagesRequest(
+class MilkyGetForwardedMessagesRequest(
     val forwardId: String,
 )
 
-internal class MilkyGetForwardedMessagesResponse(
+class MilkyGetForwardedMessagesResponse(
     val messages: List<MilkyIncomingForwardedMessageData>,
 )
 
-internal class MilkyRecallPrivateMessageRequest(
+class MilkyRecallPrivateMessageRequest(
     val userId: Long,
     val messageSeq: Long,
 )
 
-internal class MilkyRecallGroupMessageRequest(
+class MilkyRecallGroupMessageRequest(
     val groupId: Long,
     val messageSeq: Long,
 )

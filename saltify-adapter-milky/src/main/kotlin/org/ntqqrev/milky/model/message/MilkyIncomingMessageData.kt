@@ -25,7 +25,7 @@ internal sealed class MilkyIncomingMessageData(
     val segments: List<MilkyIncomingSegmentModel>,
 ) : MilkyEventBody
 
-internal class MilkyFriendMessageData(
+class MilkyFriendMessageData(
     peerId: Long,
     messageSeq: Long,
     senderId: Long,
@@ -34,7 +34,7 @@ internal class MilkyFriendMessageData(
     val friend: MilkyFriendData,
 ) : MilkyIncomingMessageData(peerId, messageSeq, senderId, time, segments)
 
-internal class MilkyGroupMessageData(
+class MilkyGroupMessageData(
     peerId: Long,
     messageSeq: Long,
     senderId: Long,
@@ -44,7 +44,7 @@ internal class MilkyGroupMessageData(
     val groupMember: MilkyGroupMemberData,
 ) : MilkyIncomingMessageData(peerId, messageSeq, senderId, time, segments)
 
-internal class MilkyTempMessageData(
+class MilkyTempMessageData(
     peerId: Long,
     messageSeq: Long,
     senderId: Long,

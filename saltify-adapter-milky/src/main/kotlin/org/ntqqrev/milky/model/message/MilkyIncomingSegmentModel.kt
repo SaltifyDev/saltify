@@ -3,7 +3,7 @@ package org.ntqqrev.milky.model.message
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-internal class MilkyIncomingSegmentModel(
+class MilkyIncomingSegmentModel(
     val type: String,
     val data: MilkyIncomingData,
 )
@@ -29,57 +29,57 @@ internal class MilkyIncomingSegmentModel(
 )
 internal sealed class MilkyIncomingData
 
-internal class MilkyIncomingTextData(
+class MilkyIncomingTextData(
     val text: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingMentionData(
+class MilkyIncomingMentionData(
     val userId: Long,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingMentionAllData(
+class MilkyIncomingMentionAllData(
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingFaceData(
+class MilkyIncomingFaceData(
     val faceId: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingReplyData(
+class MilkyIncomingReplyData(
     val messageSeq: Long,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingImageData(
+class MilkyIncomingImageData(
     val resourceId: String,
     val tempUrl: String,
     val summary: String? = null,
     val subType: String? = null,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingRecordData(
+class MilkyIncomingRecordData(
     val resourceId: String,
     val tempUrl: String,
     val duration: Int,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingVideoData(
+class MilkyIncomingVideoData(
     val resourceId: String,
     val tempUrl: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingForwardData(
+class MilkyIncomingForwardData(
     val forwardId: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingMarketFaceData(
+class MilkyIncomingMarketFaceData(
     val url: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingLightAppData(
+class MilkyIncomingLightAppData(
     val appName: String,
     val jsonPayload: String,
 ) : MilkyIncomingData()
 
-internal class MilkyIncomingXmlData(
+class MilkyIncomingXmlData(
     val serviceId: Int,
     val xmlPayload: String,
 ) : MilkyIncomingData()

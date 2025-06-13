@@ -26,40 +26,40 @@ internal sealed class MilkyOutgoingSegmentModel(
 )
 internal sealed class MilkyOutgoingData
 
-internal class MilkyOutgoingTextData(
+class MilkyOutgoingTextData(
     val text: String,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingMentionData(
+class MilkyOutgoingMentionData(
     val userId: Long,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingMentionAllData(
+class MilkyOutgoingMentionAllData(
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingFaceData(
+class MilkyOutgoingFaceData(
     val faceId: String,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingReplyData(
+class MilkyOutgoingReplyData(
     val messageSeq: Long,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingImageData(
+class MilkyOutgoingImageData(
     val uri: String,
     val summary: String? = null,
     val subType: String? = null,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingRecordData(
+class MilkyOutgoingRecordData(
     val uri: String,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingVideoData(
+class MilkyOutgoingVideoData(
     val uri: String,
     val thumbUri: String? = null,
 ) : MilkyOutgoingData()
 
-internal class MilkyOutgoingForwardData(
+class MilkyOutgoingForwardData(
     val messages: List<MilkyOutgoingForwardedMessageData>,
 ) : MilkyOutgoingData()

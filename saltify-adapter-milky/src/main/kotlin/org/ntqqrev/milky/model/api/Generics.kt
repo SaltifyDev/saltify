@@ -1,5 +1,5 @@
 package org.ntqqrev.milky.model.api
 
-internal class MilkyApiEmptyRequest
+class MilkyApiEmptyRequest
 
-internal class MilkyApiEmptyResponse
+class MilkyApiEmptyResponse

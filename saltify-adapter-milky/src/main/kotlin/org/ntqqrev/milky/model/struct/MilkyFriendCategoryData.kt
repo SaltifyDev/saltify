@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.model.struct
 
-internal class MilkyFriendCategoryData(
+class MilkyFriendCategoryData(
     val categoryId: Int,
     val categoryName: String,
 )

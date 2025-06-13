@@ -23,7 +23,7 @@ internal sealed class MilkyGroupRequestData(
     val operatorId: Long? = null,
 ) : MilkyEventBody
 
-internal class MilkyGroupJoinRequestData(
+class MilkyGroupJoinRequestData(
     requestId: String,
     time: Long,
     isFiltered: Boolean,
@@ -34,7 +34,7 @@ internal class MilkyGroupJoinRequestData(
     val comment: String? = null,
 ) : MilkyGroupRequestData(requestId, time, isFiltered, initiatorId, state, groupId, operatorId)
 
-internal class MilkyGroupInviteRequestData(
+class MilkyGroupInviteRequestData(
     requestId: String,
     time: Long,
     isFiltered: Boolean,

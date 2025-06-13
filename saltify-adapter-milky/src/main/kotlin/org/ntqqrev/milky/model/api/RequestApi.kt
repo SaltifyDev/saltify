@@ -4,35 +4,35 @@ import org.ntqqrev.milky.model.request.MilkyFriendRequestData
 import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
 import org.ntqqrev.milky.model.request.MilkyGroupRequestData
 
-internal class MilkyGetFriendRequestsRequest(
+class MilkyGetFriendRequestsRequest(
     val limit: Int,
 )
 
-internal class MilkyGetFriendRequestsResponse(
+class MilkyGetFriendRequestsResponse(
     val requests: List<MilkyFriendRequestData>,
 )
 
-internal class MilkyGetGroupRequestsRequest(
+class MilkyGetGroupRequestsRequest(
     val limit: Int,
 )
 
-internal class MilkyGetGroupRequestsResponse(
+class MilkyGetGroupRequestsResponse(
     val requests: List<MilkyGroupRequestData>,
 )
 
-internal class MilkyGetGroupInvitationsRequest(
+class MilkyGetGroupInvitationsRequest(
     val limit: Int,
 )
 
-internal class MilkyGetGroupInvitationsResponse(
+class MilkyGetGroupInvitationsResponse(
     val invitations: List<MilkyGroupInvitationData>,
 )
 
-internal class MilkyAcceptRequestRequest(
+class MilkyAcceptRequestRequest(
     val requestId: String,
 )
 
-internal class MilkyRejectRequestRequest(
+class MilkyRejectRequestRequest(
     val requestId: String,
     val reason: String? = null,
 )

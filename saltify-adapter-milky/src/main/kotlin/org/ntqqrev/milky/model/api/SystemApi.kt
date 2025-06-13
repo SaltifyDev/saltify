@@ -4,12 +4,12 @@ import org.ntqqrev.milky.model.struct.MilkyFriendData
 import org.ntqqrev.milky.model.struct.MilkyGroupData
 import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
 
-internal class MilkyGetLoginInfoResponse(
+class MilkyGetLoginInfoResponse(
     val uin: Long,
     val nickname: String,
 )
 
-internal class MilkyGetImplInfoResponse(
+class MilkyGetImplInfoResponse(
     val implName: String,
     val implVersion: String,
     val qqProtocolVersion: String,
@@ -17,55 +17,55 @@ internal class MilkyGetImplInfoResponse(
     val milkyVersion: String,
 )
 
-internal class MilkyGetFriendListRequest(
+class MilkyGetFriendListRequest(
     val noCache: Boolean,
 )
 
-internal class MilkyGetFriendListResponse(
+class MilkyGetFriendListResponse(
     val friends: List<MilkyFriendData>,
 )
 
-internal class MilkyGetFriendInfoRequest(
+class MilkyGetFriendInfoRequest(
     val userId: Long,
     val noCache: Boolean,
 )
 
-internal class MilkyGetFriendInfoResponse(
+class MilkyGetFriendInfoResponse(
     val friend: MilkyFriendData,
 )
 
-internal class MilkyGetGroupListRequest(
+class MilkyGetGroupListRequest(
     val noCache: Boolean,
 )
 
-internal class MilkyGetGroupListResponse(
+class MilkyGetGroupListResponse(
     val groups: List<MilkyGroupData>,
 )
 
-internal class MilkyGetGroupInfoRequest(
+class MilkyGetGroupInfoRequest(
     val groupId: Long,
     val noCache: Boolean,
 )
 
-internal class MilkyGetGroupInfoResponse(
+class MilkyGetGroupInfoResponse(
     val group: MilkyGroupData,
 )
 
-internal class MilkyGetGroupMemberListRequest(
+class MilkyGetGroupMemberListRequest(
     val groupId: Long,
     val noCache: Boolean,
 )
 
-internal class MilkyGetGroupMemberListResponse(
+class MilkyGetGroupMemberListResponse(
     val members: List<MilkyGroupMemberData>,
 )
 
-internal class MilkyGetGroupMemberInfoRequest(
+class MilkyGetGroupMemberInfoRequest(
     val groupId: Long,
     val userId: Long,
     val noCache: Boolean,
 )
 
-internal class MilkyGetGroupMemberInfoResponse(
+class MilkyGetGroupMemberInfoResponse(
     val member: MilkyGroupMemberData,
 )
