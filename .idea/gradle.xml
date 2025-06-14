@@ -25,6 +25,7 @@
             <option value="$PROJECT_DIR$/saltify-adapter-lagrange" />
             <option value="$PROJECT_DIR$/saltify-adapter-milky" />
             <option value="$PROJECT_DIR$/saltify-api" />
+            <option value="$PROJECT_DIR$/saltify-utils" />
           </set>
         </option>
       </GradleProjectSettings>
