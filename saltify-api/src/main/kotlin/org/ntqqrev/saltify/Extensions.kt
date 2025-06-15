@@ -5,6 +5,7 @@ import org.ntqqrev.saltify.event.FriendFileUploadEvent
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.message.incoming.ForwardSegment
 import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
+import org.ntqqrev.saltify.message.incoming.ResourceLikeSegment
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.ResourceLocation
@@ -50,6 +51,9 @@ suspend fun Group.getHistoryMessages(
     isBackward: Boolean = true,
     limit: Int = 20
 ) = ctx.getHistoryMessages(MessageScene.GROUP, uin, startSequence, isBackward, limit)
+
+suspend fun ResourceLikeSegment.getTempUrl() =
+    message.ctx.getResourceTempUrl(resourceId)
 
 suspend fun ForwardSegment.getMessages() =
     message.ctx.getForwardedMessages(forwardId)
