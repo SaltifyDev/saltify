@@ -1,5 +1,6 @@
 package org.ntqqrev.milky.util
 
+import org.ntqqrev.saltify.message.ImageSubType
 import org.ntqqrev.saltify.model.Gender
 import org.ntqqrev.saltify.model.GroupMember
 
@@ -27,4 +28,15 @@ internal fun GroupMember.Role.toMilkyRole(): String = when (this) {
     GroupMember.Role.OWNER -> "owner"
     GroupMember.Role.ADMIN -> "admin"
     GroupMember.Role.MEMBER -> "member"
+}
+
+internal fun String.toImageSubType() = when (this) {
+    "normal" -> ImageSubType.NORMAL
+    "sticker" -> ImageSubType.STICKER
+    else -> throw IllegalArgumentException("Invalid image sub type")
+}
+
+internal fun ImageSubType.toMilkySubType(): String = when (this) {
+    ImageSubType.NORMAL -> "normal"
+    ImageSubType.STICKER -> "sticker"
 }
