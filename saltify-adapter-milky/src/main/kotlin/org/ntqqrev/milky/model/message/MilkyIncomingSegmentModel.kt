@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 class MilkyIncomingSegmentModel(
-    val type: String,
     val data: MilkyIncomingData,
 )
 
