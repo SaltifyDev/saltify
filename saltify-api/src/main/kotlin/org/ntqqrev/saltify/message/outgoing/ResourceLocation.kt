@@ -5,23 +5,11 @@ import java.io.InputStream
 sealed class ResourceLocation
 
 class LocalResource(val path: String) : ResourceLocation()
-
 class RemoteResource(val url: String) : ResourceLocation()
+class StreamResource(val stream: InputStream) : ResourceLocation()
+class BytesResource(val bytes: ByteArray) : ResourceLocation()
 
-class RawResource(val stream: InputStream) : ResourceLocation()
-
-fun local(path: String): LocalResource {
-    return LocalResource(path)
-}
-
-fun remote(url: String): RemoteResource {
-    return RemoteResource(url)
-}
-
-fun raw(stream: InputStream): RawResource {
-    return RawResource(stream)
-}
-
-fun raw(bytes: ByteArray): RawResource {
-    return RawResource(bytes.inputStream())
-}
+fun local(path: String) = LocalResource(path)
+fun remote(url: String) = RemoteResource(url)
+fun stream(stream: InputStream) = StreamResource(stream)
+fun bytes(bytes: ByteArray) = BytesResource(bytes)
