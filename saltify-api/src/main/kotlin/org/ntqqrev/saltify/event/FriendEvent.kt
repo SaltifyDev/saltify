@@ -29,3 +29,29 @@ open class FriendNudgeEvent(
      */
     val isSelfReceive: Boolean,
 ) : AbstractFriendEvent(ctx, time, friend)
+
+open class FriendFileUploadEvent(
+    ctx: Context,
+    time: Instant,
+    friend: Friend,
+
+    /**
+     * The ID of the file that was uploaded.
+     */
+    val fileId: String,
+
+    /**
+     * The name of the file that was uploaded.
+     */
+    val fileName: String,
+
+    /**
+     * The size of the file that was uploaded, in bytes.
+     */
+    val fileSize: Long,
+
+    /**
+     * Whether the file is uploaded by the bot itself.
+     */
+    val isSelf: Boolean,
+) : AbstractFriendEvent(ctx, time, friend)
