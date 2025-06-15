@@ -326,11 +326,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getPrivateFileDownloadUrl(
-        userUin: Long,
-        fileId: String,
-        fileHash: String
-    ): String {
+    override suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String): String {
         TODO("Not yet implemented")
     }
 

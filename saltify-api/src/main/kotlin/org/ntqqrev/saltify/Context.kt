@@ -275,7 +275,7 @@ interface Context {
      * Get the download URL of a private file.
      * @return The download URL
      */
-    suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String, fileHash: String): String
+    suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String): String
 
     /**
      * Upload a file to the specified group.
