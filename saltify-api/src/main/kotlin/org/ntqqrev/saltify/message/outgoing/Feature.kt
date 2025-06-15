@@ -2,7 +2,6 @@ package org.ntqqrev.saltify.message.outgoing
 
 import org.ntqqrev.saltify.message.ImageSubType
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
-import java.io.InputStream
 
 interface TextFeature {
     /**
@@ -55,7 +54,7 @@ interface VideoFeature {
     /**
      * Create a video segment with custom cover (if provided).
      */
-    fun video(resource: ResourceLocation, cover: InputStream? = null)
+    fun video(resource: ResourceLocation, cover: ResourceLocation? = null)
 }
 
 interface ForwardFeature {

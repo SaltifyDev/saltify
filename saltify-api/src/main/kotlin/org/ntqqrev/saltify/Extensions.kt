@@ -7,13 +7,13 @@ import org.ntqqrev.saltify.message.incoming.ForwardSegment
 import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
+import org.ntqqrev.saltify.message.outgoing.ResourceLocation
 import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FolderEntry
-import java.io.InputStream
 
 suspend fun Group.getAllMembers() =
     ctx.getAllGroupMembers(uin)
@@ -69,7 +69,7 @@ suspend fun Group.getAnnouncements() =
 suspend fun Group.setName(newName: String) =
     ctx.setGroupName(uin, newName)
 
-suspend fun Group.setAvatar(image: InputStream) =
+suspend fun Group.setAvatar(image: ResourceLocation) =
     ctx.setGroupAvatar(uin, image)
 
 suspend fun GroupMember.setCard(newCard: String) =
@@ -90,7 +90,7 @@ suspend fun Group.setWholeMute(isMute: Boolean) =
 suspend fun GroupMember.kick(isPermanent: Boolean) =
     ctx.kickGroupMember(group.uin, uin, isPermanent)
 
-suspend fun Group.sendAnnouncement(content: String, image: InputStream? = null) =
+suspend fun Group.sendAnnouncement(content: String, image: ResourceLocation? = null) =
     ctx.sendGroupAnnouncement(uin, content, image)
 
 suspend fun Announcement.delete() =
@@ -111,13 +111,13 @@ suspend fun AbstractRequestEvent.accept() =
 suspend fun AbstractRequestEvent.reject(reason: String? = null) =
     ctx.rejectRequest(requestId, reason)
 
-suspend fun Friend.uploadFile(file: InputStream) =
+suspend fun Friend.uploadFile(file: ResourceLocation) =
     ctx.uploadPrivateFile(uin, file)
 
 suspend fun FriendFileUploadEvent.getDownloadUrl() =
     ctx.getPrivateFileDownloadUrl(friend.uin, fileId)
 
-suspend fun Group.uploadFile(file: InputStream, parentFolderId: String = "/") =
+suspend fun Group.uploadFile(file: ResourceLocation, parentFolderId: String = "/") =
     ctx.uploadGroupFile(uin, file, parentFolderId)
 
 suspend fun Group.getFiles(parentFolderId: String = "/") =

@@ -9,13 +9,13 @@ import org.ntqqrev.saltify.message.incoming.IncomingMessage
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.MessageSendResult
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
+import org.ntqqrev.saltify.message.outgoing.ResourceLocation
 import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
-import java.io.InputStream
 
 /**
  * The context object, which represents the bot itself.
@@ -178,7 +178,7 @@ interface Context {
     /**
      * Set the avatar of a group.
      */
-    suspend fun setGroupAvatar(groupUin: Long, image: InputStream)
+    suspend fun setGroupAvatar(groupUin: Long, image: ResourceLocation)
 
     /**
      * Set the card of a group member.
@@ -218,7 +218,7 @@ interface Context {
     /**
      * Send an announcement to a group.
      */
-    suspend fun sendGroupAnnouncement(groupUin: Long, content: String, image: InputStream? = null)
+    suspend fun sendGroupAnnouncement(groupUin: Long, content: String, image: ResourceLocation? = null)
 
     /**
      * Delete an announcement from a group.
@@ -269,7 +269,7 @@ interface Context {
      * Upload a file to the specified user.
      * @return The uploaded file ID
      */
-    suspend fun uploadPrivateFile(userUin: Long, file: InputStream): String
+    suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation): String
 
     /**
      * Get the download URL of a private file.
@@ -281,7 +281,7 @@ interface Context {
      * Upload a file to the specified group.
      * @return The uploaded file ID
      */
-    suspend fun uploadGroupFile(groupUin: Long, file: InputStream, parentFolderId: String = "/"): String
+    suspend fun uploadGroupFile(groupUin: Long, file: ResourceLocation, parentFolderId: String = "/"): String
 
     /**
      * Upload a file to the specified group.

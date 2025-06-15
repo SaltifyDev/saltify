@@ -25,6 +25,7 @@ import org.ntqqrev.saltify.message.incoming.IncomingMessage
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.MessageSendResult
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
+import org.ntqqrev.saltify.message.outgoing.ResourceLocation
 import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
@@ -241,7 +242,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun setGroupAvatar(groupUin: Long, image: InputStream) {
+    override suspend fun setGroupAvatar(groupUin: Long, image: ResourceLocation) {
         TODO("Not yet implemented")
     }
 
@@ -276,7 +277,7 @@ class LagrangeContext internal constructor(
     override suspend fun sendGroupAnnouncement(
         groupUin: Long,
         content: String,
-        image: InputStream?
+        image: ResourceLocation?
     ) {
         TODO("Not yet implemented")
     }
@@ -322,7 +323,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun uploadPrivateFile(userUin: Long, file: InputStream): String {
+    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation): String {
         TODO("Not yet implemented")
     }
 
@@ -332,7 +333,7 @@ class LagrangeContext internal constructor(
 
     override suspend fun uploadGroupFile(
         groupUin: Long,
-        file: InputStream,
+        file: ResourceLocation,
         parentFolderId: String
     ): String {
         TODO("Not yet implemented")
