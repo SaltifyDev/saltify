@@ -19,7 +19,7 @@ interface FileEntry : FileSystemEntry {
     /**
      * The parent directory ID of the file.
      */
-    val parentDirectoryId: String
+    val parentFolderId: String
 
     /**
      * The size of the file in bytes.
