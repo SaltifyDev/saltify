@@ -1,8 +1,22 @@
 package org.ntqqrev.milky.util
 
 import org.ntqqrev.saltify.message.ImageSubType
+import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.model.Gender
 import org.ntqqrev.saltify.model.GroupMember
+
+internal fun String.toSaltifyMessageScene() = when (this) {
+    "friend" -> MessageScene.FRIEND
+    "group" -> MessageScene.GROUP
+    "temp" -> MessageScene.TEMP
+    else -> throw IllegalArgumentException("Invalid message scene")
+}
+
+internal fun MessageScene.toMilkyMessageScene(): String = when (this) {
+    MessageScene.FRIEND -> "friend"
+    MessageScene.GROUP -> "group"
+    MessageScene.TEMP -> "temp"
+}
 
 internal fun String.toSaltifyGender() = when (this) {
     "male" -> Gender.MALE

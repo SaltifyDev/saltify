@@ -27,9 +27,14 @@ import org.ntqqrev.milky.entity.MilkyGroupMember
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
+import org.ntqqrev.milky.message.MilkyIncomingGroupMessage
+import org.ntqqrev.milky.message.MilkyIncomingPrivateMessage
 import org.ntqqrev.milky.message.MilkyMessageSendResult
 import org.ntqqrev.milky.message.MilkyUniversalMessageBuilder
 import org.ntqqrev.milky.model.api.*
+import org.ntqqrev.milky.model.message.MilkyFriendMessageData
+import org.ntqqrev.milky.model.message.MilkyGroupMessageData
+import org.ntqqrev.milky.util.toMilkyMessageScene
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.*
@@ -222,7 +227,25 @@ class MilkyContext internal constructor(
         peerId: Long,
         sequence: Long
     ): IncomingMessage {
-        TODO("Not yet implemented")
+        val response = callApi<MilkyGetMessageRequest, MilkyGetMessageResponse>(
+            "get_message",
+            MilkyGetMessageRequest(
+                messageScene = messageScene.toMilkyMessageScene(),
+                peerId = peerId,
+                messageSeq = sequence
+            )
+        )
+        val result = when (response.message) {
+            is MilkyFriendMessageData ->
+                MilkyIncomingPrivateMessage.fromFriendMessage(this, response.message)
+            is MilkyGroupMessageData ->
+                MilkyIncomingGroupMessage.fromGroupMessage(this, response.message)
+            else -> throw MilkyException("Unknown message type: ${response.message::class.simpleName}")
+        }
+        if (result == null) {
+            throw MilkyException("Failed to parse message with sequence $sequence in scene $messageScene for peer $peerId")
+        }
+        return result
     }
 
     override suspend fun getHistoryMessages(
