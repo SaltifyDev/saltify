@@ -63,7 +63,7 @@ class MilkySendGroupAnnouncementRequest(
 
 class MilkyDeleteGroupAnnouncementRequest(
     val groupId: Long,
-    val announcementId: Long,
+    val announcementId: String,
 )
 
 class MilkyQuitGroupRequest(
