@@ -56,7 +56,7 @@ import kotlin.properties.Delegates
 class MilkyContext internal constructor(
     internal val init: MilkyInit,
     internal val env: Environment,
-    internal val channel: MutableSharedFlow<Event>,
+    internal val flow: MutableSharedFlow<Event>,
 ) : Context {
     private val logger = KotlinLogging.logger { }
     private val objectMapper = jacksonObjectMapper().apply {
@@ -85,7 +85,7 @@ class MilkyContext internal constructor(
     private var instanceState by Delegates.observable(Context.State.INITIALIZED) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             env.scope.launch {
-                channel.emit(
+                flow.emit(
                     ContextStateChangeEvent(
                         this@MilkyContext,
                         Clock.System.now(),
@@ -169,7 +169,7 @@ class MilkyContext internal constructor(
 
             is MilkyIncomingMessageData -> {
                 val message = data.toSaltifyMessage()
-                channel.emit(
+                flow.emit(
                     MessageReceiveEvent(
                         ctx = this,
                         message = message
@@ -178,7 +178,7 @@ class MilkyContext internal constructor(
             }
 
             is MilkyMessageRecallEvent -> {
-                channel.emit(
+                flow.emit(
                     MessageRecallEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -193,7 +193,7 @@ class MilkyContext internal constructor(
             }
 
             is MilkyFriendRequestData -> {
-                channel.emit(
+                flow.emit(
                     FriendRequestEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -208,7 +208,7 @@ class MilkyContext internal constructor(
             }
 
             is MilkyGroupJoinRequestData -> {
-                channel.emit(
+                flow.emit(
                     GroupJoinRequestEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -224,7 +224,7 @@ class MilkyContext internal constructor(
             }
 
             is MilkyGroupInviteRequestData -> {
-                channel.emit(
+                flow.emit(
                     GroupInvitedJoinRequestEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -240,7 +240,7 @@ class MilkyContext internal constructor(
             }
 
             is MilkyGroupInvitationData -> {
-                channel.emit(
+                flow.emit(
                     GroupInvitationEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -259,7 +259,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received friend nudge for unknown user ${data.userId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     FriendNudgeEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -276,7 +276,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received file upload event for unknown user ${data.userId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     FriendFileUploadEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -300,7 +300,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group admin change event for unknown member ${data.userId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupAdminChangeEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -317,7 +317,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group essence message change event for unknown group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupEssenceMessageChangeEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -339,7 +339,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group member increase event for unknown member ${data.userId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupMemberIncreaseEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -358,7 +358,7 @@ class MilkyContext internal constructor(
                     return
                 }
                 group.groupMemberCache.updatePreventRepeated()
-                channel.emit(
+                flow.emit(
                     GroupMemberDecreaseEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -380,7 +380,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group name change event for unknown member ${data.operatorId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupNameChangeEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -402,7 +402,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group message reaction event for unknown member ${data.userId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupMessageReactionEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -430,7 +430,7 @@ class MilkyContext internal constructor(
                 if (operator == null) {
                     logger.warn { "Received group mute event for unknown operator ${data.operatorId} in group ${data.groupId}" }
                 }
-                channel.emit(
+                flow.emit(
                     GroupMuteEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -452,7 +452,7 @@ class MilkyContext internal constructor(
                 if (operator == null) {
                     logger.warn { "Received group whole mute event for unknown operator ${data.operatorId} in group ${data.groupId}" }
                 }
-                channel.emit(
+                flow.emit(
                     GroupMuteEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -480,7 +480,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group nudge event for unknown receiver ${data.receiverId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupNudgeEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),
@@ -502,7 +502,7 @@ class MilkyContext internal constructor(
                     logger.warn { "Received group file upload event for unknown member ${data.userId} in group ${data.groupId}" }
                     return
                 }
-                channel.emit(
+                flow.emit(
                     GroupFileUploadEvent(
                         ctx = this,
                         time = Instant.fromEpochSeconds(event.time),

@@ -32,16 +32,15 @@ import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
-import java.io.InputStream
 import kotlin.io.path.writeBytes
 import kotlin.io.path.writeText
 import kotlin.properties.Delegates
 
 class LagrangeContext internal constructor(
     internal val client: LagrangeClient,
-    val init: LagrangeInit,
-    val env: Environment,
-    val channel: MutableSharedFlow<Event>,
+    internal val init: LagrangeInit,
+    internal val env: Environment,
+    internal val flow: MutableSharedFlow<Event>,
 ) : Context {
     private val logger = KotlinLogging.logger { }
     internal val objectMapper = jacksonObjectMapper()
@@ -49,7 +48,7 @@ class LagrangeContext internal constructor(
     private var instanceState by Delegates.observable(Context.State.INITIALIZED) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             env.scope.launch {
-                channel.emit(
+                flow.emit(
                     ContextStateChangeEvent(
                         this@LagrangeContext,
                         Clock.System.now(),
