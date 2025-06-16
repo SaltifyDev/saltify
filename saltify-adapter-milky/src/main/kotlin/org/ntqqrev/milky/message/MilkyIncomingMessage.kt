@@ -4,43 +4,44 @@ import kotlinx.datetime.Instant
 import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.model.message.*
 import org.ntqqrev.milky.util.toImageSubType
+import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.message.ImageSubType
 import org.ntqqrev.saltify.message.incoming.*
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.User
 
-internal fun convertSegment(message: IncomingMessage, data: MilkyIncomingData) =
+internal fun convertSegment(ctx: Context, data: MilkyIncomingData) =
     when (data) {
-        is MilkyIncomingTextData -> TextSegment(message, data.text)
-        is MilkyIncomingMentionData -> MentionSegment(message, data.userId)
-        is MilkyIncomingMentionAllData -> MentionSegment(message, null)
-        is MilkyIncomingFaceData -> FaceSegment(message, data.faceId)
-        is MilkyIncomingReplyData -> ReplySegment(message, data.messageSeq)
+        is MilkyIncomingTextData -> TextSegment(ctx, data.text)
+        is MilkyIncomingMentionData -> MentionSegment(ctx, data.userId)
+        is MilkyIncomingMentionAllData -> MentionSegment(ctx, null)
+        is MilkyIncomingFaceData -> FaceSegment(ctx, data.faceId)
+        is MilkyIncomingReplyData -> ReplySegment(ctx, data.messageSeq)
         is MilkyIncomingImageData -> ImageSegment(
-            message,
+            ctx,
             data.resourceId,
             data.subType?.toImageSubType() ?: ImageSubType.NORMAL,
             data.summary ?: "",
         )
 
         is MilkyIncomingRecordData -> RecordSegment(
-            message,
+            ctx,
             data.resourceId,
             data.duration,
         )
 
-        is MilkyIncomingVideoData -> VideoSegment(message, data.resourceId)
-        is MilkyIncomingForwardData -> ForwardSegment(message, data.forwardId)
-        is MilkyIncomingMarketFaceData -> MarketFaceSegment(message, data.url)
+        is MilkyIncomingVideoData -> VideoSegment(ctx, data.resourceId)
+        is MilkyIncomingForwardData -> ForwardSegment(ctx, data.forwardId)
+        is MilkyIncomingMarketFaceData -> MarketFaceSegment(ctx, data.url)
         is MilkyIncomingLightAppData -> LightAppSegment(
-            message,
+            ctx,
             data.appName,
             data.jsonPayload
         )
 
         is MilkyIncomingXmlData -> XmlSegment(
-            message,
+            ctx,
             data.serviceId,
             data.xmlPayload
         )
@@ -55,7 +56,7 @@ class MilkyIncomingPrivateMessage(
     milkyIncomingData: List<MilkyIncomingSegmentModel>
 ) : PrivateIncomingMessage {
     override val segments: List<Segment> =
-        milkyIncomingData.map { convertSegment(this, it.data) }
+        milkyIncomingData.map { convertSegment(ctx, it.data) }
 
     companion object {
         suspend fun fromFriendMessage(
@@ -83,7 +84,7 @@ class MilkyIncomingGroupMessage(
     milkyIncomingData: List<MilkyIncomingSegmentModel>
 ) : GroupIncomingMessage {
     override val segments: List<Segment> =
-        milkyIncomingData.map { convertSegment(this, it.data) }
+        milkyIncomingData.map { convertSegment(ctx, it.data) }
 
     companion object {
         suspend fun fromGroupMessage(

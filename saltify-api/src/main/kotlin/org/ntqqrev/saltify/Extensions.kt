@@ -53,10 +53,10 @@ suspend fun Group.getHistoryMessages(
 ) = ctx.getHistoryMessages(MessageScene.GROUP, uin, startSequence, isBackward, limit)
 
 suspend fun ResourceLikeSegment.getTempUrl() =
-    message.ctx.getResourceTempUrl(resourceId)
+    ctx.getResourceTempUrl(resourceId)
 
 suspend fun ForwardSegment.getMessages() =
-    message.ctx.getForwardedMessages(forwardId)
+    ctx.getForwardedMessages(forwardId)
 
 suspend fun GroupIncomingMessage.recall() =
     ctx.recallGroupMessage(group.uin, sequence)

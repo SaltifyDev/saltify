@@ -1,82 +1,81 @@
 package org.ntqqrev.saltify.message.incoming
 
+import org.ntqqrev.saltify.Context
+import org.ntqqrev.saltify.Entity
 import org.ntqqrev.saltify.message.ImageSubType
 
 /**
  * Represents part of the content of a message.
  */
 abstract class Segment(
-    /**
-     * The message that this segment belongs to.
-     */
-    val message: IncomingMessage
-)
+    override val ctx: Context
+) : Entity
 
 /**
  * Represents a segment that contains a resource, such as an image, audio, or video.
  */
 abstract class ResourceLikeSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The permanent ID of the resource. Can be used to download the resource.
      */
     val resourceId: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains text content.
  */
 open class TextSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The text content of the segment.
      */
     val text: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains a mention of a user or all members of a group.
  */
 open class MentionSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The uin of the mentioned user. `null` means all members of the group are mentioned.
      */
     val uin: Long?
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains an inline face.
  */
 open class FaceSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The ID of the face.
      */
     val id: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains a reply to another message.
  */
 open class ReplySegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The sequence of the message being replied to.
      */
     val repliedSequence: Long,
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains an image.
  */
 open class ImageSegment(
-    message: IncomingMessage,
+    ctx: Context,
     resourceId: String,
 
     /**
@@ -88,54 +87,54 @@ open class ImageSegment(
      * The preview text of the image.
      */
     val summary: String,
-) : ResourceLikeSegment(message, resourceId)
+) : ResourceLikeSegment(ctx, resourceId)
 
 /**
  * A segment that contains an audio recording.
  */
 open class RecordSegment(
-    message: IncomingMessage,
+    ctx: Context,
     resourceId: String,
 
     /**
      * The duration of the audio in seconds.
      */
     val duration: Int
-) : ResourceLikeSegment(message, resourceId)
+) : ResourceLikeSegment(ctx, resourceId)
 
 /**
  * A segment that contains a video.
  */
 open class VideoSegment(
-    message: IncomingMessage,
+    ctx: Context,
     resourceId: String,
-) : ResourceLikeSegment(message, resourceId)
+) : ResourceLikeSegment(ctx, resourceId)
 
 /**
  * A segment that contains a reference to forwarded messages.
  */
 open class ForwardSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The ID of the forwarded messages.
      * Can be used to retrieve the original messages.
      */
     val forwardId: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains a market face, which is a special type
  * of face that can be downloaded from a market.
  */
 open class MarketFaceSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The URL of the market face.
      */
     val url: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains a light app, which is a mini application
@@ -144,7 +143,7 @@ open class MarketFaceSegment(
  * built-in light app types.
  */
 open class LightAppSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The name of the light app.
@@ -155,13 +154,13 @@ open class LightAppSegment(
      * The JSON payload of the light app.
      */
     val jsonPayload: String
-) : Segment(message)
+) : Segment(ctx)
 
 /**
  * A segment that contains XML data.
  */
 open class XmlSegment(
-    message: IncomingMessage,
+    ctx: Context,
 
     /**
      * The service ID of the XML segment.
@@ -172,4 +171,4 @@ open class XmlSegment(
      * The XML payload.
      */
     val xmlPayload: String
-) : Segment(message)
+) : Segment(ctx)
