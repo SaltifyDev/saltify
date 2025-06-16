@@ -27,6 +27,7 @@ import org.ntqqrev.milky.entity.MilkyGroupMember
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
+import org.ntqqrev.milky.message.MilkyIncomingForwardedMessage
 import org.ntqqrev.milky.message.MilkyIncomingGroupMessage
 import org.ntqqrev.milky.message.MilkyIncomingPrivateMessage
 import org.ntqqrev.milky.message.MilkyMessageSendResult
@@ -275,9 +276,11 @@ class MilkyContext internal constructor(
             MilkyGetResourceTempUrlRequest(resourceId)
         ).url
 
-    override suspend fun getForwardedMessages(forwardId: String): List<ForwardedIncomingMessage> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getForwardedMessages(forwardId: String): List<ForwardedIncomingMessage> =
+        callApi<MilkyGetForwardedMessagesRequest, MilkyGetForwardedMessagesResponse>(
+            "get_forwarded_messages",
+            MilkyGetForwardedMessagesRequest(forwardId)
+        ).messages.map { MilkyIncomingForwardedMessage.fromData(this, it) }
 
     override suspend fun recallPrivateMessage(userUin: Long, sequence: Long) {
         TODO("Not yet implemented")

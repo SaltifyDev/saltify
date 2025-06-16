@@ -104,3 +104,27 @@ class MilkyIncomingGroupMessage(
         }
     }
 }
+
+class MilkyIncomingForwardedMessage(
+    override val ctx: Context,
+    override val senderName: String,
+    override val senderAvatarLink: String,
+    override val time: Instant,
+    milkyIncomingData: List<MilkyIncomingSegmentModel>,
+) : ForwardedIncomingMessage {
+    override val segments: List<Segment> =
+        milkyIncomingData.map { convertSegment(ctx, it.data) }
+
+    companion object {
+        fun fromData(
+            ctx: Context,
+            data: MilkyIncomingForwardedMessageData,
+        ) = MilkyIncomingForwardedMessage(
+            ctx,
+            data.name,
+            data.avatarUrl,
+            Instant.fromEpochMilliseconds(data.time),
+            data.segments
+        )
+    }
+}
