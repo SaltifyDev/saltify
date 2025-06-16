@@ -2,9 +2,9 @@ package org.ntqqrev.milky.entity
 
 import kotlinx.datetime.Instant
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.api.MilkyGetGroupMemberListRequest
-import org.ntqqrev.milky.model.api.MilkyGetGroupMemberListResponse
-import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
+import org.ntqqrev.milky.protocol.api.MilkyGetGroupMemberListRequest
+import org.ntqqrev.milky.protocol.api.MilkyGetGroupMemberListResponse
+import org.ntqqrev.milky.protocol.entity.MilkyGroupMemberData
 import org.ntqqrev.milky.util.toSaltifyGender
 import org.ntqqrev.milky.util.toSaltifyRole
 import org.ntqqrev.saltify.model.Gender

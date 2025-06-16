@@ -2,7 +2,7 @@ package org.ntqqrev.milky.message
 
 import kotlinx.datetime.Instant
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.message.*
+import org.ntqqrev.milky.protocol.message.*
 import org.ntqqrev.milky.util.toImageSubType
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.message.ImageSubType

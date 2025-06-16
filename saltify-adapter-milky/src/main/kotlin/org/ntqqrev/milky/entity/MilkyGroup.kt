@@ -1,9 +1,9 @@
 package org.ntqqrev.milky.entity
 
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.api.MilkyGetGroupListRequest
-import org.ntqqrev.milky.model.api.MilkyGetGroupListResponse
-import org.ntqqrev.milky.model.struct.MilkyGroupData
+import org.ntqqrev.milky.protocol.api.MilkyGetGroupListRequest
+import org.ntqqrev.milky.protocol.api.MilkyGetGroupListResponse
+import org.ntqqrev.milky.protocol.entity.MilkyGroupData
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.utils.cache.AbstractCacheService
 import org.ntqqrev.saltify.utils.cache.CachedEntity

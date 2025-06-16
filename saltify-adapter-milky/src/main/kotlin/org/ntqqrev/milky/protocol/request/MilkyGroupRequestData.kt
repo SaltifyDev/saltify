@@ -1,8 +1,8 @@
-package org.ntqqrev.milky.model.request
+package org.ntqqrev.milky.protocol.request
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.ntqqrev.milky.model.event.MilkyEventBody
+import org.ntqqrev.milky.protocol.event.MilkyEventBody
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,

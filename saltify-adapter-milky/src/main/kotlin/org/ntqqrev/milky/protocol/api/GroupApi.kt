@@ -1,6 +1,6 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
-import org.ntqqrev.milky.model.struct.MilkyGroupAnnouncementData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupAnnouncementData
 
 class MilkySetGroupNameRequest(
     val groupId: Long,

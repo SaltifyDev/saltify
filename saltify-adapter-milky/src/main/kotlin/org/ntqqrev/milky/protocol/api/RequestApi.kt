@@ -1,8 +1,8 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
-import org.ntqqrev.milky.model.request.MilkyFriendRequestData
-import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
-import org.ntqqrev.milky.model.request.MilkyGroupRequestData
+import org.ntqqrev.milky.protocol.request.MilkyFriendRequestData
+import org.ntqqrev.milky.protocol.request.MilkyGroupInvitationData
+import org.ntqqrev.milky.protocol.request.MilkyGroupRequestData
 
 class MilkyGetFriendRequestsRequest(
     val limit: Int,

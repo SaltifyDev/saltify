@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.model.message
+package org.ntqqrev.milky.protocol.message
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

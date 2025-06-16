@@ -1,8 +1,8 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
-import org.ntqqrev.milky.model.message.MilkyIncomingForwardedMessageData
-import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
-import org.ntqqrev.milky.model.message.MilkyOutgoingSegmentModel
+import org.ntqqrev.milky.protocol.message.MilkyIncomingForwardedMessageData
+import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.protocol.message.MilkyOutgoingSegmentModel
 
 class MilkySendPrivateMessageRequest(
     val userId: Long,

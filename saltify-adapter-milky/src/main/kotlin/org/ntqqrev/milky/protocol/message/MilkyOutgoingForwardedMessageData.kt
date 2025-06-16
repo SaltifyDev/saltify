@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.model.message
+package org.ntqqrev.milky.protocol.message
 
 class MilkyOutgoingForwardedMessageData(
     val userId: Long,

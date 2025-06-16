@@ -1,11 +1,11 @@
-package org.ntqqrev.milky.model.message
+package org.ntqqrev.milky.protocol.message
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.ntqqrev.milky.model.event.MilkyEventBody
-import org.ntqqrev.milky.model.struct.MilkyFriendData
-import org.ntqqrev.milky.model.struct.MilkyGroupData
-import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
+import org.ntqqrev.milky.protocol.event.MilkyEventBody
+import org.ntqqrev.milky.protocol.entity.MilkyFriendData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupMemberData
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,

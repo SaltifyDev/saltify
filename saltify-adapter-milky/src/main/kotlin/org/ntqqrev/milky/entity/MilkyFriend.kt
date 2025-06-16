@@ -1,9 +1,9 @@
 package org.ntqqrev.milky.entity
 
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.api.MilkyGetFriendListRequest
-import org.ntqqrev.milky.model.api.MilkyGetFriendListResponse
-import org.ntqqrev.milky.model.struct.MilkyFriendData
+import org.ntqqrev.milky.protocol.api.MilkyGetFriendListRequest
+import org.ntqqrev.milky.protocol.api.MilkyGetFriendListResponse
+import org.ntqqrev.milky.protocol.entity.MilkyFriendData
 import org.ntqqrev.milky.util.toSaltifyGender
 import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Gender

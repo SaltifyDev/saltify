@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.model.struct
+package org.ntqqrev.milky.protocol.entity
 
 class MilkyFriendCategoryData(
     val categoryId: Int,

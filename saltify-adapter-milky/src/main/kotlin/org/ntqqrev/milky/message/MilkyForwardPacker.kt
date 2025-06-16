@@ -3,7 +3,7 @@ package org.ntqqrev.milky.message
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.message.*
+import org.ntqqrev.milky.protocol.message.*
 import org.ntqqrev.saltify.getMessages
 import org.ntqqrev.saltify.getTempUrl
 import org.ntqqrev.saltify.message.incoming.*

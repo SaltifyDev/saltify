@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
 class MilkyApiEmptyRequest
 

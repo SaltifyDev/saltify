@@ -1,7 +1,7 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
-import org.ntqqrev.milky.model.struct.MilkyGroupFileData
-import org.ntqqrev.milky.model.struct.MilkyGroupFolderData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupFileData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupFolderData
 
 class MilkyUploadPrivateFileRequest(
     val userId: Long,

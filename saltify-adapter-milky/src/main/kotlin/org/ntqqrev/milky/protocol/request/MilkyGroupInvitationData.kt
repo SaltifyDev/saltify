@@ -1,6 +1,6 @@
-package org.ntqqrev.milky.model.request
+package org.ntqqrev.milky.protocol.request
 
-import org.ntqqrev.milky.model.event.MilkyEventBody
+import org.ntqqrev.milky.protocol.event.MilkyEventBody
 
 class MilkyGroupInvitationData(
     val requestId: String,

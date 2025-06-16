@@ -32,10 +32,10 @@ import org.ntqqrev.milky.message.MilkyIncomingGroupMessage
 import org.ntqqrev.milky.message.MilkyIncomingPrivateMessage
 import org.ntqqrev.milky.message.MilkyMessageSendResult
 import org.ntqqrev.milky.message.MilkyUniversalMessageBuilder
-import org.ntqqrev.milky.model.api.*
-import org.ntqqrev.milky.model.message.MilkyFriendMessageData
-import org.ntqqrev.milky.model.message.MilkyGroupMessageData
-import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.protocol.api.*
+import org.ntqqrev.milky.protocol.message.MilkyFriendMessageData
+import org.ntqqrev.milky.protocol.message.MilkyGroupMessageData
+import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.util.toMilkyMessageScene
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment

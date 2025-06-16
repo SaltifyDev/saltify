@@ -1,8 +1,8 @@
-package org.ntqqrev.milky.model.api
+package org.ntqqrev.milky.protocol.api
 
-import org.ntqqrev.milky.model.struct.MilkyFriendData
-import org.ntqqrev.milky.model.struct.MilkyGroupData
-import org.ntqqrev.milky.model.struct.MilkyGroupMemberData
+import org.ntqqrev.milky.protocol.entity.MilkyFriendData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupData
+import org.ntqqrev.milky.protocol.entity.MilkyGroupMemberData
 
 class MilkyGetLoginInfoResponse(
     val uin: Long,

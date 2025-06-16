@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.model.struct
+package org.ntqqrev.milky.protocol.entity
 
 class MilkyGroupFileData(
     val groupId: Long,

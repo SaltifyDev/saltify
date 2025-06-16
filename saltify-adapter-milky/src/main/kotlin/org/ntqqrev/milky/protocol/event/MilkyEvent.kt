@@ -1,11 +1,11 @@
-package org.ntqqrev.milky.model.event
+package org.ntqqrev.milky.protocol.event
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
-import org.ntqqrev.milky.model.request.MilkyFriendRequestData
-import org.ntqqrev.milky.model.request.MilkyGroupInvitationData
-import org.ntqqrev.milky.model.request.MilkyGroupRequestData
+import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.protocol.request.MilkyFriendRequestData
+import org.ntqqrev.milky.protocol.request.MilkyGroupInvitationData
+import org.ntqqrev.milky.protocol.request.MilkyGroupRequestData
 
 class MilkyEvent(
     val time: Long,
