@@ -1,5 +1,6 @@
 package org.ntqqrev.milky.util
 
+import org.ntqqrev.saltify.event.RequestState
 import org.ntqqrev.saltify.message.ImageSubType
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.model.Gender
@@ -53,4 +54,19 @@ internal fun String.toImageSubType() = when (this) {
 internal fun ImageSubType.toMilkySubType(): String = when (this) {
     ImageSubType.NORMAL -> "normal"
     ImageSubType.STICKER -> "sticker"
+}
+
+internal fun String.toSaltifyRequestState() = when (this) {
+    "pending" -> RequestState.PENDING
+    "accepted" -> RequestState.ACCEPTED
+    "rejected" -> RequestState.REJECTED
+    "ignored" -> RequestState.IGNORED
+    else -> throw IllegalArgumentException("Invalid request state")
+}
+
+internal fun RequestState.toMilkyState(): String = when (this) {
+    RequestState.PENDING -> "pending"
+    RequestState.ACCEPTED -> "accepted"
+    RequestState.REJECTED -> "rejected"
+    RequestState.IGNORED -> "ignored"
 }
