@@ -322,7 +322,7 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation): String {
+    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String {
         TODO("Not yet implemented")
     }
 
@@ -333,6 +333,7 @@ class LagrangeContext internal constructor(
     override suspend fun uploadGroupFile(
         groupUin: Long,
         file: ResourceLocation,
+        fileName: String,
         parentFolderId: String
     ): String {
         TODO("Not yet implemented")

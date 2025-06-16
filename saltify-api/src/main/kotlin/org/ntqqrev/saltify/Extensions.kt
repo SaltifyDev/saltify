@@ -115,14 +115,14 @@ suspend fun AbstractRequestEvent.accept() =
 suspend fun AbstractRequestEvent.reject(reason: String? = null) =
     ctx.rejectRequest(requestId, reason)
 
-suspend fun Friend.uploadFile(file: ResourceLocation) =
-    ctx.uploadPrivateFile(uin, file)
+suspend fun Friend.uploadFile(file: ResourceLocation, fileName: String) =
+    ctx.uploadPrivateFile(uin, file, fileName)
 
 suspend fun FriendFileUploadEvent.getDownloadUrl() =
     ctx.getPrivateFileDownloadUrl(friend.uin, fileId)
 
-suspend fun Group.uploadFile(file: ResourceLocation, parentFolderId: String = "/") =
-    ctx.uploadGroupFile(uin, file, parentFolderId)
+suspend fun Group.uploadFile(file: ResourceLocation, fileName: String, parentFolderId: String = "/") =
+    ctx.uploadGroupFile(uin, file, fileName, parentFolderId)
 
 suspend fun Group.getFiles(parentFolderId: String = "/") =
     ctx.getGroupFiles(uin, parentFolderId)

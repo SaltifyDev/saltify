@@ -414,7 +414,7 @@ class MilkyContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation): String {
+    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String {
         TODO("Not yet implemented")
     }
 
@@ -425,6 +425,7 @@ class MilkyContext internal constructor(
     override suspend fun uploadGroupFile(
         groupUin: Long,
         file: ResourceLocation,
+        fileName: String,
         parentFolderId: String
     ): String {
         TODO("Not yet implemented")

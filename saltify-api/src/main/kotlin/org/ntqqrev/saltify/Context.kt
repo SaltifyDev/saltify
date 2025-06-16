@@ -269,7 +269,7 @@ interface Context {
      * Upload a file to the specified user.
      * @return The uploaded file ID
      */
-    suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation): String
+    suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String
 
     /**
      * Get the download URL of a private file.
@@ -281,7 +281,12 @@ interface Context {
      * Upload a file to the specified group.
      * @return The uploaded file ID
      */
-    suspend fun uploadGroupFile(groupUin: Long, file: ResourceLocation, parentFolderId: String = "/"): String
+    suspend fun uploadGroupFile(
+        groupUin: Long,
+        file: ResourceLocation,
+        fileName: String,
+        parentFolderId: String = "/"
+    ): String
 
     /**
      * Upload a file to the specified group.
