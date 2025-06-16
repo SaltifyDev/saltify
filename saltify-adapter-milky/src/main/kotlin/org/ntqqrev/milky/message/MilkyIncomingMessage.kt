@@ -4,7 +4,6 @@ import kotlinx.datetime.Instant
 import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.model.message.*
 import org.ntqqrev.milky.util.toImageSubType
-import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.message.ImageSubType
 import org.ntqqrev.saltify.message.incoming.*
 import org.ntqqrev.saltify.model.Group
@@ -24,11 +23,13 @@ internal fun convertSegment(message: IncomingMessage, data: MilkyIncomingData) =
             data.subType?.toImageSubType() ?: ImageSubType.NORMAL,
             data.summary ?: "",
         )
+
         is MilkyIncomingRecordData -> RecordSegment(
             message,
             data.resourceId,
             data.duration,
         )
+
         is MilkyIncomingVideoData -> VideoSegment(message, data.resourceId)
         is MilkyIncomingForwardData -> ForwardSegment(message, data.forwardId)
         is MilkyIncomingMarketFaceData -> MarketFaceSegment(message, data.url)
@@ -37,6 +38,7 @@ internal fun convertSegment(message: IncomingMessage, data: MilkyIncomingData) =
             data.appName,
             data.jsonPayload
         )
+
         is MilkyIncomingXmlData -> XmlSegment(
             message,
             data.serviceId,

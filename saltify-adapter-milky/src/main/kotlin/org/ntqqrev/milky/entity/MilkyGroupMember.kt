@@ -1,6 +1,5 @@
 package org.ntqqrev.milky.entity
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.datetime.Instant
 import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.model.api.MilkyGetGroupMemberListRequest
@@ -45,13 +44,12 @@ class MilkyGroupMember(
         AbstractCacheService<MilkyGroupMember, Long, MilkyGroupMemberData>(group.ctx.env.scope) {
         private val ctx get() = group.ctx
 
-        override suspend fun fetchData(): Map<Long, MilkyGroupMemberData>
-            = ctx.callApi<MilkyGetGroupMemberListRequest, MilkyGetGroupMemberListResponse>(
+        override suspend fun fetchData(): Map<Long, MilkyGroupMemberData> =
+            ctx.callApi<MilkyGetGroupMemberListRequest, MilkyGetGroupMemberListResponse>(
                 "get_group_member_list",
                 MilkyGetGroupMemberListRequest(groupId = group.uin, noCache = false)
             ).members.associateBy { it.userId }
 
-        override fun constructNewEntity(data: MilkyGroupMemberData)
-            = MilkyGroupMember(group, data)
+        override fun constructNewEntity(data: MilkyGroupMemberData) = MilkyGroupMember(group, data)
     }
 }

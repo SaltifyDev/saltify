@@ -38,13 +38,9 @@ import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.MessageSendResult
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.ResourceLocation
-import org.ntqqrev.saltify.model.Friend
-import org.ntqqrev.saltify.model.Group
-import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
-import java.io.InputStream
 import kotlin.properties.Delegates
 
 class MilkyContext internal constructor(

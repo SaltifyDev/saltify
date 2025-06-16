@@ -1,6 +1,6 @@
 package org.ntqqrev.milky.util
 
-import io.ktor.util.encodeBase64
+import io.ktor.util.*
 import org.ntqqrev.saltify.message.outgoing.*
 
 fun ResourceLocation.toMilkyUri(): String =
@@ -11,5 +11,6 @@ fun ResourceLocation.toMilkyUri(): String =
             val bytes = stream.readBytes()
             "base64://${bytes.encodeBase64()}"
         }
+
         is BytesResource -> "base64://${bytes.encodeBase64()}"
     }

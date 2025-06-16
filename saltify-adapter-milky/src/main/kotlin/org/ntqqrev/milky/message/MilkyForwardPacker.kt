@@ -3,7 +3,6 @@ package org.ntqqrev.milky.message
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import org.ntqqrev.milky.MilkyContext
-import org.ntqqrev.milky.model.message.MilkyOutgoingForwardedMessageData
 import org.ntqqrev.milky.model.message.*
 import org.ntqqrev.saltify.getMessages
 import org.ntqqrev.saltify.getTempUrl
@@ -68,6 +67,7 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
                 MilkyOutgoingMentionData(uin!!)
             else
                 MilkyOutgoingMentionAllData()
+
             is FaceSegment -> MilkyOutgoingFaceData(id)
             is ReplySegment -> MilkyOutgoingReplyData(repliedSequence)
             is ImageSegment -> MilkyOutgoingImageData(
@@ -75,6 +75,7 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
                 subType = subType.name,
                 summary = summary
             )
+
             is RecordSegment -> MilkyOutgoingRecordData(getTempUrl())
             is VideoSegment -> MilkyOutgoingVideoData(getTempUrl())
             is ForwardSegment -> MilkyOutgoingForwardData(getMessages().map {
@@ -86,6 +87,7 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
                     }
                 )
             })
+
             else -> throw IllegalArgumentException("Unsupported segment type: ${this::class.simpleName}")
         }
 
