@@ -20,14 +20,16 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.ntqqrev.milky.entity.MilkyFriend
 import org.ntqqrev.milky.entity.MilkyGroup
 import org.ntqqrev.milky.entity.MilkyGroupMember
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
-import org.ntqqrev.milky.model.api.MilkyApiEmptyRequest
-import org.ntqqrev.milky.model.api.MilkyGetLoginInfoResponse
+import org.ntqqrev.milky.message.MilkyMessageSendResult
+import org.ntqqrev.milky.message.MilkyUniversalMessageBuilder
+import org.ntqqrev.milky.model.api.*
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.*
@@ -177,14 +179,42 @@ class MilkyContext internal constructor(
         userUin: Long,
         builder: PrivateMessageBuilder.() -> Unit
     ): MessageSendResult {
-        TODO("Not yet implemented")
+        val messageBuilder = MilkyUniversalMessageBuilder(this)
+        messageBuilder.builder()
+        val segments = messageBuilder.build()
+        val response = callApi<MilkySendPrivateMessageRequest, MilkySendPrivateMessageResponse>(
+            "send_private_message",
+            MilkySendPrivateMessageRequest(
+                userId = userUin,
+                message = segments
+            )
+        )
+        return MilkyMessageSendResult(
+            ctx = this,
+            sequence = response.messageSeq,
+            time = Instant.fromEpochSeconds(response.time),
+        )
     }
 
     override suspend fun sendGroupMessage(
         groupUin: Long,
         builder: GroupMessageBuilder.() -> Unit
     ): MessageSendResult {
-        TODO("Not yet implemented")
+        val messageBuilder = MilkyUniversalMessageBuilder(this)
+        messageBuilder.builder()
+        val segments = messageBuilder.build()
+        val response = callApi<MilkySendGroupMessageRequest, MilkySendGroupMessageResponse>(
+            "send_group_message",
+            MilkySendGroupMessageRequest(
+                groupId = groupUin,
+                message = segments
+            )
+        )
+        return MilkyMessageSendResult(
+            ctx = this,
+            sequence = response.messageSeq,
+            time = Instant.fromEpochSeconds(response.time),
+        )
     }
 
     override suspend fun getMessage(
