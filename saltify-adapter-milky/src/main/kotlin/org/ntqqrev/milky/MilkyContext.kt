@@ -283,11 +283,23 @@ class MilkyContext internal constructor(
         ).messages.map { MilkyIncomingForwardedMessage.fromData(this, it) }
 
     override suspend fun recallPrivateMessage(userUin: Long, sequence: Long) {
-        TODO("Not yet implemented")
+        callApi<MilkyRecallPrivateMessageRequest, MilkyApiEmptyResponse>(
+            "recall_private_message",
+            MilkyRecallPrivateMessageRequest(
+                userId = userUin,
+                messageSeq = sequence
+            )
+        )
     }
 
     override suspend fun recallGroupMessage(groupUin: Long, sequence: Long) {
-        TODO("Not yet implemented")
+        callApi<MilkyRecallGroupMessageRequest, MilkyApiEmptyResponse>(
+            "recall_group_message",
+            MilkyRecallGroupMessageRequest(
+                groupId = groupUin,
+                messageSeq = sequence
+            )
+        )
     }
 
     override suspend fun sendPrivateNudge(userUin: Long, isSelf: Boolean) {
