@@ -34,6 +34,7 @@ import org.ntqqrev.milky.message.MilkyUniversalMessageBuilder
 import org.ntqqrev.milky.model.api.*
 import org.ntqqrev.milky.model.message.MilkyFriendMessageData
 import org.ntqqrev.milky.model.message.MilkyGroupMessageData
+import org.ntqqrev.milky.model.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.util.toMilkyMessageScene
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
@@ -145,6 +146,20 @@ class MilkyContext internal constructor(
         }
     }
 
+    private suspend fun MilkyIncomingMessageData.toSaltifyMessage(): IncomingMessage {
+        val message = when (this) {
+            is MilkyFriendMessageData ->
+                MilkyIncomingPrivateMessage.fromFriendMessage(this@MilkyContext, this)
+            is MilkyGroupMessageData ->
+                MilkyIncomingGroupMessage.fromGroupMessage(this@MilkyContext, this)
+            else -> throw MilkyException("Unsupported message type: ${this::class.simpleName}")
+        }
+        if (message == null) {
+            throw MilkyException("Failed to parse message data (peerId=$peerId, seq=$messageSeq)")
+        }
+        return message
+    }
+
     override suspend fun stop() {
         client.close()
         instanceState = Context.State.STOPPED
@@ -226,27 +241,15 @@ class MilkyContext internal constructor(
         messageScene: MessageScene,
         peerId: Long,
         sequence: Long
-    ): IncomingMessage {
-        val response = callApi<MilkyGetMessageRequest, MilkyGetMessageResponse>(
+    ): IncomingMessage =
+        callApi<MilkyGetMessageRequest, MilkyGetMessageResponse>(
             "get_message",
             MilkyGetMessageRequest(
                 messageScene = messageScene.toMilkyMessageScene(),
                 peerId = peerId,
                 messageSeq = sequence
             )
-        )
-        val result = when (response.message) {
-            is MilkyFriendMessageData ->
-                MilkyIncomingPrivateMessage.fromFriendMessage(this, response.message)
-            is MilkyGroupMessageData ->
-                MilkyIncomingGroupMessage.fromGroupMessage(this, response.message)
-            else -> throw MilkyException("Unknown message type: ${response.message::class.simpleName}")
-        }
-        if (result == null) {
-            throw MilkyException("Failed to parse message with sequence $sequence in scene $messageScene for peer $peerId")
-        }
-        return result
-    }
+        ).message.toSaltifyMessage()
 
     override suspend fun getHistoryMessages(
         messageScene: MessageScene,
@@ -254,13 +257,23 @@ class MilkyContext internal constructor(
         startSequence: Long?,
         isBackward: Boolean,
         limit: Int
-    ): List<IncomingMessage> {
-        TODO("Not yet implemented")
-    }
+    ): List<IncomingMessage> =
+        callApi<MilkyGetHistoryMessagesRequest, MilkyGetHistoryMessagesResponse>(
+            "get_history_messages",
+            MilkyGetHistoryMessagesRequest(
+                messageScene = messageScene.toMilkyMessageScene(),
+                peerId = peerId,
+                startMessageSeq = startSequence,
+                direction = if (isBackward) "older" else "newer",
+                limit = limit
+            )
+        ).messages.map { it.toSaltifyMessage() }
 
-    override suspend fun getResourceTempUrl(resourceId: String): String {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getResourceTempUrl(resourceId: String): String =
+        callApi<MilkyGetResourceTempUrlRequest, MilkyGetResourceTempUrlResponse>(
+            "get_resource_temp_url",
+            MilkyGetResourceTempUrlRequest(resourceId)
+        ).url
 
     override suspend fun getForwardedMessages(forwardId: String): List<ForwardedIncomingMessage> {
         TODO("Not yet implemented")
