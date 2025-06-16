@@ -121,7 +121,7 @@ interface Context {
     /**
      * Get a message by its sequence number.
      */
-    suspend fun getMessage(messageScene: MessageScene, peerId: Long, sequence: Long): IncomingMessage?
+    suspend fun getMessage(messageScene: MessageScene, peerId: Long, sequence: Long): IncomingMessage
 
     /**
      * Get history messages with a starting sequence number and a limit.

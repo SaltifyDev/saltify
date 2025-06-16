@@ -196,7 +196,7 @@ class LagrangeContext internal constructor(
         messageScene: MessageScene,
         peerId: Long,
         sequence: Long
-    ): IncomingMessage? {
+    ): IncomingMessage {
         TODO("Not yet implemented")
     }
 
