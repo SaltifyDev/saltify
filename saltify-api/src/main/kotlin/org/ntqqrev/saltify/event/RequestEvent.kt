@@ -102,7 +102,7 @@ open class GroupInvitedJoinRequestEvent(
     initiatorUin: Long,
     state: RequestState,
     groupUin: Long,
-    operatorUin: Long,
+    operatorUin: Long? = null,
 
     /**
      * The uin of the one being invited to join the group.
@@ -121,7 +121,7 @@ open class GroupJoinRequestEvent(
     initiatorUin: Long,
     state: RequestState,
     groupUin: Long,
-    operatorUin: Long,
+    operatorUin: Long? = null,
 
     /**
      * The additional message sent with the request.
