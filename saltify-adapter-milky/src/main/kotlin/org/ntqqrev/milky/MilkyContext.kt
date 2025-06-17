@@ -36,6 +36,7 @@ import org.ntqqrev.milky.protocol.event.*
 import org.ntqqrev.milky.protocol.message.MilkyFriendMessageData
 import org.ntqqrev.milky.protocol.message.MilkyGroupMessageData
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
+import org.ntqqrev.milky.util.toEvent
 import org.ntqqrev.milky.util.toMilkyMessageScene
 import org.ntqqrev.milky.util.toMilkyUri
 import org.ntqqrev.saltify.Context
@@ -495,17 +496,23 @@ class MilkyContext internal constructor(
         )
     }
 
-    override suspend fun getRecentFriendRequests(limit: Int): List<FriendRequestEvent> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getRecentFriendRequests(limit: Int): List<FriendRequestEvent> =
+        callApi<MilkyGetFriendRequestsRequest, MilkyGetFriendRequestsResponse>(
+            "get_friend_requests",
+            MilkyGetFriendRequestsRequest(limit)
+        ).requests.map { it.toEvent(this) }
 
-    override suspend fun getRecentGroupRequests(limit: Int): List<GroupRequestEvent> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getRecentGroupRequests(limit: Int): List<GroupRequestEvent> =
+        callApi<MilkyGetGroupRequestsRequest, MilkyGetGroupRequestsResponse>(
+            "get_group_requests",
+            MilkyGetGroupRequestsRequest(limit)
+        ).requests.map { it.toEvent(this) }
 
-    override suspend fun getRecentGroupInvitations(limit: Int): List<GroupInvitationEvent> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getRecentGroupInvitations(limit: Int): List<GroupInvitationEvent> =
+        callApi<MilkyGetGroupInvitationsRequest, MilkyGetGroupInvitationsResponse>(
+            "get_group_invitations",
+            MilkyGetGroupInvitationsRequest(limit)
+        ).invitations.map { it.toEvent(this) }
 
     override suspend fun acceptRequest(requestId: String) {
         callApi<MilkyAcceptRequestRequest, MilkyApiEmptyResponse>(

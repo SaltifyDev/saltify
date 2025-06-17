@@ -1,46 +1,15 @@
 package org.ntqqrev.milky
 
 import kotlinx.datetime.Instant
-import org.ntqqrev.milky.protocol.event.MilkyBotOfflineEvent
-import org.ntqqrev.milky.protocol.event.MilkyEvent
-import org.ntqqrev.milky.protocol.event.MilkyFriendFileUploadEvent
-import org.ntqqrev.milky.protocol.event.MilkyFriendNudgeEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupAdminChangeEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupEssenceMessageChangeEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupFileUploadEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupMemberDecreaseEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupMemberIncreaseEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupMessageReactionEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupMuteEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupNameChangeEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupNudgeEvent
-import org.ntqqrev.milky.protocol.event.MilkyGroupWholeMuteEvent
-import org.ntqqrev.milky.protocol.event.MilkyMessageRecallEvent
+import org.ntqqrev.milky.protocol.event.*
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.protocol.request.MilkyFriendRequestData
 import org.ntqqrev.milky.protocol.request.MilkyGroupInvitationData
-import org.ntqqrev.milky.protocol.request.MilkyGroupInviteRequestData
-import org.ntqqrev.milky.protocol.request.MilkyGroupJoinRequestData
+import org.ntqqrev.milky.protocol.request.MilkyGroupRequestData
+import org.ntqqrev.milky.util.toEvent
 import org.ntqqrev.milky.util.toSaltifyMessageScene
-import org.ntqqrev.milky.util.toSaltifyRequestState
 import org.ntqqrev.saltify.Context
-import org.ntqqrev.saltify.event.FriendFileUploadEvent
-import org.ntqqrev.saltify.event.FriendNudgeEvent
-import org.ntqqrev.saltify.event.FriendRequestEvent
-import org.ntqqrev.saltify.event.GroupAdminChangeEvent
-import org.ntqqrev.saltify.event.GroupEssenceMessageChangeEvent
-import org.ntqqrev.saltify.event.GroupFileUploadEvent
-import org.ntqqrev.saltify.event.GroupInvitationEvent
-import org.ntqqrev.saltify.event.GroupInvitedJoinRequestEvent
-import org.ntqqrev.saltify.event.GroupJoinRequestEvent
-import org.ntqqrev.saltify.event.GroupMemberDecreaseEvent
-import org.ntqqrev.saltify.event.GroupMemberIncreaseEvent
-import org.ntqqrev.saltify.event.GroupMessageReactionEvent
-import org.ntqqrev.saltify.event.GroupMuteEvent
-import org.ntqqrev.saltify.event.GroupNameChangeEvent
-import org.ntqqrev.saltify.event.GroupNudgeEvent
-import org.ntqqrev.saltify.event.MessageRecallEvent
-import org.ntqqrev.saltify.event.MessageReceiveEvent
+import org.ntqqrev.saltify.event.*
 import org.ntqqrev.saltify.getMember
 
 internal suspend fun MilkyContext.processEvent(event: MilkyEvent) {
@@ -76,64 +45,15 @@ internal suspend fun MilkyContext.processEvent(event: MilkyEvent) {
         }
 
         is MilkyFriendRequestData -> {
-            flow.emit(
-                FriendRequestEvent(
-                    ctx = this,
-                    time = Instant.fromEpochSeconds(event.time),
-                    requestId = data.requestId,
-                    isFiltered = data.isFiltered,
-                    initiatorUin = data.initiatorId,
-                    state = data.state.toSaltifyRequestState(),
-                    comment = data.comment ?: "",
-                    via = data.via ?: ""
-                )
-            )
+            flow.emit(data.toEvent(this))
         }
 
-        is MilkyGroupJoinRequestData -> {
-            flow.emit(
-                GroupJoinRequestEvent(
-                    ctx = this,
-                    time = Instant.fromEpochSeconds(event.time),
-                    requestId = data.requestId,
-                    isFiltered = data.isFiltered,
-                    initiatorUin = data.initiatorId,
-                    state = data.state.toSaltifyRequestState(),
-                    groupUin = data.groupId,
-                    operatorUin = data.operatorId,
-                    comment = data.comment ?: "",
-                )
-            )
-        }
-
-        is MilkyGroupInviteRequestData -> {
-            flow.emit(
-                GroupInvitedJoinRequestEvent(
-                    ctx = this,
-                    time = Instant.fromEpochSeconds(event.time),
-                    requestId = data.requestId,
-                    isFiltered = data.isFiltered,
-                    initiatorUin = data.initiatorId,
-                    state = data.state.toSaltifyRequestState(),
-                    groupUin = data.groupId,
-                    operatorUin = data.operatorId,
-                    inviteeUin = data.inviteeId,
-                )
-            )
+        is MilkyGroupRequestData -> {
+            flow.emit(data.toEvent(this))
         }
 
         is MilkyGroupInvitationData -> {
-            flow.emit(
-                GroupInvitationEvent(
-                    ctx = this,
-                    time = Instant.fromEpochSeconds(event.time),
-                    requestId = data.requestId,
-                    isFiltered = data.isFiltered,
-                    initiatorUin = data.initiatorId,
-                    state = data.state.toSaltifyRequestState(),
-                    groupUin = data.groupId
-                )
-            )
+            flow.emit(data.toEvent(this))
         }
 
         is MilkyFriendNudgeEvent -> {
