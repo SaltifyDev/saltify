@@ -37,11 +37,6 @@ interface FileEntry : FileSystemEntry {
     val expireTime: Instant?
 
     /**
-     * The time when the file was last modified.
-     */
-    val modifiedTime: Instant
-
-    /**
      * The uin of the uploader.
      * Not using `GroupMember` object because the uploader may be no longer a member of the group.
      */
