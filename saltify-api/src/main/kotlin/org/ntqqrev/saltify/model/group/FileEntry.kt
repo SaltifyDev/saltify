@@ -34,7 +34,7 @@ interface FileEntry : FileSystemEntry {
     /**
      * The time when the file will expire.
      */
-    val expireTime: Instant
+    val expireTime: Instant?
 
     /**
      * The time when the file was last modified.
