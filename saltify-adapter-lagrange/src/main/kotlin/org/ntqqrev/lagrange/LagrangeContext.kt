@@ -30,7 +30,6 @@ import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
-import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
 import kotlin.io.path.writeBytes
 import kotlin.io.path.writeText
@@ -363,7 +362,7 @@ class LagrangeContext internal constructor(
         groupUin: Long,
         fileId: String,
         newName: String
-    ): FileEntry {
+    ) {
         TODO("Not yet implemented")
     }
 

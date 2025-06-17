@@ -14,7 +14,6 @@ import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
-import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
 
 /**
@@ -307,7 +306,7 @@ interface Context {
     /**
      * Rename a file in the group file system.
      */
-    suspend fun renameGroupFile(groupUin: Long, fileId: String, newName: String): FileEntry
+    suspend fun renameGroupFile(groupUin: Long, fileId: String, newName: String)
 
     /**
      * Delete a file from the group file system.
