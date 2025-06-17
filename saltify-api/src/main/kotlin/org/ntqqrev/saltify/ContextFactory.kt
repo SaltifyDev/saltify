@@ -1,7 +1,6 @@
 package org.ntqqrev.saltify
 
 import kotlinx.coroutines.flow.MutableSharedFlow
-import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.Event
 
 interface ContextFactory<T> {

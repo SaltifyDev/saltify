@@ -2,7 +2,6 @@ package org.ntqqrev.saltify
 
 import kotlinx.coroutines.CoroutineScope
 import java.nio.file.Path
-import kotlin.coroutines.CoroutineContext
 
 interface Environment {
     /**

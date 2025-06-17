@@ -1,6 +1,5 @@
 package org.ntqqrev.saltify.model
 
-import kotlinx.datetime.Instant
 import org.ntqqrev.saltify.Entity
 
 interface Group : Entity {
