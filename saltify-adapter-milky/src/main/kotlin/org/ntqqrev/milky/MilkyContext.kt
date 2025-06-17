@@ -21,6 +21,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import org.ntqqrev.milky.entity.MilkyAnnouncement
+import org.ntqqrev.milky.entity.MilkyFileEntry
+import org.ntqqrev.milky.entity.MilkyFolderEntry
 import org.ntqqrev.milky.entity.MilkyFriend
 import org.ntqqrev.milky.entity.MilkyGroup
 import org.ntqqrev.milky.entity.MilkyGroupMember
@@ -334,7 +337,14 @@ class MilkyContext internal constructor(
     }
 
     override suspend fun getGroupAnnouncements(groupUin: Long): List<Announcement> {
-        TODO("Not yet implemented")
+        val group = getGroup(groupUin, cacheFirst = true)
+            ?: throw MilkyException("Group with uin $groupUin not found")
+        return callApi<MilkyGetGroupAnnouncementListRequest, MilkyGetGroupAnnouncementListResponse>(
+            "get_group_announcement_list",
+            MilkyGetGroupAnnouncementListRequest(
+                groupId = groupUin
+            )
+        ).announcements.map { MilkyAnnouncement(group, it) }
     }
 
     override suspend fun setGroupName(groupUin: Long, name: String) {
@@ -524,9 +534,14 @@ class MilkyContext internal constructor(
             )
         ).fileId
 
-    override suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String): String {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String): String =
+        callApi<MilkyGetPrivateFileDownloadUrlRequest, MilkyGetPrivateFileDownloadUrlResponse>(
+            "get_private_file_download_url",
+            MilkyGetPrivateFileDownloadUrlRequest(
+                userId = userUin,
+                fileId = fileId
+            )
+        ).downloadUrl
 
     override suspend fun uploadGroupFile(
         groupUin: Long,
@@ -548,12 +563,27 @@ class MilkyContext internal constructor(
         groupUin: Long,
         parentFolderId: String
     ): List<FileSystemEntry> {
-        TODO("Not yet implemented")
+        val group = getGroup(groupUin, cacheFirst = true)
+            ?: throw MilkyException("Group with uin $groupUin not found")
+        val response = callApi<MilkyGetGroupFilesRequest, MilkyGetGroupFilesResponse>(
+            "get_group_files",
+            MilkyGetGroupFilesRequest(
+                groupId = groupUin,
+                parentFolderId = parentFolderId
+            )
+        )
+        return response.folders.map { MilkyFolderEntry(this, group, it) } +
+                response.files.map { MilkyFileEntry(this, group, it) }
     }
 
-    override suspend fun getGroupFileDownloadUrl(groupUin: Long, fileId: String): String {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getGroupFileDownloadUrl(groupUin: Long, fileId: String): String =
+        callApi<MilkyGetGroupFileDownloadUrlRequest, MilkyGetGroupFileDownloadUrlResponse>(
+            "get_group_file_download_url",
+            MilkyGetGroupFileDownloadUrlRequest(
+                groupId = groupUin,
+                fileId = fileId
+            )
+        ).downloadUrl
 
     override suspend fun moveGroupFile(
         groupUin: Long,
