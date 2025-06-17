@@ -33,14 +33,11 @@ import org.ntqqrev.milky.protocol.event.*
 import org.ntqqrev.milky.protocol.message.MilkyFriendMessageData
 import org.ntqqrev.milky.protocol.message.MilkyGroupMessageData
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
-import org.ntqqrev.milky.protocol.request.*
 import org.ntqqrev.milky.util.toMilkyMessageScene
-import org.ntqqrev.milky.util.toSaltifyMessageScene
-import org.ntqqrev.milky.util.toSaltifyRequestState
+import org.ntqqrev.milky.util.toMilkyUri
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.*
-import org.ntqqrev.saltify.getMember
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.message.incoming.ForwardedIncomingMessage
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
@@ -49,7 +46,6 @@ import org.ntqqrev.saltify.message.outgoing.MessageSendResult
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.ResourceLocation
 import org.ntqqrev.saltify.model.group.Announcement
-import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FileSystemEntry
 import kotlin.properties.Delegates
 
@@ -318,11 +314,23 @@ class MilkyContext internal constructor(
     }
 
     override suspend fun sendPrivateNudge(userUin: Long, isSelf: Boolean) {
-        TODO("Not yet implemented")
+        callApi<MilkySendFriendNudgeRequest, MilkyApiEmptyResponse>(
+            "send_friend_nudge",
+            MilkySendFriendNudgeRequest(
+                userId = userUin,
+                isSelf = isSelf
+            )
+        )
     }
 
     override suspend fun sendProfileLike(userUin: Long, count: Int) {
-        TODO("Not yet implemented")
+        callApi<MilkySendProfileLikeRequest, MilkyApiEmptyResponse>(
+            "send_profile_like",
+            MilkySendProfileLikeRequest(
+                userId = userUin,
+                count = count
+            )
+        )
     }
 
     override suspend fun getGroupAnnouncements(groupUin: Long): List<Announcement> {
@@ -330,15 +338,34 @@ class MilkyContext internal constructor(
     }
 
     override suspend fun setGroupName(groupUin: Long, name: String) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupNameRequest, MilkyApiEmptyResponse>(
+            "set_group_name",
+            MilkySetGroupNameRequest(
+                groupId = groupUin,
+                name = name
+            )
+        )
     }
 
     override suspend fun setGroupAvatar(groupUin: Long, image: ResourceLocation) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupAvatarRequest, MilkyApiEmptyResponse>(
+            "set_group_avatar",
+            MilkySetGroupAvatarRequest(
+                groupId = groupUin,
+                imageUri = image.toMilkyUri()
+            )
+        )
     }
 
     override suspend fun setGroupMemberCard(groupUin: Long, memberUin: Long, card: String) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupMemberCardRequest, MilkyApiEmptyResponse>(
+            "set_group_member_card",
+            MilkySetGroupMemberCardRequest(
+                groupId = groupUin,
+                userId = memberUin,
+                card = card
+            )
+        )
     }
 
     override suspend fun setGroupMemberSpecialTitle(
@@ -346,23 +373,57 @@ class MilkyContext internal constructor(
         memberUin: Long,
         title: String
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupMemberSpecialTitleRequest, MilkyApiEmptyResponse>(
+            "set_group_member_special_title",
+            MilkySetGroupMemberSpecialTitleRequest(
+                groupId = groupUin,
+                userId = memberUin,
+                specialTitle = title
+            )
+        )
     }
 
     override suspend fun setGroupMemberAdmin(groupUin: Long, memberUin: Long, isPromote: Boolean) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupMemberAdminRequest, MilkyApiEmptyResponse>(
+            "set_group_member_admin",
+            MilkySetGroupMemberAdminRequest(
+                groupId = groupUin,
+                userId = memberUin,
+                isSet = isPromote
+            )
+        )
     }
 
     override suspend fun setGroupMemberMute(groupUin: Long, memberUin: Long, duration: Int) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupMemberMuteRequest, MilkyApiEmptyResponse>(
+            "set_group_member_mute",
+            MilkySetGroupMemberMuteRequest(
+                groupId = groupUin,
+                userId = memberUin,
+                duration = duration.toLong()
+            )
+        )
     }
 
     override suspend fun setGroupWholeMute(groupUin: Long, isMute: Boolean) {
-        TODO("Not yet implemented")
+        callApi<MilkySetGroupWholeMuteRequest, MilkyApiEmptyResponse>(
+            "set_group_whole_mute",
+            MilkySetGroupWholeMuteRequest(
+                groupId = groupUin,
+                isMute = isMute
+            )
+        )
     }
 
     override suspend fun kickGroupMember(groupUin: Long, memberUin: Long, isPermanent: Boolean) {
-        TODO("Not yet implemented")
+        callApi<MilkyKickGroupMemberRequest, MilkyApiEmptyResponse>(
+            "kick_group_member",
+            MilkyKickGroupMemberRequest(
+                groupId = groupUin,
+                userId = memberUin,
+                rejectAddRequest = isPermanent
+            )
+        )
     }
 
     override suspend fun sendGroupAnnouncement(
@@ -370,19 +431,41 @@ class MilkyContext internal constructor(
         content: String,
         image: ResourceLocation?
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkySendGroupAnnouncementRequest, MilkyApiEmptyResponse>(
+            "send_group_announcement",
+            MilkySendGroupAnnouncementRequest(
+                groupId = groupUin,
+                content = content,
+                imageUri = image?.toMilkyUri()
+            )
+        )
     }
 
     override suspend fun deleteGroupAnnouncement(groupUin: Long, announcementId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyDeleteGroupAnnouncementRequest, MilkyApiEmptyResponse>(
+            "delete_group_announcement",
+            MilkyDeleteGroupAnnouncementRequest(
+                groupId = groupUin,
+                announcementId = announcementId
+            )
+        )
     }
 
     override suspend fun quitGroup(groupUin: Long) {
-        TODO("Not yet implemented")
+        callApi<MilkyQuitGroupRequest, MilkyApiEmptyResponse>(
+            "quit_group",
+            MilkyQuitGroupRequest(groupId = groupUin)
+        )
     }
 
     override suspend fun sendGroupNudge(groupUin: Long, memberUin: Long) {
-        TODO("Not yet implemented")
+        callApi<MilkySendGroupNudgeRequest, MilkyApiEmptyResponse>(
+            "send_group_nudge",
+            MilkySendGroupNudgeRequest(
+                groupId = groupUin,
+                userId = memberUin
+            )
+        )
     }
 
     override suspend fun sendGroupMessageReaction(
@@ -391,7 +474,15 @@ class MilkyContext internal constructor(
         reactionId: String,
         isAdd: Boolean
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkySendGroupMessageReactionRequest, MilkyApiEmptyResponse>(
+            "send_group_message_reaction",
+            MilkySendGroupMessageReactionRequest(
+                groupId = groupUin,
+                messageSeq = sequence,
+                reaction = reactionId,
+                isAdd = isAdd
+            )
+        )
     }
 
     override suspend fun getRecentFriendRequests(limit: Int): List<FriendRequestEvent> {
@@ -407,16 +498,31 @@ class MilkyContext internal constructor(
     }
 
     override suspend fun acceptRequest(requestId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyAcceptRequestRequest, MilkyApiEmptyResponse>(
+            "accept_request",
+            MilkyAcceptRequestRequest(requestId)
+        )
     }
 
     override suspend fun rejectRequest(requestId: String, reason: String?) {
-        TODO("Not yet implemented")
+        callApi<MilkyRejectRequestRequest, MilkyApiEmptyResponse>(
+            "reject_request",
+            MilkyRejectRequestRequest(
+                requestId = requestId,
+                reason = reason ?: ""
+            )
+        )
     }
 
-    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String {
-        TODO("Not yet implemented")
-    }
+    override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String =
+        callApi<MilkyUploadPrivateFileRequest, MilkyUploadPrivateFileResponse>(
+            "upload_private_file",
+            MilkyUploadPrivateFileRequest(
+                userId = userUin,
+                fileUri = file.toMilkyUri(),
+                fileName = fileName
+            )
+        ).fileId
 
     override suspend fun getPrivateFileDownloadUrl(userUin: Long, fileId: String): String {
         TODO("Not yet implemented")
@@ -427,9 +533,16 @@ class MilkyContext internal constructor(
         file: ResourceLocation,
         fileName: String,
         parentFolderId: String
-    ): String {
-        TODO("Not yet implemented")
-    }
+    ): String =
+        callApi<MilkyUploadGroupFileRequest, MilkyUploadGroupFileResponse>(
+            "upload_group_file",
+            MilkyUploadGroupFileRequest(
+                groupId = groupUin,
+                fileUri = file.toMilkyUri(),
+                fileName = fileName,
+                targetFolderId = parentFolderId
+            )
+        ).fileId
 
     override suspend fun getGroupFiles(
         groupUin: Long,
@@ -448,7 +561,14 @@ class MilkyContext internal constructor(
         fromFolderId: String,
         targetFolderId: String
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkyMoveGroupFileRequest, MilkyApiEmptyResponse>(
+            "move_group_file",
+            MilkyMoveGroupFileRequest(
+                groupId = groupUin,
+                fileId = fileId,
+                targetFolderId = targetFolderId
+            )
+        )
     }
 
     override suspend fun renameGroupFile(
@@ -456,26 +576,57 @@ class MilkyContext internal constructor(
         fileId: String,
         newName: String
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkyRenameGroupFileRequest, MilkyApiEmptyResponse>(
+            "rename_group_file",
+            MilkyRenameGroupFileRequest(
+                groupId = groupUin,
+                fileId = fileId,
+                newName = newName
+            )
+        )
     }
 
     override suspend fun deleteGroupFile(groupUin: Long, fileId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyDeleteGroupFileRequest, MilkyApiEmptyResponse>(
+            "delete_group_file",
+            MilkyDeleteGroupFileRequest(
+                groupId = groupUin,
+                fileId = fileId
+            )
+        )
     }
 
-    override suspend fun createGroupFolder(groupUin: Long, folderName: String): String {
-        TODO("Not yet implemented")
-    }
+    override suspend fun createGroupFolder(groupUin: Long, folderName: String): String =
+        callApi<MilkyCreateGroupFolderRequest, MilkyCreateGroupFolderResponse>(
+            "create_group_folder",
+            MilkyCreateGroupFolderRequest(
+                groupId = groupUin,
+                folderName = folderName
+            )
+        ).folderId
 
     override suspend fun renameGroupFolder(
         groupUin: Long,
         folderId: String,
         newName: String
     ) {
-        TODO("Not yet implemented")
+        callApi<MilkyRenameGroupFolderRequest, MilkyApiEmptyResponse>(
+            "rename_group_folder",
+            MilkyRenameGroupFolderRequest(
+                groupId = groupUin,
+                folderId = folderId,
+                newName = newName
+            )
+        )
     }
 
     override suspend fun deleteGroupFolder(groupUin: Long, folderId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyDeleteGroupFolderRequest, MilkyApiEmptyResponse>(
+            "delete_group_folder",
+            MilkyDeleteGroupFolderRequest(
+                groupId = groupUin,
+                folderId = folderId
+            )
+        )
     }
 }

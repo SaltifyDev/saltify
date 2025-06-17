@@ -6,11 +6,22 @@ import org.ntqqrev.milky.protocol.entity.MilkyGroupFolderData
 class MilkyUploadPrivateFileRequest(
     val userId: Long,
     val fileUri: String,
+    val fileName: String,
+)
+
+class MilkyUploadPrivateFileResponse(
+    val fileId: String,
 )
 
 class MilkyUploadGroupFileRequest(
     val groupId: Long,
     val fileUri: String,
+    val fileName: String,
+    val targetFolderId: String? = null,
+)
+
+class MilkyUploadGroupFileResponse(
+    val fileId: String,
 )
 
 class MilkyGetPrivateFileDownloadUrlRequest(
