@@ -1,17 +1,22 @@
 package org.ntqqrev.saltify.command
 
+import java.util.Stack
+
 class Tokenizer(private val input: String) {
     private var position: Int = 0
     private val length: Int = input.length
+    private val positionStack = Stack<Int>()
 
     fun hasMoreTokens(): Boolean {
         skipWhitespace()
         return position < length
     }
 
-    fun nextToken(): String {
+    fun read(): String {
         skipWhitespace()
         if (!hasMoreTokens()) return ""
+
+        positionStack.push(position)
 
         return when (val currentChar = input[position]) {
             '"' -> readQuotedToken(currentChar)
@@ -19,15 +24,22 @@ class Tokenizer(private val input: String) {
         }
     }
 
+    fun unread() {
+        if (positionStack.isNotEmpty()) {
+            position = positionStack.pop()
+        }
+    }
+
     fun remaining(): String {
         skipWhitespace()
+        positionStack.push(position)
         val remaining = input.substring(position)
         position = length
         return remaining
     }
 
     private fun readQuotedToken(quoteChar: Char): String {
-        position++ // 跳过开始的引号
+        position++
         val sb = StringBuilder()
         var escapeNext = false
 
@@ -45,7 +57,7 @@ class Tokenizer(private val input: String) {
                     position++
                 }
                 current == quoteChar -> {
-                    position++ // 跳过结束的引号
+                    position++
                     return sb.toString()
                 }
                 else -> {
