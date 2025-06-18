@@ -50,7 +50,7 @@ internal fun convertSegment(ctx: Context, data: MilkyIncomingData) =
 class MilkyIncomingPrivateMessage(
     override val ctx: MilkyContext,
     override val peer: User,
-    override val isSelf: Boolean,
+    override val sender: User,
     override val sequence: Long,
     override val time: Instant,
     milkyIncomingData: List<MilkyIncomingSegmentModel>
@@ -66,7 +66,10 @@ class MilkyIncomingPrivateMessage(
             MilkyIncomingPrivateMessage(
                 ctx,
                 peer,
-                data.peerId != data.senderId,
+                if (data.senderId == data.peerId)
+                    peer
+                else
+                    ctx.getFriend(data.senderId)!!, // bot itself must be a friend
                 data.messageSeq,
                 Instant.fromEpochMilliseconds(data.time),
                 data.segments
