@@ -9,16 +9,11 @@ class PluginSpec<T : Any>(
     val block: PluginDslContext<T>.() -> Unit
 )
 
-interface PluginDslContext<T> {
+interface PluginDslContext<T> : Environment {
     /**
      * The configuration instance for the plugin.
      */
     val config: T
-
-    /**
-     * The environment in which the plugin is running.
-     */
-    val env: Environment
 
     /**
      * Executes the given block when the plugin is started by the framework.
