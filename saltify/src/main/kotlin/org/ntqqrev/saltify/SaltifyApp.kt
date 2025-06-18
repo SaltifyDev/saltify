@@ -3,6 +3,7 @@ package org.ntqqrev.saltify
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.ntqqrev.saltify.dsl.PluginSpec
 import org.ntqqrev.saltify.plugin.PluginMeta
 import java.net.URLClassLoader
 import java.nio.file.Files
@@ -18,9 +19,9 @@ class SaltifyApp(
     val defaultObjectMapper = jacksonObjectMapper()
 
     val pluginsPath = rootDataPath / "plugins"
-    internal val pluginClasses = mutableMapOf<String, Class<*>>()
+    val pluginSpecs by lazy { initPluginSpecs() }
 
-    internal fun loadPluginClasses() {
+    internal fun initPluginSpecs(): Map<String, Pair<PluginMeta, PluginSpec<*>>> {
         val loader = URLClassLoader(
             Files.list(pluginsPath)
                 .asSequence()
@@ -43,14 +44,19 @@ class SaltifyApp(
         }
 
         // load plugin classes
+        val result = mutableMapOf<String, Pair<PluginMeta, PluginSpec<*>>>()
         metas.forEach { meta ->
             try {
                 val pluginClass = loader.loadClass(meta.mainClass)
-                pluginClasses[meta.id] = pluginClass
+                val pluginSpec = pluginClass
+                    .getDeclaredField("plugin")
+                    .get(null) as PluginSpec<*>
                 logger.info { "Loaded plugin class: ${meta.id} (${meta.version}) as ${meta.mainClass}" }
+                result[meta.id] = meta to pluginSpec
             } catch (e: Exception) {
                 logger.error(e) { "Error loading plugin ${meta.id}: ${e.message}" }
             }
         }
+        return result
     }
 }
