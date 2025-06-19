@@ -22,8 +22,8 @@ class Plugin<T>(
     var onStopBlock: suspend () -> Unit = {}
     val eventHandler: MutableMap<KClass<out Event>, suspend (Event) -> Unit> = mutableMapOf()
 
-    val registeredCommand = mutableMapOf<String, Command>()
-    val registeredCommandAliases = mutableMapOf<String, String>()
+    val commands = mutableMapOf<String, Command>()
+    val cmdAliases = mutableMapOf<String, String>()
 
     override fun onStart(block: suspend () -> Unit) {
         onStartBlock = block
@@ -35,17 +35,17 @@ class Plugin<T>(
         aliases: List<String>,
         block: CommandDslContext.() -> Unit
     ) {
-        if (registeredCommand.containsKey(name)) {
+        if (commands.containsKey(name)) {
             logger.warn { "Command '$name' in plugin '${meta.id}' is already registered, overwriting." }
         }
-        val command = Command(name, description)
+        val command = Command(name, description, this)
         block(command)
-        registeredCommand[name] = command
+        commands[name] = command
         for (alias in aliases) {
-            if (registeredCommandAliases.containsKey(alias)) {
+            if (cmdAliases.containsKey(alias)) {
                 logger.warn { "Alias '$alias' in plugin '${meta.id}' is already registered, overwriting." }
             }
-            registeredCommandAliases[alias] = name
+            cmdAliases[alias] = name
         }
     }
 
