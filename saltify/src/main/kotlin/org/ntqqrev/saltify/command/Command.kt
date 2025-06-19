@@ -9,9 +9,14 @@ import org.ntqqrev.saltify.message.incoming.IncomingMessage
 import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
+import org.ntqqrev.saltify.plugin.Plugin
 import kotlin.reflect.KClass
 
-class Command(val name: String, val description: String) : CommandDslContext {
+class Command(
+    val name: String,
+    val description: String,
+    val plugin: Plugin<*>
+) : CommandDslContext {
     internal var onPrivateExecuteBlock: (suspend CommandExecutionDslContext<PrivateIncomingMessage, PrivateMessageBuilder>.() -> Unit)? =
         null
     internal var onGroupExecuteBlock: (suspend CommandExecutionDslContext<GroupIncomingMessage, GroupMessageBuilder>.() -> Unit)? =
@@ -25,8 +30,7 @@ class Command(val name: String, val description: String) : CommandDslContext {
     override fun subCommand(
         name: String, description: String, block: CommandDslContext.() -> Unit
     ) {
-        val subCommand = Command(name, description)
-        block(subCommand)
+        val subCommand = Command(name, description, plugin).apply(block)
         subCommands[name] = subCommand
     }
 
