@@ -30,6 +30,9 @@ class Command(
     override fun subCommand(
         name: String, description: String, block: CommandDslContext.() -> Unit
     ) {
+        if (subCommands.containsKey(name)) {
+            throw IllegalArgumentException("Sub-command '$name' already exists in command '$this.name'")
+        }
         val subCommand = Command(name, description, plugin).apply(block)
         subCommands[name] = subCommand
     }
