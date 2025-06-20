@@ -6,24 +6,24 @@ sealed class CommandNode<T>(
     val name: String,
     val description: String,
 ) : ParamCapturer<T> {
-    abstract fun tryMatch(token: String): T?
+    abstract fun tryMatch(token: Token): T?
 }
 
 class IntNode(name: String, description: String) : CommandNode<Int>(name, description) {
-    override fun tryMatch(token: String): Int? {
-        return token.toIntOrNull()
+    override fun tryMatch(token: Token): Int? {
+        return (token as? TextToken)?.text?.toIntOrNull()
     }
 }
 
 class LongNode(name: String, description: String) : CommandNode<Long>(name, description) {
-    override fun tryMatch(token: String): Long? {
-        return token.toLongOrNull()
+    override fun tryMatch(token: Token): Long? {
+        return (token as? TextToken)?.text?.toLongOrNull()
     }
 }
 
 class DoubleNode(name: String, description: String) : CommandNode<Double>(name, description) {
-    override fun tryMatch(token: String): Double? {
-        return token.toDoubleOrNull()
+    override fun tryMatch(token: Token): Double? {
+        return (token as? TextToken)?.text?.toDoubleOrNull()
     }
 }
 
@@ -32,7 +32,7 @@ class StringNode(
     description: String,
     val isGreedy: Boolean = false
 ) : CommandNode<String>(name, description) {
-    override fun tryMatch(token: String): String? {
-        return token
+    override fun tryMatch(token: Token): String? {
+        return (token as? TextToken)?.text
     }
 }

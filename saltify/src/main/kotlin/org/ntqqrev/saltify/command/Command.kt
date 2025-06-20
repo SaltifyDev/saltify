@@ -88,10 +88,10 @@ class Command(
     }
 
     suspend fun tryExecute(
-        tokenizer: Tokenizer,
+        tokenizer: MessageTokenizer,
         message: IncomingMessage
     ) {
-        val first = tokenizer.read()
+        val first = (tokenizer.read() as TextToken).text
         val subCommand = subCommands[first]
         if (subCommand != null) {
             return subCommand.tryExecute(tokenizer, message)

@@ -2,19 +2,19 @@ package org.ntqqrev.saltify.command
 
 import java.util.Stack
 
-class Tokenizer(private val input: String) {
+class TextTokenizer(private val input: String) : ITokenizer<String> {
     private var position: Int = 0
     private val length: Int = input.length
     private val positionStack = Stack<Int>()
 
-    fun hasMoreTokens(): Boolean {
+    override fun hasMoreTokens(): Boolean {
         skipWhitespace()
         return position < length
     }
 
-    fun read(): String {
-        skipWhitespace()
-        if (!hasMoreTokens()) return ""
+    override fun read(): String {
+        if (!hasMoreTokens())
+            throw NoSuchElementException("No more tokens available in the input string.")
 
         positionStack.push(position)
 
@@ -24,13 +24,13 @@ class Tokenizer(private val input: String) {
         }
     }
 
-    fun unread() {
+    override fun unread() {
         if (positionStack.isNotEmpty()) {
             position = positionStack.pop()
         }
     }
 
-    fun remaining(): String {
+    override fun remaining(): String {
         skipWhitespace()
         positionStack.push(position)
         val remaining = input.substring(position)
