@@ -7,10 +7,13 @@ import org.ntqqrev.saltify.dsl.ParamCapturer
 import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
 import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
+import org.ntqqrev.saltify.message.incoming.Segment
+import org.ntqqrev.saltify.message.incoming.TextSegment
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.plugin.Plugin
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 class Command(
     val name: String,
@@ -56,7 +59,25 @@ class Command(
             Long::class -> LongNode(name, description)
             Double::class -> DoubleNode(name, description)
             String::class -> StringNode(name, description)
-            else -> throw IllegalArgumentException("Unsupported parameter type: ${type.simpleName}")
+            else -> {
+                if (type.isSubclassOf(Segment::class)) {
+                    if (type == Segment::class) {
+                        throw IllegalArgumentException("Cannot use Segment as a parameter type directly, " +
+                                "use specific segment types like ImageSegment.")
+                    }
+                    if (type == TextSegment::class) {
+                        throw IllegalArgumentException(
+                            "TextSegment cannot be used as a segment node type. " +
+                                    "Use string parameter<String> instead. " +
+                                    "If you want to capture the whole text segment, " +
+                                    "use greedyStringParameter."
+                        )
+                    }
+                    SegmentNode(name, description, type as KClass<Segment>) as SegmentNode<T>
+                }
+                throw IllegalArgumentException("Unsupported parameter type: ${type.simpleName}. " +
+                        "Supported types are Int, Long, Double, String, and Segment subclasses.")
+            }
         }
         nodes!!.add(node)
         return node as ParamCapturer<T>
@@ -91,15 +112,17 @@ class Command(
         tokenizer: MessageTokenizer,
         message: IncomingMessage
     ) {
-        val first = (tokenizer.read() as TextToken).text
-        val subCommand = subCommands[first]
-        if (subCommand != null) {
-            return subCommand.tryExecute(tokenizer, message)
+        val first = tokenizer.read()
+        if (first is TextToken) {
+            val subCommand = subCommands[first.text]
+            if (subCommand != null) {
+                return subCommand.tryExecute(tokenizer, message)
+            }
         }
+        tokenizer.unread()
         if (nodes == null) {
             throw IllegalStateException("No parameters defined for command '$name'")
         }
-        tokenizer.unread()
 
         val captureContext = mutableMapOf<ParamCapturer<*>, Any>()
         for (node in nodes!!) {

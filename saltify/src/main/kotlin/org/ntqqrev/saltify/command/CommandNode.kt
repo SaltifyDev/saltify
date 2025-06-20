@@ -1,6 +1,9 @@
 package org.ntqqrev.saltify.command
 
 import org.ntqqrev.saltify.dsl.ParamCapturer
+import org.ntqqrev.saltify.message.incoming.Segment
+import org.ntqqrev.saltify.message.incoming.TextSegment
+import kotlin.reflect.KClass
 
 sealed class CommandNode<T>(
     val name: String,
@@ -34,5 +37,21 @@ class StringNode(
 ) : CommandNode<String>(name, description) {
     override fun tryMatch(token: Token): String? {
         return (token as? TextToken)?.text
+    }
+}
+
+class SegmentNode<T : Segment>(
+    name: String,
+    description: String,
+    val segmentClass: KClass<T>
+): CommandNode<T>(name, description) {
+
+    override fun tryMatch(token: Token): T? {
+        return if (token is SegmentToken && segmentClass.isInstance(token.segment)) {
+            @Suppress("UNCHECKED_CAST")
+            token.segment as T
+        } else {
+            null
+        }
     }
 }
