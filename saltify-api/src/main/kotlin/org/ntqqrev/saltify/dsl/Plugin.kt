@@ -38,7 +38,7 @@ interface PluginDslContext<T> : Environment {
     /**
      * Executes the given block when an event of the specified type is received.
      */
-    fun <T : Event> subscribe(clazz: KClass<T>, block: suspend T.() -> Unit)
+    fun <T : Event> on(clazz: KClass<T>, block: suspend (T) -> Unit)
 
     /**
      * Executes the given block when the plugin is stopped.
@@ -46,10 +46,10 @@ interface PluginDslContext<T> : Environment {
     fun onStop(block: suspend () -> Unit)
 }
 
-inline fun <reified T : Event> PluginDslContext<*>.subscribe(
+inline fun <reified T : Event> PluginDslContext<*>.on(
     noinline block: suspend T.() -> Unit
 ) {
-    subscribe(T::class, block)
+    on(T::class, block)
 }
 
 /**

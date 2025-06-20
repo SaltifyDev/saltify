@@ -50,9 +50,9 @@ class Plugin<T>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Event> subscribe(
+    override fun <T : Event> on(
         clazz: KClass<T>,
-        block: suspend T.() -> Unit
+        block: suspend (T) -> Unit
     ) {
         if (eventHandler.containsKey(clazz)) {
             logger.warn { "Event handler in plugin '${meta.id}' for ${clazz.simpleName} is already registered, overwriting." }
