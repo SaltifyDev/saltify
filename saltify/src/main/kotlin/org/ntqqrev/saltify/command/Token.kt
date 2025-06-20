@@ -7,12 +7,4 @@ sealed class Token
 
 class TextToken(val text: String) : Token()
 
-class SegmentToken(val segment: Segment) : Token() {
-    init {
-        if (segment is TextSegment) {
-            throw IllegalArgumentException(
-                "TextSegment cannot be used as a SegmentToken. Use TextToken instead."
-            )
-        }
-    }
-}
+class SegmentToken(val segment: Segment) : Token()
