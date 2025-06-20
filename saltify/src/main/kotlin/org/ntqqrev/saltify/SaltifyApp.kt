@@ -14,6 +14,19 @@ import kotlin.streams.asSequence
 class SaltifyApp(
     val rootDataPath: Path,
 ) {
+    companion object {
+        const val banner = """
+   _____         __ __   _  ____      
+  / ___/ ____ _ / // /_ (_)/ __/__  __
+  \__ \ / __ `// // __// // /_ / / / /
+ ___/ // /_/ // // /_ / // __// /_/ / 
+/____/ \__,_//_/ \__//_//_/   \__, /  
+                             /____/   
+"""
+        const val name = "Saltify"
+        const val version = "0.1.0"
+    }
+
     val logger = KotlinLogging.logger { }
 
     val defaultObjectMapper = jacksonObjectMapper()

@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify
 
 fun main() {
-    println(banner)
-    println("Welcome to $appName v$appVersion")
+    println(SaltifyApp.banner)
+    println("Welcome to ${SaltifyApp.name} v${SaltifyApp.version}")
 }
