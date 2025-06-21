@@ -13,6 +13,7 @@ import kotlin.streams.asSequence
 
 class SaltifyApp(
     val rootDataPath: Path,
+    val config: SaltifyAppConfig
 ) {
     companion object {
         const val banner = """
