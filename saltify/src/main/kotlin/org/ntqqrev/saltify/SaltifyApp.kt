@@ -33,9 +33,12 @@ class SaltifyApp(
     val defaultObjectMapper = jacksonObjectMapper()
 
     val pluginsPath = rootDataPath / "plugins"
-    val pluginSpecs by lazy { initPluginSpecs() }
+    val pluginSpecs = mutableMapOf<String, PluginSpec<*>>()
+    val pluginMetas = mutableMapOf<PluginSpec<*>, PluginMeta>()
 
-    internal fun initPluginSpecs(): Map<String, Pair<PluginMeta, PluginSpec<*>>> {
+    val PluginSpec<*>.meta get() = pluginMetas[this] ?: throw IllegalStateException()
+
+    fun initPluginSpecs() {
         val loader = URLClassLoader(
             Files.list(pluginsPath)
                 .asSequence()
@@ -57,8 +60,6 @@ class SaltifyApp(
             throw IllegalStateException("Duplicate plugin IDs found: ${duplicateIds.joinToString(", ")}")
         }
 
-        // load plugin classes
-        val result = mutableMapOf<String, Pair<PluginMeta, PluginSpec<*>>>()
         metas.forEach { meta ->
             try {
                 val pluginClass = loader.loadClass(meta.mainClass)
@@ -66,11 +67,11 @@ class SaltifyApp(
                     .getDeclaredField("plugin")
                     .get(null) as PluginSpec<*>
                 logger.info { "Loaded plugin class: ${meta.id} (${meta.version}) as ${meta.mainClass}" }
-                result[meta.id] = meta to pluginSpec
+                pluginSpecs[meta.id] = pluginSpec
+                pluginMetas[pluginSpec] = meta
             } catch (e: Exception) {
                 logger.error(e) { "Error loading plugin ${meta.id}: ${e.message}" }
             }
         }
-        return result
     }
 }
