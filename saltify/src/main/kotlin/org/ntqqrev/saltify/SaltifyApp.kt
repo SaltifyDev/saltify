@@ -3,13 +3,22 @@ package org.ntqqrev.saltify
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.ntqqrev.saltify.dsl.PluginSpec
+import org.ntqqrev.saltify.event.Event
+import org.ntqqrev.saltify.logic.CommandLogic
+import org.ntqqrev.saltify.plugin.Plugin
 import org.ntqqrev.saltify.plugin.PluginMeta
 import java.net.URLClassLoader
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.streams.asSequence
+import kotlin.io.path.exists
+import kotlin.io.path.listDirectoryEntries
 
 class SaltifyApp(
     val rootDataPath: Path,
@@ -29,19 +38,27 @@ class SaltifyApp(
     }
 
     val logger = KotlinLogging.logger { }
-
     val defaultObjectMapper = jacksonObjectMapper()
+    val commandLogic = CommandLogic(this)
 
     val pluginsPath = rootDataPath / "plugins"
+    val configPath = rootDataPath / "config"
+
     val pluginSpecs = mutableMapOf<String, PluginSpec<*>>()
     val pluginMetas = mutableMapOf<PluginSpec<*>, PluginMeta>()
+
+    val loadedPlugins = mutableMapOf<String, Plugin<*>>()
+
+    val flow = MutableSharedFlow<Event>(
+        extraBufferCapacity = config.eventBufferSize,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
     val PluginSpec<*>.meta get() = pluginMetas[this] ?: throw IllegalStateException()
 
     fun initPluginSpecs() {
         val loader = URLClassLoader(
-            Files.list(pluginsPath)
-                .asSequence()
+            pluginsPath.listDirectoryEntries()
                 .filter { it.endsWith(".jar") }
                 .map { it.toUri().toURL() }
                 .toList().toTypedArray(),
@@ -73,5 +90,43 @@ class SaltifyApp(
                 logger.error(e) { "Error loading plugin ${meta.id}: ${e.message}" }
             }
         }
+    }
+
+    suspend fun loadPlugin(id: String) {
+        if (loadedPlugins.containsKey(id)) {
+            throw IllegalStateException("Plugin $id is already loaded!")
+        }
+        val spec = pluginSpecs[id]
+        if (spec == null) {
+            throw IllegalStateException("Unknown plugin ID: $id")
+        }
+        val meta = spec.meta
+        val pluginConfigPath = configPath / "$id.config.json"
+        if (!pluginConfigPath.exists()) {
+            throw IllegalStateException("Config file does not exist: $pluginConfigPath")
+        }
+        val pluginConfig = defaultObjectMapper.readValue(
+            pluginConfigPath.toFile(),
+            spec.configClass.java
+        )
+        val plugin = Plugin<Any>(
+            meta,
+            pluginConfig,
+            object : Environment {
+                override val scope = CoroutineScope(
+                    CoroutineName("SaltifyPlugin-$id") +
+                            CoroutineExceptionHandler { _, exception ->
+                                logger.error(exception) {
+                                    "Uncaught exception occurred in plugin $id: ${exception.message}"
+                                }
+                            }
+                )
+                override val rootDataPath: Path = this@SaltifyApp.rootDataPath / "data" / id
+            },
+            flow
+        )
+        plugin.start()
+        commandLogic.registerAll(plugin)
+        loadedPlugins[id] = plugin
     }
 }

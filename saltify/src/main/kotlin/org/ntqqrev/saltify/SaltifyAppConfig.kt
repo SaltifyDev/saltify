@@ -6,6 +6,12 @@ import org.ntqqrev.saltify.config.Option
 
 class SaltifyAppConfig(
     @Configurable(
+        "事件缓冲区长度",
+        "最多缓存的事件数量，设置更小的值可节约内存，但可能导致事件丢失"
+    )
+    val eventBufferSize: Int = 1000,
+
+    @Configurable(
         "网络配置"
     )
     val network: Network = Network(),
