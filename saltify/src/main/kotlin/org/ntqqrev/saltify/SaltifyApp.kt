@@ -73,7 +73,7 @@ class SaltifyApp(
     fun initPluginSpecs() {
         val loader = URLClassLoader(
             pluginsPath.listDirectoryEntries()
-                .filter { it.endsWith(".jar") }
+                .filter { it.fileName.toString().endsWith(".jar") }
                 .map { it.toUri().toURL() }
                 .toList().toTypedArray(),
             this::class.java.classLoader
@@ -95,8 +95,8 @@ class SaltifyApp(
             try {
                 val pluginClass = loader.loadClass(meta.mainClass)
                 val pluginSpec = pluginClass
-                    .getDeclaredField("plugin")
-                    .get(null) as PluginSpec<*>
+                    .getDeclaredMethod("getPlugin")
+                    .invoke(null) as PluginSpec<*>
                 logger.info { "Loaded plugin class: ${meta.id} (${meta.version}) as ${meta.mainClass}" }
                 pluginSpecs[meta.id] = pluginSpec
                 pluginMetas[pluginSpec] = meta

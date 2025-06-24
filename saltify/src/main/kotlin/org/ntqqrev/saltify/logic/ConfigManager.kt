@@ -20,7 +20,7 @@ class ConfigManager(val app: SaltifyApp) {
             throw IllegalStateException("Config file for plugin '$pluginId' already exists at $pluginConfigPath.")
         }
         val configClass = app.pluginSpecs[pluginId]!!.configClass
-        val configDraft = configClass.primaryConstructor!!.call()
+        val configDraft = configClass.primaryConstructor!!.callBy(emptyMap())
         app.defaultObjectMapper.writeValue(pluginConfigPath.toFile(), configDraft)
         return configDraft
     }
