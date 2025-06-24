@@ -11,14 +11,13 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.ntqqrev.saltify.dsl.PluginSpec
 import org.ntqqrev.saltify.event.Event
-import org.ntqqrev.saltify.logic.CommandLogic
+import org.ntqqrev.saltify.logic.CommandManager
 import org.ntqqrev.saltify.logic.ConfigManager
 import org.ntqqrev.saltify.plugin.Plugin
 import org.ntqqrev.saltify.plugin.PluginMeta
 import java.net.URLClassLoader
 import java.nio.file.Path
 import kotlin.io.path.div
-import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
 class SaltifyApp(
@@ -41,7 +40,7 @@ class SaltifyApp(
     val logger = KotlinLogging.logger { }
     val defaultObjectMapper = jacksonObjectMapper()
 
-    val commandLogic = CommandLogic(this)
+    val commandManager = CommandManager(this)
     val configManager = ConfigManager(this)
 
     val pluginsPath = rootDataPath / "plugins"
@@ -126,7 +125,7 @@ class SaltifyApp(
         plugin.scope.async {
             plugin.start()
         }.await()
-        commandLogic.registerAll(plugin)
+        commandManager.registerAll(plugin)
         loadedPlugins[id] = plugin
     }
 }

@@ -13,7 +13,7 @@ import org.ntqqrev.saltify.message.incoming.TextSegment
 import org.ntqqrev.saltify.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 
-class CommandLogic(
+class CommandManager(
     val app: SaltifyApp,
 ) {
     private val logger = KotlinLogging.logger {}
