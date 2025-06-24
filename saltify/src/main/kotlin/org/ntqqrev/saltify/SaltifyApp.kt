@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import org.ntqqrev.saltify.dsl.PluginSpec
 import org.ntqqrev.saltify.event.Event
 import org.ntqqrev.saltify.logic.CommandLogic
+import org.ntqqrev.saltify.logic.ConfigManager
 import org.ntqqrev.saltify.plugin.Plugin
 import org.ntqqrev.saltify.plugin.PluginMeta
 import java.net.URLClassLoader
@@ -39,7 +40,9 @@ class SaltifyApp(
 
     val logger = KotlinLogging.logger { }
     val defaultObjectMapper = jacksonObjectMapper()
+
     val commandLogic = CommandLogic(this)
+    val configManager = ConfigManager(this)
 
     val pluginsPath = rootDataPath / "plugins"
     val configPath = rootDataPath / "config"
@@ -101,15 +104,8 @@ class SaltifyApp(
             throw IllegalStateException("Unknown plugin ID: $id")
         }
         val meta = spec.meta
-        val pluginConfigPath = configPath / "$id.config.json"
-        if (!pluginConfigPath.exists()) {
-            throw IllegalStateException("Config file does not exist: $pluginConfigPath")
-        }
-        val pluginConfig = defaultObjectMapper.readValue(
-            pluginConfigPath.toFile(),
-            spec.configClass.java
-        )
-        val plugin = Plugin<Any>(
+        val pluginConfig = configManager.getConfig(id)
+        val plugin = Plugin(
             meta,
             pluginConfig,
             object : Environment {
@@ -125,6 +121,8 @@ class SaltifyApp(
             },
             flow
         )
+        @Suppress("UNCHECKED_CAST")
+        plugin.apply(spec.block as Plugin<Any>.() -> Unit)
         plugin.scope.async {
             plugin.start()
         }.await()
