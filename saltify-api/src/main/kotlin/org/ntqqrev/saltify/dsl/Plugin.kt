@@ -55,7 +55,7 @@ inline fun <reified T : Event> PluginDslContext<*>.on(
 /**
  * Declares a plugin with the specified configuration class and block.
  */
-inline fun <reified T : Any> plugin(
+inline fun <reified T : Any> definePlugin(
     noinline block: PluginDslContext<T>.() -> Unit
 ): PluginSpec<T> {
     return PluginSpec(T::class, block)

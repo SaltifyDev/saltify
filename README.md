@@ -25,7 +25,7 @@ class Config(
     val echoPrefix: String = "::"
 )
 
-val plugin = plugin<Config> {
+val plugin = definePlugin<Config> {
     onStart {
         println("Plugin started")
         // do something with side effects
