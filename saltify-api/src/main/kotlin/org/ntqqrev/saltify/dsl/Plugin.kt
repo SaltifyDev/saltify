@@ -47,7 +47,7 @@ interface PluginDslContext<T> : Environment {
 }
 
 inline fun <reified T : Event> PluginDslContext<*>.on(
-    noinline block: suspend T.() -> Unit
+    noinline block: suspend (T) -> Unit
 ) {
     on(T::class, block)
 }
