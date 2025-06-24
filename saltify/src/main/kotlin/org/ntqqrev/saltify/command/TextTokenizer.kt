@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify.command
 
-import java.util.Stack
+import java.util.*
 
 class TextTokenizer(private val input: String) : ITokenizer<String> {
     private var position: Int = 0
@@ -52,14 +52,17 @@ class TextTokenizer(private val input: String) : ITokenizer<String> {
                     escapeNext = false
                     position++
                 }
+
                 current == '\\' -> {
                     escapeNext = true
                     position++
                 }
+
                 current == quoteChar -> {
                     position++
                     return sb.toString()
                 }
+
                 else -> {
                     sb.append(current)
                     position++

@@ -27,8 +27,8 @@ abstract class CommandExecution<M : IncomingMessage, B : Entity>(
         captureContext: Map<ParamCapturer<*>, Any>
     ) : CommandExecution<PrivateIncomingMessage, PrivateMessageBuilder>(message, captureContext) {
         override suspend fun respond(block: PrivateMessageBuilder.() -> Unit) {
-            val friend = message.peer as? Friend ?:
-            throw IllegalStateException("Cannot send message to non-friend peer: ${message.peer}")
+            val friend = message.peer as? Friend
+                ?: throw IllegalStateException("Cannot send message to non-friend peer: ${message.peer}")
             friend.sendMessage(block)
         }
     }

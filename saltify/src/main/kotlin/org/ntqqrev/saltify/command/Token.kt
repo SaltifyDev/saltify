@@ -1,7 +1,6 @@
 package org.ntqqrev.saltify.command
 
 import org.ntqqrev.saltify.message.incoming.Segment
-import org.ntqqrev.saltify.message.incoming.TextSegment
 
 sealed class Token
 

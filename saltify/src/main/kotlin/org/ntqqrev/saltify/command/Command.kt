@@ -4,11 +4,7 @@ import org.ntqqrev.saltify.dsl.CommandDslContext
 import org.ntqqrev.saltify.dsl.CommandExecutionDslContext
 import org.ntqqrev.saltify.dsl.CommonBuilder
 import org.ntqqrev.saltify.dsl.ParamCapturer
-import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
-import org.ntqqrev.saltify.message.incoming.IncomingMessage
-import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
-import org.ntqqrev.saltify.message.incoming.Segment
-import org.ntqqrev.saltify.message.incoming.TextSegment
+import org.ntqqrev.saltify.message.incoming.*
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.plugin.Plugin
@@ -62,8 +58,10 @@ class Command(
             else -> {
                 if (type.isSubclassOf(Segment::class)) {
                     if (type == Segment::class) {
-                        throw IllegalArgumentException("Cannot use Segment as a parameter type directly, " +
-                                "use specific segment types like ImageSegment.")
+                        throw IllegalArgumentException(
+                            "Cannot use Segment as a parameter type directly, " +
+                                    "use specific segment types like ImageSegment."
+                        )
                     }
                     if (type == TextSegment::class) {
                         throw IllegalArgumentException(
@@ -75,8 +73,10 @@ class Command(
                     }
                     SegmentNode(name, description, type as KClass<Segment>) as SegmentNode<T>
                 }
-                throw IllegalArgumentException("Unsupported parameter type: ${type.simpleName}. " +
-                        "Supported types are Int, Long, Double, String, and Segment subclasses.")
+                throw IllegalArgumentException(
+                    "Unsupported parameter type: ${type.simpleName}. " +
+                            "Supported types are Int, Long, Double, String, and Segment subclasses."
+                )
             }
         }
         nodes!!.add(node)
@@ -142,8 +142,10 @@ class Command(
         when (message) {
             is PrivateIncomingMessage -> {
                 if (onPrivateExecuteBlock == null) {
-                    throw IllegalStateException("Invalid scope for command '$name': " +
-                            "no private execution block defined")
+                    throw IllegalStateException(
+                        "Invalid scope for command '$name': " +
+                                "no private execution block defined"
+                    )
                 } else {
                     val execution = CommandExecution.Private(message, captureContext)
                     execution.apply {
@@ -151,10 +153,13 @@ class Command(
                     }
                 }
             }
+
             is GroupIncomingMessage -> {
                 if (onGroupExecuteBlock == null) {
-                    throw IllegalStateException("Invalid scope for command '$name': " +
-                            "no group execution block defined")
+                    throw IllegalStateException(
+                        "Invalid scope for command '$name': " +
+                                "no group execution block defined"
+                    )
                 } else {
                     val execution = CommandExecution.Group(message, captureContext)
                     execution.apply {
@@ -162,9 +167,12 @@ class Command(
                     }
                 }
             }
+
             else -> {
-                throw IllegalStateException("Invalid message type for command '$name': " +
-                        "expected PrivateIncomingMessage or GroupIncomingMessage, got ${message::class.simpleName}")
+                throw IllegalStateException(
+                    "Invalid message type for command '$name': " +
+                            "expected PrivateIncomingMessage or GroupIncomingMessage, got ${message::class.simpleName}"
+                )
             }
         }
     }

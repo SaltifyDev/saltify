@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 import org.ntqqrev.saltify.dsl.PluginSpec
 import org.ntqqrev.saltify.event.Event
 import org.ntqqrev.saltify.logic.CommandLogic
