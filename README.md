@@ -44,7 +44,7 @@ val plugin = plugin<Config> {
     }
     
     on<GroupJoinRequestEvent> {
-        val group = ctx.getGroup(it.groupUin)
+        val group = it.ctx.getGroup(it.groupUin)
         group?.sendMessage("${it.initiatorUin} requested to join group with ${it.comment}")
     }
     
