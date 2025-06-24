@@ -6,9 +6,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.ntqqrev.saltify.dsl.PluginSpec
 import org.ntqqrev.saltify.event.Event
 import org.ntqqrev.saltify.logic.CommandLogic
@@ -125,7 +126,9 @@ class SaltifyApp(
             },
             flow
         )
-        plugin.start()
+        plugin.scope.async {
+            plugin.start()
+        }.await()
         commandLogic.registerAll(plugin)
         loadedPlugins[id] = plugin
     }
