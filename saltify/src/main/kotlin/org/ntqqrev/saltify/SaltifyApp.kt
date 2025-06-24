@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -17,11 +17,14 @@ import org.ntqqrev.saltify.plugin.Plugin
 import org.ntqqrev.saltify.plugin.PluginMeta
 import java.net.URLClassLoader
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
 class SaltifyApp(
     val rootDataPath: Path,
+    val defaultObjectMapper: ObjectMapper,
     val config: SaltifyAppConfig
 ) {
     companion object {
@@ -38,13 +41,22 @@ class SaltifyApp(
     }
 
     val logger = KotlinLogging.logger { }
-    val defaultObjectMapper = jacksonObjectMapper()
 
     val commandManager = CommandManager(this)
     val configManager = ConfigManager(this)
 
-    val pluginsPath = rootDataPath / "plugins"
-    val configPath = rootDataPath / "config"
+    val pluginsPath = (rootDataPath / "plugins").also {
+        if (!it.exists()) {
+            it.createDirectories()
+            logger.info { "Created plugins directory at $it" }
+        }
+    }
+    val configPath = (rootDataPath / "config").also {
+        if (!it.exists()) {
+            it.createDirectories()
+            logger.info { "Created config directory at $it" }
+        }
+    }
 
     val pluginSpecs = mutableMapOf<String, PluginSpec<*>>()
     val pluginMetas = mutableMapOf<PluginSpec<*>, PluginMeta>()
@@ -127,5 +139,20 @@ class SaltifyApp(
         }.await()
         commandManager.registerAll(plugin)
         loadedPlugins[id] = plugin
+    }
+
+    suspend fun start() {
+        initPluginSpecs()
+        logger.info { "Initialized ${pluginSpecs.size} plugins" }
+        val configured = configManager.listAllConfiguredPlugins()
+        for (pluginId in configured) {
+            try {
+                logger.info { "Starting plugin $pluginId" }
+                loadPlugin(pluginId)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to load plugin $pluginId: ${e.message}" }
+            }
+        }
+        logger.info { "Started ${configured.size} plugins" }
     }
 }
