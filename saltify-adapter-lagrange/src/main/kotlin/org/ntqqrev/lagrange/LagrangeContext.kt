@@ -6,6 +6,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.ntqqrev.lagrange.event.LagrangeQrCodeScanEvent
+import org.ntqqrev.lagrange.event.LagrangeQrCodeStateEvent
 import org.ntqqrev.lagrange.exception.LagrangeException
 import org.ntqqrev.lagrange.internal.LagrangeClient
 import org.ntqqrev.lagrange.internal.service.system.BotOnline
@@ -31,7 +33,6 @@ import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileSystemEntry
-import kotlin.io.path.writeBytes
 import kotlin.io.path.writeText
 import kotlin.properties.Delegates
 
@@ -61,26 +62,41 @@ class LagrangeContext internal constructor(
     override val state: Context.State
         get() = instanceState
 
+    private fun terminateWithException(e: Exception) {
+        instanceState = Context.State.TERMINATED
+        throw e
+    }
+
     internal suspend fun qrCodeLogin() {
         logger.info { "Session is empty, using QR code login" }
 
         client.sessionStore.clear()
 
         val fetchQrCodeResult = client.callService(FetchQrCode)
-        logger.info { "QR code URL: ${fetchQrCodeResult.qrCodeUrl}" }
-        env.scope.launch {
-            env.rootDataPath.resolve(qrCodeFileName).writeBytes(fetchQrCodeResult.qrCodePng)
-            logger.info { "QR code saved to data/qrcode.png" }
-        }
+        flow.emit(
+            LagrangeQrCodeScanEvent(
+                ctx = this,
+                time = Clock.System.now(),
+                qrCodePng = fetchQrCodeResult.qrCodePng,
+                qrCodeUrl = fetchQrCodeResult.qrCodeUrl,
+            )
+        )
 
         while (true) {
             val qrCodeState = client.callService(QueryQrCodeState)
-            logger.debug { "QrCodeState: ${QueryQrCodeState.Result.getString(qrCodeState)}" }
+            val stateStr = QueryQrCodeState.Result.getString(qrCodeState)
+            flow.emit(
+                LagrangeQrCodeStateEvent(
+                    ctx = this,
+                    time = Clock.System.now(),
+                    stateStr = stateStr,
+                )
+            )
+            logger.debug { "QrCodeState: $stateStr" }
             if (qrCodeState.value == QueryQrCodeState.Result.Confirmed.value) {
                 if (client.sessionStore.uin != init.uin) {
                     client.packetLogic.disconnect()
-                    instanceState = Context.State.TERMINATED
-                    throw LagrangeException("Uin mismatch: expected ${init.uin}, got ${client.sessionStore.uin}")
+                    terminateWithException(LagrangeException("Uin mismatch: expected ${init.uin}, got ${client.sessionStore.uin}"))
                 }
                 break
             }
@@ -89,10 +105,8 @@ class LagrangeContext internal constructor(
         logger.info { "QR code has been confirmed" }
 
         val isLoginSuccess = client.callService(WtLogin)
-        if (!isLoginSuccess) {
-            instanceState = Context.State.TERMINATED
-            throw RuntimeException("QR code login failed")
-        }
+        if (!isLoginSuccess)
+            terminateWithException(LagrangeException("QR code login failed"))
 
         logger.info { "Credentials retrieved, trying online" }
         env.scope.launch {
@@ -101,18 +115,15 @@ class LagrangeContext internal constructor(
         }
 
         val onlineResult = client.callService(BotOnline)
-        if (!onlineResult) {
-            instanceState = Context.State.TERMINATED
-            throw RuntimeException("Login failed")
-        }
+        if (!onlineResult)
+            terminateWithException(LagrangeException("Bot online failed"))
     }
 
     internal suspend fun fastLogin() {
         logger.info { "Login with existing session" }
         val onlineResult = client.callService(BotOnline)
         if (!onlineResult) {
-            instanceState = Context.State.TERMINATED
-            throw RuntimeException("Login failed")
+            terminateWithException(LagrangeException("Bot online failed"))
             // TODO: key exchange if session is expired
         }
     }
@@ -132,7 +143,7 @@ class LagrangeContext internal constructor(
         logger.info { "Logging out" }
         // TODO: send logout packet
         client.packetLogic.disconnect()
-        instanceState = Context.State.TERMINATED
+        instanceState = Context.State.STOPPED
     }
 
     override suspend fun getLoginInfo(): Pair<Long, String> {
