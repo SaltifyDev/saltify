@@ -48,7 +48,13 @@ class SaltifyApp(
             logger.info { "Created config directory at $it" }
         }
     }
-    val dbPath = rootDataPath / "saltify.db"
+    val dataPath = (rootDataPath / "data").also {
+        if (!it.exists()) {
+            it.createDirectories()
+            logger.info { "Created data directory at $it" }
+        }
+    }
+    val dbPath = dataPath / "saltify.db"
 
     suspend fun start() {
         databaseManager.initDatabase()

@@ -13,9 +13,9 @@
             <pattern>%d{HH:mm:ss.SSS} %logger %-5level - %msg%n</pattern>
             <charset>utf-8</charset>
         </encoder>
-        <file>data/test-logs.log</file>
+        <file>logs/saltify.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>logs/logs-%i.log</fileNamePattern>
+            <fileNamePattern>logs/saltify-%i.log</fileNamePattern>
         </rollingPolicy>
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
             <MaxFileSize>1MB</MaxFileSize>
@@ -24,5 +24,6 @@
 
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>

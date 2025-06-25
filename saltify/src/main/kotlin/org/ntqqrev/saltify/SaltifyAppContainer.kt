@@ -15,7 +15,7 @@ object SaltifyAppContainer {
         if (current != null) {
             throw IllegalStateException("Saltify already started")
         }
-        val rootConfigPath = rootDataPath / "config.json"
+        val rootConfigPath = rootDataPath / "saltify-config.json"
         val objectMapper = jacksonObjectMapper()
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
         val config = if (rootConfigPath.exists()) {

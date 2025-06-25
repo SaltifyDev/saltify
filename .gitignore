@@ -44,4 +44,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-data
+/config/
+/plugins/
+/data/
+/logs/
+/saltify-config.json
