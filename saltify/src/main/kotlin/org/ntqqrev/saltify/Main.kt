@@ -1,28 +1,12 @@
 package org.ntqqrev.saltify
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.delay
 import kotlin.io.path.Path
-import kotlin.io.path.div
-import kotlin.io.path.exists
 
 suspend fun main() {
     println(SaltifyApp.banner)
     println("Welcome to ${SaltifyApp.name} v${SaltifyApp.version}")
 
-    val rootDataPath = Path(".")
-    val rootConfigPath = rootDataPath / "config.json"
-    val objectMapper = jacksonObjectMapper()
-    val config = if (rootConfigPath.exists()) {
-        objectMapper.readValue<SaltifyAppConfig>(rootConfigPath.toFile())
-    } else {
-        SaltifyAppConfig().also {
-            objectMapper.writeValue(rootConfigPath.toFile(), it)
-        }
-    }
-
-    val app = SaltifyApp(rootDataPath, objectMapper, config)
-    app.start()
+    SaltifyAppContainer.startSaltify(Path("."))
     delay(Long.MAX_VALUE)
 }
