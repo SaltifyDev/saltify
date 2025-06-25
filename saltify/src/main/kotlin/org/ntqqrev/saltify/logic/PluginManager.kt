@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import org.ktorm.database.Database
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.SaltifyApp
 import org.ntqqrev.saltify.dsl.PluginSpec
@@ -92,7 +93,8 @@ class PluginManager(val app: SaltifyApp) {
                                 }
                             }
                 )
-                override val rootDataPath: Path = app.rootDataPath / "data" / id
+                override val rootDataPath = app.rootDataPath / "data" / id
+                override val database = app.databaseManager.database
             },
             flow
         )

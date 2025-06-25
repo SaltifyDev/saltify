@@ -1,27 +1,15 @@
 package org.ntqqrev.saltify
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import org.ntqqrev.saltify.dsl.PluginSpec
-import org.ntqqrev.saltify.event.Event
 import org.ntqqrev.saltify.logic.CommandManager
 import org.ntqqrev.saltify.logic.ConfigManager
+import org.ntqqrev.saltify.logic.DatabaseManager
 import org.ntqqrev.saltify.logic.PluginManager
-import org.ntqqrev.saltify.plugin.Plugin
-import org.ntqqrev.saltify.plugin.PluginMeta
-import java.net.URLClassLoader
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.div
 import kotlin.io.path.exists
-import kotlin.io.path.listDirectoryEntries
 
 class SaltifyApp(
     val rootDataPath: Path,
@@ -45,6 +33,7 @@ class SaltifyApp(
 
     val commandManager = CommandManager(this)
     val configManager = ConfigManager(this)
+    val databaseManager = DatabaseManager(this)
     val pluginManager = PluginManager(this)
 
     val pluginsPath = (rootDataPath / "plugins").also {
@@ -59,8 +48,10 @@ class SaltifyApp(
             logger.info { "Created config directory at $it" }
         }
     }
+    val dbPath = rootDataPath / "saltify.db"
 
     suspend fun start() {
+        databaseManager.initDatabase()
         pluginManager.initPluginSpecs()
         logger.info { "Initialized ${pluginManager.pluginSpecs.size} plugins" }
         val configured = configManager.listAllConfiguredPlugins()

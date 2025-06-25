@@ -8,6 +8,7 @@ dependencies {
     implementation(libs.bundles.kotlinx)
     implementation(libs.bundles.logging)
     implementation(libs.jacksonModuleKotlin)
+    implementation(libs.bundles.orm)
     implementation(kotlin("reflect"))
     implementation(project(":saltify-api"))
     implementation(project(":saltify-adapter-lagrange"))

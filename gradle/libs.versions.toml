@@ -23,6 +23,9 @@ logbackClassic = { module = "ch.qos.logback:logback-classic", version = "1.5.18"
 
 saltifyProtobuf = { module = "org.ntqqrev.saltify:saltify-protobuf", version = "0.1.0" }
 
+ktorm = { module = "org.ktorm:ktorm-core", version = "4.1.1" }
+sqliteJdbc = { module = "org.xerial:sqlite-jdbc", version = "3.50.1.0" }
+
 [bundles]
 ktor = [
     "ktorClientCore",
@@ -37,5 +40,9 @@ kotlinx = [
 ]
 logging = [
     "kotlinLogging",
-    "logbackClassic"
+    "logbackClassic",
+]
+orm = [
+    "ktorm",
+    "sqliteJdbc",
 ]

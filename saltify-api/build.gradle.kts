@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.kotlinxDatetime)
-    compileOnly(libs.kotlinxCoroutines)
+    api(libs.kotlinxDatetime)
+    api(libs.kotlinxCoroutines)
+    api(libs.ktorm)
 }
