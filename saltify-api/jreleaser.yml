@@ -1,0 +1,27 @@
+project:
+  name: saltify-api
+  version: 0.1.0
+  description: API for Saltify plugins
+  authors:
+    - Wesley F. Young
+  license: Apache-2
+  links:
+    homepage: https://github.com/SaltifyDev/saltify
+  languages:
+    java:
+      groupId: org.ntqqrev.saltify
+      version: 21
+  inceptionYear: 2025
+
+signing:
+  active: ALWAYS
+  armored: true
+
+deploy:
+  maven:
+    mavenCentral:
+      sonatype:
+        active: ALWAYS
+        url: https://central.sonatype.com/api/v1/publisher
+        stagingRepositories:
+          - build/staging-deploy
