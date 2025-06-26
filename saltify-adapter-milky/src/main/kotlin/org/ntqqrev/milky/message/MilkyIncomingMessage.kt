@@ -94,7 +94,7 @@ class MilkyIncomingGroupMessage(
             ctx: MilkyContext,
             data: MilkyIncomingMessageData
         ) = ctx.getGroup(data.peerId)?.let { group ->
-            ctx.getGroupMember(data.senderId, data.peerId)?.let { member ->
+            ctx.getGroupMember(data.peerId, data.senderId)?.let { member ->
                 MilkyIncomingGroupMessage(
                     ctx,
                     group,
