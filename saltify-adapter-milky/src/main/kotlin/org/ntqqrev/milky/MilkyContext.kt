@@ -10,7 +10,6 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.*
@@ -63,15 +62,12 @@ class MilkyContext internal constructor(
         propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
     }
 
-    private val base = if (init.milkyUrl.endsWith("/"))
-        init.milkyUrl
-    else
-        "${init.milkyUrl}/"
+    private val apiBaseUrl = (if (init.useHttps) "https://" else "http://") +
+        (if (init.milkyUrl.endsWith("/")) init.milkyUrl else init.milkyUrl + "/") + "api"
 
-    private val wsUrl = if (init.milkyAccessToken.isEmpty())
-        "${base}event"
-    else
-        "${base}event?access_token=${init.milkyAccessToken}"
+    private val wsUrl = (if (init.useHttps) "wss://" else "ws://") +
+        (if (init.milkyUrl.endsWith("/")) init.milkyUrl else init.milkyUrl + "/") +
+        (if (init.milkyAccessToken.isEmpty()) "event" else "event?access_token=${init.milkyAccessToken}")
 
     private val client = HttpClient(CIO) {
         install(WebSockets) {
@@ -136,7 +132,7 @@ class MilkyContext internal constructor(
     }
 
     internal suspend inline fun <reified T, reified R> callApi(name: String, body: T): R {
-        val response = client.post("${base}api/$name") {
+        val response = client.post("${apiBaseUrl}/$name") {
             headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 if (init.milkyAccessToken.isNotEmpty()) {
