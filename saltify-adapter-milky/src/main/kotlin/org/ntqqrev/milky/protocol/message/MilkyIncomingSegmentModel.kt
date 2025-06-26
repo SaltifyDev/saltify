@@ -4,28 +4,28 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 class MilkyIncomingSegmentModel(
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        property = "type",
+    )
+    @JsonSubTypes(
+        JsonSubTypes.Type(MilkyIncomingTextData::class, "text"),
+        JsonSubTypes.Type(MilkyIncomingMentionData::class, "mention"),
+        JsonSubTypes.Type(MilkyIncomingMentionAllData::class, "mention_all"),
+        JsonSubTypes.Type(MilkyIncomingFaceData::class, "face"),
+        JsonSubTypes.Type(MilkyIncomingReplyData::class, "reply"),
+        JsonSubTypes.Type(MilkyIncomingImageData::class, "image"),
+        JsonSubTypes.Type(MilkyIncomingRecordData::class, "record"),
+        JsonSubTypes.Type(MilkyIncomingVideoData::class, "video"),
+        JsonSubTypes.Type(MilkyIncomingForwardData::class, "forward"),
+        JsonSubTypes.Type(MilkyIncomingMarketFaceData::class, "market_face"),
+        JsonSubTypes.Type(MilkyIncomingLightAppData::class, "light_app"),
+        JsonSubTypes.Type(MilkyIncomingXmlData::class, "xml"),
+    )
     val data: MilkyIncomingData,
 )
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-    property = "type",
-)
-@JsonSubTypes(
-    JsonSubTypes.Type(MilkyIncomingTextData::class, "text"),
-    JsonSubTypes.Type(MilkyIncomingMentionData::class, "mention"),
-    JsonSubTypes.Type(MilkyIncomingMentionAllData::class, "mention_all"),
-    JsonSubTypes.Type(MilkyIncomingFaceData::class, "face"),
-    JsonSubTypes.Type(MilkyIncomingReplyData::class, "reply"),
-    JsonSubTypes.Type(MilkyIncomingImageData::class, "image"),
-    JsonSubTypes.Type(MilkyIncomingRecordData::class, "record"),
-    JsonSubTypes.Type(MilkyIncomingVideoData::class, "video"),
-    JsonSubTypes.Type(MilkyIncomingForwardData::class, "forward"),
-    JsonSubTypes.Type(MilkyIncomingMarketFaceData::class, "market_face"),
-    JsonSubTypes.Type(MilkyIncomingLightAppData::class, "light_app"),
-    JsonSubTypes.Type(MilkyIncomingXmlData::class, "xml"),
-)
 sealed class MilkyIncomingData
 
 class MilkyIncomingTextData(

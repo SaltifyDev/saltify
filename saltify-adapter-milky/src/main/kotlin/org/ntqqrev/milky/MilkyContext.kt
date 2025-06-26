@@ -34,12 +34,11 @@ import org.ntqqrev.milky.exception.MilkyException
 import org.ntqqrev.milky.message.*
 import org.ntqqrev.milky.protocol.api.*
 import org.ntqqrev.milky.protocol.event.*
-import org.ntqqrev.milky.protocol.message.MilkyFriendMessageData
-import org.ntqqrev.milky.protocol.message.MilkyGroupMessageData
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.util.toEvent
 import org.ntqqrev.milky.util.toMilkyMessageScene
 import org.ntqqrev.milky.util.toMilkyUri
+import org.ntqqrev.milky.util.toSaltifyMessageScene
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.Environment
 import org.ntqqrev.saltify.event.*
@@ -165,11 +164,11 @@ class MilkyContext internal constructor(
     }
 
     internal suspend fun MilkyIncomingMessageData.toSaltifyMessage(): IncomingMessage {
-        val message = when (this) {
-            is MilkyFriendMessageData ->
+        val message = when (this.messageScene.toSaltifyMessageScene()) {
+            MessageScene.FRIEND ->
                 MilkyIncomingPrivateMessage.fromFriendMessage(this@MilkyContext, this)
 
-            is MilkyGroupMessageData ->
+            MessageScene.GROUP ->
                 MilkyIncomingGroupMessage.fromGroupMessage(this@MilkyContext, this)
 
             else -> throw MilkyException("Unsupported message type: ${this::class.simpleName}")

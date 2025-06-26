@@ -10,34 +10,34 @@ import org.ntqqrev.milky.protocol.request.MilkyGroupRequestData
 class MilkyEvent(
     val time: Long,
     val selfId: Long,
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        property = "event_type",
+    )
+    @JsonSubTypes(
+        JsonSubTypes.Type(MilkyBotOfflineEvent::class, "bot_offline"),
+        JsonSubTypes.Type(MilkyIncomingMessageData::class, "message_receive"),
+        JsonSubTypes.Type(MilkyMessageRecallEvent::class, "message_recall"),
+        JsonSubTypes.Type(MilkyFriendRequestData::class, "friend_request"),
+        JsonSubTypes.Type(MilkyGroupRequestData::class, "group_request"),
+        JsonSubTypes.Type(MilkyGroupInvitationData::class, "group_invitation"),
+        JsonSubTypes.Type(MilkyFriendNudgeEvent::class, "friend_nudge"),
+        JsonSubTypes.Type(MilkyFriendFileUploadEvent::class, "friend_file_upload"),
+        JsonSubTypes.Type(MilkyGroupAdminChangeEvent::class, "group_admin_change"),
+        JsonSubTypes.Type(MilkyGroupEssenceMessageChangeEvent::class, "group_essence_message_change"),
+        JsonSubTypes.Type(MilkyGroupMemberIncreaseEvent::class, "group_member_increase"),
+        JsonSubTypes.Type(MilkyGroupMemberDecreaseEvent::class, "group_member_decrease"),
+        JsonSubTypes.Type(MilkyGroupNameChangeEvent::class, "group_name_change"),
+        JsonSubTypes.Type(MilkyGroupMessageReactionEvent::class, "group_message_reaction"),
+        JsonSubTypes.Type(MilkyGroupMuteEvent::class, "group_mute"),
+        JsonSubTypes.Type(MilkyGroupWholeMuteEvent::class, "group_whole_mute"),
+        JsonSubTypes.Type(MilkyGroupNudgeEvent::class, "group_nudge"),
+        JsonSubTypes.Type(MilkyGroupFileUploadEvent::class, "group_file_upload")
+    )
     val data: MilkyEventBody
 )
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-    property = "event_type",
-)
-@JsonSubTypes(
-    JsonSubTypes.Type(MilkyBotOfflineEvent::class, "bot_offline"),
-    JsonSubTypes.Type(MilkyIncomingMessageData::class, "message_receive"),
-    JsonSubTypes.Type(MilkyMessageRecallEvent::class, "message_recall"),
-    JsonSubTypes.Type(MilkyFriendRequestData::class, "friend_request"),
-    JsonSubTypes.Type(MilkyGroupRequestData::class, "group_request"),
-    JsonSubTypes.Type(MilkyGroupInvitationData::class, "group_invitation"),
-    JsonSubTypes.Type(MilkyFriendNudgeEvent::class, "friend_nudge"),
-    JsonSubTypes.Type(MilkyFriendFileUploadEvent::class, "friend_file_upload"),
-    JsonSubTypes.Type(MilkyGroupAdminChangeEvent::class, "group_admin_change"),
-    JsonSubTypes.Type(MilkyGroupEssenceMessageChangeEvent::class, "group_essence_message_change"),
-    JsonSubTypes.Type(MilkyGroupMemberIncreaseEvent::class, "group_member_increase"),
-    JsonSubTypes.Type(MilkyGroupMemberDecreaseEvent::class, "group_member_decrease"),
-    JsonSubTypes.Type(MilkyGroupNameChangeEvent::class, "group_name_change"),
-    JsonSubTypes.Type(MilkyGroupMessageReactionEvent::class, "group_message_reaction"),
-    JsonSubTypes.Type(MilkyGroupMuteEvent::class, "group_mute"),
-    JsonSubTypes.Type(MilkyGroupWholeMuteEvent::class, "group_whole_mute"),
-    JsonSubTypes.Type(MilkyGroupNudgeEvent::class, "group_nudge"),
-    JsonSubTypes.Type(MilkyGroupFileUploadEvent::class, "group_file_upload")
-)
 interface MilkyEventBody
 
 class MilkyBotOfflineEvent(

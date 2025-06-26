@@ -4,25 +4,25 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 class MilkyOutgoingSegmentModel(
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        property = "type",
+    )
+    @JsonSubTypes(
+        JsonSubTypes.Type(MilkyOutgoingTextData::class, "text"),
+        JsonSubTypes.Type(MilkyOutgoingMentionData::class, "mention"),
+        JsonSubTypes.Type(MilkyOutgoingMentionAllData::class, "mention_all"),
+        JsonSubTypes.Type(MilkyOutgoingFaceData::class, "face"),
+        JsonSubTypes.Type(MilkyOutgoingReplyData::class, "reply"),
+        JsonSubTypes.Type(MilkyOutgoingImageData::class, "image"),
+        JsonSubTypes.Type(MilkyOutgoingRecordData::class, "record"),
+        JsonSubTypes.Type(MilkyOutgoingVideoData::class, "video"),
+        JsonSubTypes.Type(MilkyOutgoingForwardData::class, "forward"),
+    )
     val data: MilkyOutgoingData,
 )
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-    property = "type",
-)
-@JsonSubTypes(
-    JsonSubTypes.Type(MilkyOutgoingTextData::class, "text"),
-    JsonSubTypes.Type(MilkyOutgoingMentionData::class, "mention"),
-    JsonSubTypes.Type(MilkyOutgoingMentionAllData::class, "mention_all"),
-    JsonSubTypes.Type(MilkyOutgoingFaceData::class, "face"),
-    JsonSubTypes.Type(MilkyOutgoingReplyData::class, "reply"),
-    JsonSubTypes.Type(MilkyOutgoingImageData::class, "image"),
-    JsonSubTypes.Type(MilkyOutgoingRecordData::class, "record"),
-    JsonSubTypes.Type(MilkyOutgoingVideoData::class, "video"),
-    JsonSubTypes.Type(MilkyOutgoingForwardData::class, "forward"),
-)
 sealed class MilkyOutgoingData
 
 class MilkyOutgoingTextData(

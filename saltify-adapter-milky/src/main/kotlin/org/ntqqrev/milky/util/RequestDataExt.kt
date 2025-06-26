@@ -18,8 +18,8 @@ internal fun MilkyFriendRequestData.toEvent(ctx: MilkyContext) =
     )
 
 internal fun MilkyGroupRequestData.toEvent(ctx: MilkyContext) =
-    when (this) {
-        is MilkyGroupJoinRequestData -> GroupJoinRequestEvent(
+    when (this.requestType) {
+        "join" -> GroupJoinRequestEvent(
             ctx = ctx,
             time = Instant.fromEpochSeconds(time),
             requestId = requestId,
@@ -30,7 +30,7 @@ internal fun MilkyGroupRequestData.toEvent(ctx: MilkyContext) =
             operatorUin = operatorId,
             comment = comment ?: "",
         )
-        is MilkyGroupInviteRequestData -> GroupInvitedJoinRequestEvent(
+        "invite" -> GroupInvitedJoinRequestEvent(
             ctx = ctx,
             time = Instant.fromEpochSeconds(time),
             requestId = requestId,
@@ -39,8 +39,9 @@ internal fun MilkyGroupRequestData.toEvent(ctx: MilkyContext) =
             state = state.toSaltifyRequestState(),
             groupUin = groupId,
             operatorUin = operatorId,
-            inviteeUin = inviteeId,
+            inviteeUin = inviteeId!!,
         )
+        else -> throw IllegalArgumentException("Unknown group request type: $requestType")
     }
 
 internal fun MilkyGroupInvitationData.toEvent(ctx: MilkyContext) =

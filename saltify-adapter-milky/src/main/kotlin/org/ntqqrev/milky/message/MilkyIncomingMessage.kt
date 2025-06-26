@@ -61,7 +61,7 @@ class MilkyIncomingPrivateMessage(
     companion object {
         suspend fun fromFriendMessage(
             ctx: MilkyContext,
-            data: MilkyFriendMessageData
+            data: MilkyIncomingMessageData
         ) = ctx.getFriend(data.peerId)?.let { peer ->
             MilkyIncomingPrivateMessage(
                 ctx,
@@ -92,7 +92,7 @@ class MilkyIncomingGroupMessage(
     companion object {
         suspend fun fromGroupMessage(
             ctx: MilkyContext,
-            data: MilkyGroupMessageData
+            data: MilkyIncomingMessageData
         ) = ctx.getGroup(data.peerId)?.let { group ->
             ctx.getGroupMember(data.senderId, data.peerId)?.let { member ->
                 MilkyIncomingGroupMessage(
