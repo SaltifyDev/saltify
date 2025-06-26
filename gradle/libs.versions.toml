@@ -11,7 +11,7 @@ ktorClientWebsockets = { module = "io.ktor:ktor-client-websockets", version.ref 
 ktorSerializationJackson = { module = "io.ktor:ktor-serialization-jackson", version.ref = "ktor" }
 ktorClientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 
-kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.7.0" }
+kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.2" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.10.2" }
 
 jacksonModuleKotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version = "2.19.1" }
