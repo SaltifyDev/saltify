@@ -10,6 +10,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.*
@@ -133,11 +134,9 @@ class MilkyContext internal constructor(
 
     internal suspend inline fun <reified T, reified R> callApi(name: String, body: T): R {
         val response = client.post("${apiBaseUrl}/$name") {
-            headers {
-                append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                if (init.milkyAccessToken.isNotEmpty()) {
-                    append("Authorization", "Bearer ${init.milkyAccessToken}")
-                }
+            contentType(ContentType.Application.Json)
+            if (init.milkyAccessToken.isNotEmpty()) {
+                bearerAuth(init.milkyAccessToken)
             }
             setBody(body)
         }
