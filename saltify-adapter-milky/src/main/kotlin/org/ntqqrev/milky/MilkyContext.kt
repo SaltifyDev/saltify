@@ -10,6 +10,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.*
@@ -82,6 +83,8 @@ class MilkyContext internal constructor(
         }
     }
 
+    private var connectSeq = 0
+
     internal var instanceState by Delegates.observable(Context.State.INITIALIZED) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             env.scope.launch {
@@ -106,6 +109,7 @@ class MilkyContext internal constructor(
         while (env.scope.isActive) {
             try {
                 client.webSocket(wsUrl) {
+                    connectSeq++
                     logger.info { "Connected to $wsUrl" }
                     instanceState = Context.State.STARTED
                     while (isActive) {
@@ -181,10 +185,21 @@ class MilkyContext internal constructor(
         instanceState = Context.State.STOPPED
     }
 
-    override suspend fun getLoginInfo(): Pair<Long, String> = callApi<MilkyApiEmptyRequest, MilkyGetLoginInfoResponse>(
-        "get_login_info",
-        MilkyApiEmptyRequest()
-    ).let { Pair(it.uin, it.nickname) }
+    private var lastLoginInfo: Pair<Int, MilkyGetLoginInfoResponse>? = null
+
+    override suspend fun getLoginInfo(): Pair<Long, String> {
+        val response: MilkyGetLoginInfoResponse
+        if (connectSeq == lastLoginInfo?.first) {
+            response = lastLoginInfo!!.second
+        } else {
+            response = callApi<MilkyApiEmptyRequest, MilkyGetLoginInfoResponse>(
+                "get_login_info",
+                MilkyApiEmptyRequest()
+            )
+            lastLoginInfo = connectSeq to response
+        }
+        return response.uin to response.nickname
+    }
 
     override suspend fun getAllFriends(cacheFirst: Boolean): Iterable<MilkyFriend> =
         friendCache.getAll(cacheFirst)
