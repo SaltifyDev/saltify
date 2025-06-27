@@ -1,5 +1,3 @@
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,11 +9,6 @@ import org.ntqqrev.milky.MilkyContextFactory
 import org.ntqqrev.milky.MilkyInit
 
 private val logger = KotlinLogging.logger {}
-val flow = MutableSharedFlow<Event>(extraBufferCapacity = 64)
-
-val objectMapper = ObjectMapper().apply {
-    enable(SerializationFeature.INDENT_OUTPUT)
-}
 
 suspend fun main() {
     val flow = MutableSharedFlow<Event>(extraBufferCapacity = 64)
