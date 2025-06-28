@@ -1,14 +1,11 @@
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
-import org.ntqqrev.saltify.event.Event
-import org.ntqqrev.saltify.event.MessageReceiveEvent
 import org.ntqqrev.milky.MilkyContextFactory
 import org.ntqqrev.milky.MilkyInit
-
-private val logger = KotlinLogging.logger {}
+import org.ntqqrev.saltify.event.Event
+import org.ntqqrev.saltify.event.MessageReceiveEvent
 
 suspend fun main() {
     val flow = MutableSharedFlow<Event>(extraBufferCapacity = 64)

@@ -1,12 +1,8 @@
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.MilkyContextFactory
 import org.ntqqrev.milky.MilkyInit
 import org.ntqqrev.saltify.Context
-import kotlin.system.measureTimeMillis
-
-private val logger = KotlinLogging.logger {}
 
 suspend fun main() {
     testEnv.scope.run {
@@ -24,34 +20,22 @@ suspend fun main() {
             }
         }
 
-        listOf<suspend (Context) -> Unit>(
-            ::testGetLoginInfo,
-            ::testGetFriendList,
-            ::testGetFriendInfo,
-            ::testGetGroupList,
-            ::testGetGroupInfo,
-            ::testGetGroupMemberList,
-            ::testGetGroupMemberInfo,
-            ::testGetImplInfo
-        ).forEach { test ->
+        val tests = listOf(
+            NamedTest("Get_Login_Info", ::testGetLoginInfo),
+            NamedTest("Get_Friend_List", ::testGetFriendList),
+            NamedTest("Get_Friend_Info", ::testGetFriendInfo),
+            NamedTest("Get_Group_List", ::testGetGroupList),
+            NamedTest("Get_Group_Info", ::testGetGroupInfo),
+            NamedTest("Get_GroupMember_List", ::testGetGroupMemberList),
+            NamedTest("Get_GroupMember_Info", ::testGetGroupMemberInfo),
+            NamedTest("Get_Impl_Info", ::testGetImplInfo),
+        )
+
+        for (test in tests) {
             runTest(test, ctx)
         }
 
     }
-}
-
-private suspend fun runTest(testFn: suspend (Context) -> Unit, ctx: Context) {
-    val name = testFn.javaClass.name.substringAfter("test")
-    logger.info { "🔍 Starting test: $name" }
-    val time = measureTimeMillis {
-        try {
-            testFn(ctx)
-            logger.info { "✅ Test $name succeeded" }
-        } catch (e: Exception) {
-            logger.error(e) { "❌ Test $name failed" }
-        }
-    }
-    logger.info { "⏱️ Test $name finished in ${time}ms\n" }
 }
 
 private suspend fun testGetLoginInfo(ctx: Context) {
@@ -96,4 +80,7 @@ private suspend fun testGetGroupMemberInfo(ctx: Context) {
     logger.info { "Group member info (${group.name}): ${member?.nickname}" }
 }
 
-private suspend fun testGetImplInfo(ctx: Context) { /*TODO*/ }
+private suspend fun testGetImplInfo(ctx: Context) {
+    // TODO: Not yet implemented
+    logger.info { "TODO: Not yet implemented" }
+}
