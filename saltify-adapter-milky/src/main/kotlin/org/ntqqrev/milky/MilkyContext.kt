@@ -524,27 +524,51 @@ class MilkyContext internal constructor(
         ).invitations.map { it.toEvent(this) }
 
     override suspend fun acceptFriendRequest(requestId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyAcceptFriendRequestRequest, MilkyApiEmptyResponse>(
+            "accept_friend_request",
+            MilkyAcceptFriendRequestRequest(requestId)
+        )
     }
 
     override suspend fun rejectFriendRequest(requestId: String, reason: String?) {
-        TODO("Not yet implemented")
+        callApi<MilkyRejectFriendRequestRequest, MilkyApiEmptyResponse>(
+            "reject_friend_request",
+            MilkyRejectFriendRequestRequest(
+                requestId = requestId,
+                reason = reason
+            )
+        )
     }
 
     override suspend fun acceptGroupRequest(requestId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyAcceptGroupRequestRequest, MilkyApiEmptyResponse>(
+            "accept_group_request",
+            MilkyAcceptGroupRequestRequest(requestId)
+        )
     }
 
     override suspend fun rejectGroupRequest(requestId: String, reason: String?) {
-        TODO("Not yet implemented")
+        callApi<MilkyRejectGroupRequestRequest, MilkyApiEmptyResponse>(
+            "reject_group_request",
+            MilkyRejectGroupRequestRequest(
+                requestId = requestId,
+                reason = reason
+            )
+        )
     }
 
     override suspend fun acceptGroupInvitation(requestId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyAcceptGroupInvitationRequest, MilkyApiEmptyResponse>(
+            "accept_group_invitation",
+            MilkyAcceptGroupInvitationRequest(requestId)
+        )
     }
 
     override suspend fun rejectGroupInvitation(requestId: String) {
-        TODO("Not yet implemented")
+        callApi<MilkyRejectGroupInvitationRequest, MilkyApiEmptyResponse>(
+            "reject_group_invitation",
+            MilkyRejectGroupInvitationRequest(requestId)
+        )
     }
 
     override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String =

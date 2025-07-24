@@ -28,11 +28,28 @@ class MilkyGetGroupInvitationsResponse(
     val invitations: List<MilkyGroupInvitationData>,
 )
 
-class MilkyAcceptRequestRequest(
+class MilkyAcceptFriendRequestRequest(
     val requestId: String,
 )
 
-class MilkyRejectRequestRequest(
+class MilkyRejectFriendRequestRequest(
     val requestId: String,
     val reason: String? = null,
+)
+
+class MilkyAcceptGroupRequestRequest(
+    val requestId: String,
+)
+
+class MilkyRejectGroupRequestRequest(
+    val requestId: String,
+    val reason: String? = null,
+)
+
+class MilkyAcceptGroupInvitationRequest(
+    val requestId: String,
+)
+
+class MilkyRejectGroupInvitationRequest(
+    val requestId: String,
 )
