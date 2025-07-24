@@ -255,14 +255,34 @@ interface Context {
     suspend fun getRecentGroupInvitations(limit: Int = 20): List<GroupInvitationEvent>
 
     /**
-     * Accept the request with the given id.
+     * Accept the friend request with the given id.
      */
-    suspend fun acceptRequest(requestId: String)
+    suspend fun acceptFriendRequest(requestId: String)
 
     /**
-     * Reject the request with the given id, using the given reason or no reason.
+     * Reject the friend request with the given id, using the given reason or no reason.
      */
-    suspend fun rejectRequest(requestId: String, reason: String? = null)
+    suspend fun rejectFriendRequest(requestId: String, reason: String? = null)
+
+    /**
+     * Accept the group request with the given id.
+     */
+    suspend fun acceptGroupRequest(requestId: String)
+
+    /**
+     * Reject the group request with the given id, using the given reason or no reason.
+     */
+    suspend fun rejectGroupRequest(requestId: String, reason: String? = null)
+
+    /**
+     * Accept the group invitation with the given id.
+     */
+    suspend fun acceptGroupInvitation(requestId: String)
+
+    /**
+     * Reject the friend request with the given id, using the given reason or no reason.
+     */
+    suspend fun rejectGroupInvitation(requestId: String)
 
     /**
      * Upload a file to the specified user.

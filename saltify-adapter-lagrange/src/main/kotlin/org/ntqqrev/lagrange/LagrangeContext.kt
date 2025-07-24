@@ -324,11 +324,27 @@ class LagrangeContext internal constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun acceptRequest(requestId: String) {
+    override suspend fun acceptFriendRequest(requestId: String) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun rejectRequest(requestId: String, reason: String?) {
+    override suspend fun rejectFriendRequest(requestId: String, reason: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun acceptGroupRequest(requestId: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun rejectGroupRequest(requestId: String, reason: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun acceptGroupInvitation(requestId: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun rejectGroupInvitation(requestId: String) {
         TODO("Not yet implemented")
     }
 

@@ -523,21 +523,28 @@ class MilkyContext internal constructor(
             MilkyGetGroupInvitationsRequest(limit)
         ).invitations.map { it.toEvent(this) }
 
-    override suspend fun acceptRequest(requestId: String) {
-        callApi<MilkyAcceptRequestRequest, MilkyApiEmptyResponse>(
-            "accept_request",
-            MilkyAcceptRequestRequest(requestId)
-        )
+    override suspend fun acceptFriendRequest(requestId: String) {
+        TODO("Not yet implemented")
     }
 
-    override suspend fun rejectRequest(requestId: String, reason: String?) {
-        callApi<MilkyRejectRequestRequest, MilkyApiEmptyResponse>(
-            "reject_request",
-            MilkyRejectRequestRequest(
-                requestId = requestId,
-                reason = reason ?: ""
-            )
-        )
+    override suspend fun rejectFriendRequest(requestId: String, reason: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun acceptGroupRequest(requestId: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun rejectGroupRequest(requestId: String, reason: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun acceptGroupInvitation(requestId: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun rejectGroupInvitation(requestId: String) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun uploadPrivateFile(userUin: Long, file: ResourceLocation, fileName: String): String =

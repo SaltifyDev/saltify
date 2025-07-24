@@ -2,6 +2,9 @@ package org.ntqqrev.saltify
 
 import org.ntqqrev.saltify.event.AbstractRequestEvent
 import org.ntqqrev.saltify.event.FriendFileUploadEvent
+import org.ntqqrev.saltify.event.FriendRequestEvent
+import org.ntqqrev.saltify.event.GroupInvitationEvent
+import org.ntqqrev.saltify.event.GroupRequestEvent
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.message.incoming.ForwardSegment
 import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
@@ -109,11 +112,19 @@ suspend fun GroupMember.sendNudge() =
 suspend fun GroupIncomingMessage.sendReaction(reactionId: String, isAdd: Boolean) =
     ctx.sendGroupMessageReaction(group.uin, sequence, reactionId, isAdd)
 
-suspend fun AbstractRequestEvent.accept() =
-    ctx.acceptRequest(requestId)
+suspend fun AbstractRequestEvent.accept() = when (this) {
+    is FriendRequestEvent -> ctx.acceptFriendRequest(requestId)
+    is GroupRequestEvent -> ctx.acceptGroupRequest(requestId)
+    is GroupInvitationEvent -> ctx.acceptGroupInvitation(requestId)
+    else -> throw IllegalStateException("Cannot accept request of type ${this::class.simpleName}")
+}
 
-suspend fun AbstractRequestEvent.reject(reason: String? = null) =
-    ctx.rejectRequest(requestId, reason)
+suspend fun AbstractRequestEvent.reject(reason: String? = null) = when (this) {
+    is FriendRequestEvent -> ctx.rejectFriendRequest(requestId, reason)
+    is GroupRequestEvent -> ctx.rejectGroupRequest(requestId, reason)
+    is GroupInvitationEvent -> ctx.rejectGroupInvitation(requestId)
+    else -> throw IllegalStateException("Cannot reject request of type ${this::class.simpleName}")
+}
 
 suspend fun Friend.uploadFile(file: ResourceLocation, fileName: String) =
     ctx.uploadPrivateFile(uin, file, fileName)
