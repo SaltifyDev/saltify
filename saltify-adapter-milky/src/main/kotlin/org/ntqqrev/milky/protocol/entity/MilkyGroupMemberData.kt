@@ -10,5 +10,6 @@ class MilkyGroupMemberData(
     val level: Int,
     val role: String,
     val joinTime: Long,
-    val lastSentTime: Long,
+    val lastSentTime: Long? = null,
+    val shutUpEndTime: Long? = null,
 )

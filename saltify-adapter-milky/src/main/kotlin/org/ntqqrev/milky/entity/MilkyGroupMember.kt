@@ -35,10 +35,13 @@ class MilkyGroupMember(
     override val joinedAt: Instant
         get() = Instant.fromEpochSeconds(dataBinding.joinTime)
     override val lastSpokeAt: Instant?
-        get() = when (dataBinding.lastSentTime) {
-            0L -> null
-            else -> Instant.fromEpochSeconds(dataBinding.lastSentTime)
-        }
+        get() = dataBinding.lastSentTime
+            ?.takeIf { it > 0L }
+            ?.let { Instant.fromEpochSeconds(it) }
+    override val mutedUntil: Instant?
+        get() = dataBinding.shutUpEndTime
+            ?.takeIf { it > 0L }
+            ?.let { Instant.fromEpochSeconds(it) }
 
     internal class Cache(val group: MilkyGroup) :
         AbstractCacheService<MilkyGroupMember, Long, MilkyGroupMemberData>(group.ctx.env.scope) {
