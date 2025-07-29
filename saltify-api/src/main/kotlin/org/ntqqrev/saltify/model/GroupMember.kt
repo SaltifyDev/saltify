@@ -38,6 +38,11 @@ interface GroupMember : User {
      */
     val lastSpokeAt: Instant?
 
+    /**
+     * The time the member's ban on chat is lifted.
+     */
+    val mutedUntil: Instant?
+
     enum class Role {
         OWNER,
         ADMIN,
