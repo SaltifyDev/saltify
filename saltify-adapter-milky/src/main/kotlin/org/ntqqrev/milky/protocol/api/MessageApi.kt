@@ -38,7 +38,6 @@ class MilkyGetHistoryMessagesRequest(
     val messageScene: String,
     val peerId: Long,
     val startMessageSeq: Long?,
-    val direction: String,
     val limit: Int = 20,
 )
 

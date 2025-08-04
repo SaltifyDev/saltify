@@ -10,11 +10,8 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.http.headers
 import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,18 +19,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.ntqqrev.milky.entity.MilkyAnnouncement
-import org.ntqqrev.milky.entity.MilkyFileEntry
-import org.ntqqrev.milky.entity.MilkyFolderEntry
-import org.ntqqrev.milky.entity.MilkyFriend
-import org.ntqqrev.milky.entity.MilkyGroup
-import org.ntqqrev.milky.entity.MilkyGroupMember
+import org.ntqqrev.milky.entity.*
 import org.ntqqrev.milky.exception.MilkyApiNotFoundException
 import org.ntqqrev.milky.exception.MilkyBadCredentialsException
 import org.ntqqrev.milky.exception.MilkyException
 import org.ntqqrev.milky.message.*
 import org.ntqqrev.milky.protocol.api.*
-import org.ntqqrev.milky.protocol.event.*
+import org.ntqqrev.milky.protocol.event.MilkyEvent
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.util.toEvent
 import org.ntqqrev.milky.util.toMilkyMessageScene
@@ -288,8 +280,9 @@ class MilkyContext internal constructor(
             MilkyGetHistoryMessagesRequest(
                 messageScene = messageScene.toMilkyMessageScene(),
                 peerId = peerId,
-                startMessageSeq = startSequence,
-                direction = if (isBackward) "older" else "newer",
+                startMessageSeq = startSequence?.let {
+                    if (isBackward) it else it + limit - 1
+                },
                 limit = limit
             )
         ).messages.map { it.toSaltifyMessage() }
