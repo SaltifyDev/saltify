@@ -1,6 +1,6 @@
 project:
   name: saltify-api
-  version: 0.1.0
+  version: 0.1.1
   description: API for Saltify plugins
   authors:
     - Wesley F. Young
@@ -10,8 +10,8 @@ project:
   languages:
     java:
       groupId: org.ntqqrev.saltify
-      version: 21
-  inceptionYear: 2025
+      version: '21'
+  inceptionYear: '2025'
 
 signing:
   active: ALWAYS

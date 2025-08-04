@@ -19,7 +19,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             groupId = "org.ntqqrev.saltify"
-            version = "0.1.0"
+            version = "0.1.1"
             artifactId = "saltify-api"
 
             pom {
