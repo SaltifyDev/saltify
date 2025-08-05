@@ -1,5 +1,6 @@
 package org.ntqqrev.milky
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -53,6 +54,7 @@ class MilkyContext internal constructor(
     internal val logger = KotlinLogging.logger { }
     private val objectMapper = jacksonObjectMapper().apply {
         propertyNamingStrategy = PropertyNamingStrategies.SNAKE_CASE
+        setSerializationInclusion(JsonInclude.Include.NON_NULL)
     }
 
     private val apiBaseUrl = (if (init.useHttps) "https://" else "http://") +
