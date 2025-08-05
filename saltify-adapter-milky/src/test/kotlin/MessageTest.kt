@@ -19,8 +19,8 @@ suspend fun main() {
         val tests = listOf(
             NamedTest("Send_Private_Message", ::testSendPrivateMessage),
             NamedTest("Send_Group_Message", ::testSendGroupMessage),
-            // NamedTest("Get_Message", ::testGetMessage), TODO: When Lagrange.Milky supports `getHistoryMessages()`
-            // NamedTest("Get_History_Messages", ::testGetHistoryMessages)
+            NamedTest("Get_Message", ::testGetMessage),
+            NamedTest("Get_History_Messages", ::testGetHistoryMessages)
         )
         for (test in tests) {
             runTest(test, ctx)
