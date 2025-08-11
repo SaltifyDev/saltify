@@ -1,15 +1,15 @@
 package org.ntqqrev.milky.message
 
 import kotlinx.datetime.Instant
+import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.protocol.message.MilkyIncomingForwardedMessageData
 import org.ntqqrev.milky.protocol.message.MilkyIncomingSegmentModel
 import org.ntqqrev.milky.util.convertSegment
-import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.message.incoming.ForwardedIncomingMessage
 import org.ntqqrev.saltify.message.incoming.Segment
 
 class MilkyIncomingForwardedMessage(
-    override val ctx: Context,
+    override val ctx: MilkyContext,
     override val senderName: String,
     override val senderAvatarLink: String,
     override val time: Instant,
@@ -20,13 +20,13 @@ class MilkyIncomingForwardedMessage(
 
     companion object {
         fun fromData(
-            ctx: Context,
+            ctx: MilkyContext,
             data: MilkyIncomingForwardedMessageData,
         ) = MilkyIncomingForwardedMessage(
             ctx,
             data.senderName,
             data.avatarUrl,
-            Instant.Companion.fromEpochMilliseconds(data.time),
+            Instant.fromEpochMilliseconds(data.time),
             data.segments
         )
     }

@@ -1,32 +1,9 @@
 package org.ntqqrev.milky.util
 
-import org.ntqqrev.milky.protocol.message.MilkyIncomingData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingFaceData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingForwardData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingImageData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingLightAppData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingMarketFaceData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingMentionAllData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingMentionData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingRecordData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingReplyData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingTextData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingVideoData
-import org.ntqqrev.milky.protocol.message.MilkyIncomingXmlData
-import org.ntqqrev.saltify.Context
+import org.ntqqrev.milky.MilkyContext
+import org.ntqqrev.milky.protocol.message.*
 import org.ntqqrev.saltify.message.ImageSubType
-import org.ntqqrev.saltify.message.incoming.FaceSegment
-import org.ntqqrev.saltify.message.incoming.ForwardSegment
-import org.ntqqrev.saltify.message.incoming.ImageSegment
-import org.ntqqrev.saltify.message.incoming.LightAppSegment
-import org.ntqqrev.saltify.message.incoming.MarketFaceSegment
-import org.ntqqrev.saltify.message.incoming.MentionSegment
-import org.ntqqrev.saltify.message.incoming.RecordSegment
-import org.ntqqrev.saltify.message.incoming.ReplySegment
-import org.ntqqrev.saltify.message.incoming.TextSegment
-import org.ntqqrev.saltify.message.incoming.VideoSegment
-import org.ntqqrev.saltify.message.incoming.XmlSegment
+import org.ntqqrev.saltify.message.incoming.*
 
 internal fun MilkyIncomingMessageData.resolveSenderName(): String {
     if (friend != null) {
@@ -42,7 +19,7 @@ internal fun MilkyIncomingMessageData.resolveSenderName(): String {
     }
 }
 
-internal fun convertSegment(ctx: Context, data: MilkyIncomingData) =
+internal fun convertSegment(ctx: MilkyContext, data: MilkyIncomingData) =
     when (data) {
         is MilkyIncomingTextData -> TextSegment(ctx, data.text)
         is MilkyIncomingMentionData -> MentionSegment(ctx, data.userId)

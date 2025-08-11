@@ -6,7 +6,7 @@ import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.group.Announcement
 
 class MilkyAnnouncement(
-    override val group: Group,
+    override val group: MilkyGroup,
     data: MilkyGroupAnnouncementData
 ) : Announcement {
     override val announcementId: String = data.announcementId

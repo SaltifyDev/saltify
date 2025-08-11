@@ -24,7 +24,7 @@ class MilkyGroupMember(
         get() = dataBinding.nickname
     override val gender: Gender
         get() = dataBinding.sex.toSaltifyGender()
-    override val card: String?
+    override val card: String
         get() = dataBinding.card
     override val specialTitle: String?
         get() = dataBinding.title

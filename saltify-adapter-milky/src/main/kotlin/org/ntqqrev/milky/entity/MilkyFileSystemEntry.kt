@@ -1,16 +1,16 @@
 package org.ntqqrev.milky.entity
 
 import kotlinx.datetime.Instant
+import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.protocol.entity.MilkyGroupFileData
 import org.ntqqrev.milky.protocol.entity.MilkyGroupFolderData
-import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.group.FileEntry
 import org.ntqqrev.saltify.model.group.FolderEntry
 
 class MilkyFileEntry(
-    override val ctx: Context,
-    override val group: Group,
+    override val ctx: MilkyContext,
+    override val group: MilkyGroup,
     data: MilkyGroupFileData,
 ) : FileEntry {
     override val fileId: String = data.fileId
@@ -24,8 +24,8 @@ class MilkyFileEntry(
 }
 
 class MilkyFolderEntry(
-    override val ctx: Context,
-    override val group: Group,
+    override val ctx: MilkyContext,
+    override val group: MilkyGroup,
     data: MilkyGroupFolderData,
 ) : FolderEntry {
     override val folderId: String = data.folderId

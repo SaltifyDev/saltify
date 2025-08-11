@@ -2,6 +2,7 @@ package org.ntqqrev.milky.message
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.ntqqrev.milky.MilkyContext
 import org.ntqqrev.milky.protocol.message.*
 import org.ntqqrev.saltify.getMessages
@@ -77,6 +78,5 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
             else -> throw IllegalArgumentException("Unsupported segment type: ${this::class.simpleName}")
         }
 
-    internal suspend fun build(): List<MilkyOutgoingForwardedMessageData> =
-        deferredData.map { it.await() }
+    internal suspend fun build(): List<MilkyOutgoingForwardedMessageData> = deferredData.awaitAll()
 }
