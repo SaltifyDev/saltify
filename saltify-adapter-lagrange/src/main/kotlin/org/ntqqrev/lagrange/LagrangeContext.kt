@@ -31,6 +31,14 @@ import org.ntqqrev.saltify.message.outgoing.ResourceLocation
 import org.ntqqrev.saltify.model.Friend
 import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
+import org.ntqqrev.lagrange.internal.packet.highway.IndexNode
+import org.ntqqrev.lagrange.internal.service.highway.GetGroupImageUrl
+import org.ntqqrev.lagrange.cache.FriendCacheService
+import org.ntqqrev.lagrange.cache.GroupCacheService
+import org.ntqqrev.lagrange.cache.GroupMemberCacheService
+import org.ntqqrev.lagrange.internal.packet.highway.FileId
+import org.ntqqrev.lagrange.internal.util.ext.pb
+import org.ntqqrev.lagrange.model.LagrangeGroup
 import org.ntqqrev.saltify.model.group.Announcement
 import org.ntqqrev.saltify.model.group.FileSystemEntry
 import kotlin.io.path.writeText
@@ -147,36 +155,37 @@ class LagrangeContext internal constructor(
     }
 
     override suspend fun getLoginInfo(): Pair<Long, String> {
-        TODO("Not yet implemented")
+        return client.sessionStore.uin to ""
     }
 
     override suspend fun getAllFriends(cacheFirst: Boolean): Iterable<Friend> {
-        TODO("Not yet implemented")
+        return FriendCacheService(this).getAll(cacheFirst)
     }
 
     override suspend fun getFriend(
         friendUin: Long,
         cacheFirst: Boolean
     ): Friend? {
-        TODO("Not yet implemented")
+        return FriendCacheService(this).get(friendUin, cacheFirst)
     }
 
     override suspend fun getAllGroups(cacheFirst: Boolean): Iterable<Group> {
-        TODO("Not yet implemented")
+        return GroupCacheService(this).getAll(cacheFirst)
     }
 
     override suspend fun getGroup(
         groupUin: Long,
         cacheFirst: Boolean
     ): Group? {
-        TODO("Not yet implemented")
+        return GroupCacheService(this).get(groupUin, cacheFirst)
     }
 
     override suspend fun getAllGroupMembers(
         groupUin: Long,
         cacheFirst: Boolean
     ): Iterable<GroupMember> {
-        TODO("Not yet implemented")
+        val group = getGroup(groupUin, cacheFirst) as? LagrangeGroup ?: return emptyList()
+        return GroupMemberCacheService(group, this).getAll(cacheFirst)
     }
 
     override suspend fun getGroupMember(
@@ -184,7 +193,8 @@ class LagrangeContext internal constructor(
         memberUin: Long,
         cacheFirst: Boolean
     ): GroupMember? {
-        TODO("Not yet implemented")
+        val group = getGroup(groupUin, cacheFirst) as? LagrangeGroup ?: return null
+        return GroupMemberCacheService(group, this).get(memberUin, cacheFirst)
     }
 
     override suspend fun sendPrivateMessage(
@@ -220,7 +230,20 @@ class LagrangeContext internal constructor(
     }
 
     override suspend fun getResourceTempUrl(resourceId: String): String {
-        TODO("Not yet implemented")
+        if (resourceId.startsWith("url:")) return resourceId.removePrefix("url:")
+
+        val normalized = resourceId
+            .replace('-', '+')
+            .replace('_', '/')
+        val pad = (4 - normalized.length % 4) % 4
+        val base64 = normalized.padEnd(normalized.length + pad, '=')
+        val bytes = java.util.Base64.getDecoder().decode(base64)
+        val fileId = bytes.pb<FileId>()
+        val indexNode = IndexNode(fileUuid = resourceId, ttl = fileId.ttl)
+        return when (fileId.appId) {
+            1407 -> client.callService(GetGroupImageUrl, indexNode)
+            else -> error("Unsupported appid: ${fileId.appId}")
+        }
     }
 
     override suspend fun getForwardedMessages(forwardId: String): List<ForwardedIncomingMessage> {
