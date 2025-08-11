@@ -7,7 +7,6 @@ import org.ntqqrev.saltify.event.GroupInvitationEvent
 import org.ntqqrev.saltify.event.GroupRequestEvent
 import org.ntqqrev.saltify.message.MessageScene
 import org.ntqqrev.saltify.message.incoming.ForwardSegment
-import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
 import org.ntqqrev.saltify.message.incoming.ResourceLikeSegment
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
@@ -61,8 +60,11 @@ suspend fun ResourceLikeSegment.getTempUrl() =
 suspend fun ForwardSegment.getMessages() =
     ctx.getForwardedMessages(forwardId)
 
-suspend fun GroupIncomingMessage.recall() =
-    ctx.recallGroupMessage(group.uin, sequence)
+suspend fun Friend.recallMessage(sequence: Long) =
+    ctx.recallPrivateMessage(uin, sequence)
+
+suspend fun Group.recallMessage(sequence: Long) =
+    ctx.recallGroupMessage(uin, sequence)
 
 suspend fun Friend.sendNudge(isSelf: Boolean = false) =
     ctx.sendPrivateNudge(uin, isSelf)
@@ -106,11 +108,11 @@ suspend fun Announcement.delete() =
 suspend fun Group.quit() =
     ctx.quitGroup(uin)
 
+suspend fun Group.sendReaction(sequence: Long, reactionId: String, isAdd: Boolean) =
+    ctx.sendGroupMessageReaction(uin, sequence, reactionId, isAdd)
+
 suspend fun GroupMember.sendNudge() =
     ctx.sendGroupNudge(group.uin, uin)
-
-suspend fun GroupIncomingMessage.sendReaction(reactionId: String, isAdd: Boolean) =
-    ctx.sendGroupMessageReaction(group.uin, sequence, reactionId, isAdd)
 
 suspend fun AbstractRequestEvent.accept() = when (this) {
     is FriendRequestEvent -> ctx.acceptFriendRequest(requestId)

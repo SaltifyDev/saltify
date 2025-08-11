@@ -1,10 +1,11 @@
 package org.ntqqrev.saltify.dsl
 
 import org.ntqqrev.saltify.Entity
-import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
-import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
 import org.ntqqrev.saltify.message.outgoing.*
+import org.ntqqrev.saltify.model.Friend
+import org.ntqqrev.saltify.model.GroupMember
+import org.ntqqrev.saltify.model.User
 import kotlin.reflect.KClass
 
 interface CommandDslContext {
@@ -41,21 +42,21 @@ interface CommandDslContext {
      * Executes the given [block] when the command is executed in any context.
      */
     fun onExecute(
-        block: suspend CommandExecutionDslContext<IncomingMessage, CommonBuilder>.() -> Unit
+        block: suspend CommandExecutionDslContext<User, CommonBuilder>.() -> Unit
     )
 
     /**
      * Executes the given [block] when the command is executed in a private chat.
      */
     fun onPrivateExecute(
-        block: suspend CommandExecutionDslContext<PrivateIncomingMessage, PrivateMessageBuilder>.() -> Unit
+        block: suspend CommandExecutionDslContext<Friend, PrivateMessageBuilder>.() -> Unit
     )
 
     /**
      * Executes the given [block] when the command is executed in a group.
      */
     fun onGroupExecute(
-        block: suspend CommandExecutionDslContext<GroupIncomingMessage, GroupMessageBuilder>.() -> Unit
+        block: suspend CommandExecutionDslContext<GroupMember, GroupMessageBuilder>.() -> Unit
     )
 }
 
@@ -65,11 +66,16 @@ inline fun <reified T : Any> CommandDslContext.parameter(
     return parameter(T::class, name, description)
 }
 
-interface CommandExecutionDslContext<M : IncomingMessage, B : Entity> {
+interface CommandExecutionDslContext<U : User, B : Entity> {
     /**
      * The raw message that triggered the command execution.
      */
-    val message: M
+    val message: IncomingMessage
+
+    /**
+     * The sender of the command, which is a user of type [U].
+     */
+    val sender: U
 
     /**
      * Captures a parameter of the specified type [T] using the provided [capturer]

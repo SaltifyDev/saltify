@@ -3,10 +3,11 @@ package org.ntqqrev.saltify.event
 import kotlinx.datetime.Instant
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.message.MessageScene
-import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
-import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
+import org.ntqqrev.saltify.model.Friend
+import org.ntqqrev.saltify.model.Group
 import org.ntqqrev.saltify.model.GroupMember
+import org.ntqqrev.saltify.model.User
 
 abstract class AbstractMessageEvent(
     ctx: Context,
@@ -28,7 +29,7 @@ abstract class AbstractMessageEvent(
     val sequence: Long,
 ) : Event(ctx, time)
 
-open class MessageReceiveEvent(
+abstract class MessageReceiveEvent(
     ctx: Context,
 
     /**
@@ -38,18 +39,50 @@ open class MessageReceiveEvent(
 ) : AbstractMessageEvent(
     ctx,
     message.time,
-    when (message) {
-        is PrivateIncomingMessage -> MessageScene.FRIEND
-        is GroupIncomingMessage -> MessageScene.GROUP
-        else -> throw IllegalArgumentException("Unknown message type: ${message::class}")
-    },
-    when (message) {
-        is PrivateIncomingMessage -> message.peer.uin
-        is GroupIncomingMessage -> message.group.uin
-        else -> throw IllegalArgumentException("Unknown message type: ${message::class}")
-    },
+    message.scene,
+    message.peerUin,
     message.sequence
 )
+
+open class FriendMessageReceiveEvent(
+    ctx: Context,
+    message: IncomingMessage,
+
+    /**
+     * The friend who sent the message.
+     */
+    val friend: Friend,
+) : MessageReceiveEvent(ctx, message)
+
+open class GroupMessageReceiveEvent(
+    ctx: Context,
+    message: IncomingMessage,
+
+    /**
+     * The group where the message was sent.
+     */
+    val group: Group,
+
+    /**
+     * The group member who sent the message.
+     */
+    val sender: GroupMember,
+) : MessageReceiveEvent(ctx, message)
+
+open class TempMessageReceiveEvent(
+    ctx: Context,
+    message: IncomingMessage,
+
+    /**
+     * The user who sent the message. This is typically a non-friend member of a group.
+     */
+    val user: User,
+
+    /**
+     * The group which the user is a member of, if applicable.
+     */
+    val group: Group?,
+) : MessageReceiveEvent(ctx, message)
 
 open class MessageRecallEvent(
     ctx: Context,

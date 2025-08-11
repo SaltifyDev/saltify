@@ -2,11 +2,19 @@ package org.ntqqrev.saltify.message.incoming
 
 import kotlinx.datetime.Instant
 import org.ntqqrev.saltify.Entity
-import org.ntqqrev.saltify.model.Group
-import org.ntqqrev.saltify.model.GroupMember
-import org.ntqqrev.saltify.model.User
+import org.ntqqrev.saltify.message.MessageScene
 
 interface IncomingMessage : Entity {
+    /**
+     * The scene where the message was sent.
+     */
+    val scene: MessageScene
+
+    /**
+     * The uin of the peer (user uin for private chat, group uin for group chat).
+     */
+    val peerUin: Long
+
     /**
      * The sequence number of the message.
      */
@@ -18,31 +26,26 @@ interface IncomingMessage : Entity {
     val time: Instant
 
     /**
-     * The sender of the message.
+     * The uin of the sender of the message.
      */
-    val sender: User
+    val senderUin: Long
+
+    /**
+     * The display name of the sender of the message.
+     *
+     * For private / temp messages, this is:
+     * - the remark set by the bot account
+     * - the nickname of the user, if no remark is set
+     *
+     * For group messages, this is:
+     * - the remark set by the bot account
+     * - the card set by the group member, if no remark is set
+     * - the nickname of the group member, if no remark or card is set
+     */
+    val senderName: String
 
     /**
      * The content of the message.
      */
     val segments: List<Segment>
-}
-
-interface PrivateIncomingMessage : IncomingMessage {
-    /**
-     * The peer the bot is interacting with.
-     */
-    val peer: User
-}
-
-interface GroupIncomingMessage : IncomingMessage {
-    /**
-     * The group where the message was sent.
-     */
-    val group: Group
-
-    /**
-     * The member who sent the message.
-     */
-    override val sender: GroupMember
 }
