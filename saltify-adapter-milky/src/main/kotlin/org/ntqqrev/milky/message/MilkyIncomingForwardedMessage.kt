@@ -26,7 +26,7 @@ class MilkyIncomingForwardedMessage(
             ctx,
             data.senderName,
             data.avatarUrl,
-            Instant.fromEpochMilliseconds(data.time),
+            Instant.fromEpochSeconds(data.time),
             data.segments
         )
     }
