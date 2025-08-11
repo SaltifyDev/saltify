@@ -3,7 +3,7 @@ import { Outlet } from 'react-router';
 import logo from './assets/logo.png';
 import SideNavItem from './components/SideNavItem.tsx';
 import type { ReactNode } from 'react';
-import { Blocks, House } from 'lucide-react';
+import { Blocks, Factory, House, Settings } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -14,6 +14,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/', title: '首页', icon: <House /> },
   { href: '/plugins', title: '插件管理', icon: <Blocks /> },
+  { href: '/adapters', title: '适配器管理', icon: <Factory /> },
+  { href: '/settings', title: '框架设置', icon: <Settings /> },
 ];
 
 function App() {
@@ -29,6 +31,7 @@ function App() {
           <Text fontSize={'xl'} fontWeight={'bold'}>
             Saltify
           </Text>
+          <Text>the QQ Bot Framework</Text>
         </HStack>
       </Box>
       <Flex flex={'1'} minH={0}>
