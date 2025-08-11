@@ -124,7 +124,7 @@ class MilkyIncomingForwardedMessage(
             data: MilkyIncomingForwardedMessageData,
         ) = MilkyIncomingForwardedMessage(
             ctx,
-            data.name,
+            data.senderName,
             data.avatarUrl,
             Instant.fromEpochMilliseconds(data.time),
             data.segments

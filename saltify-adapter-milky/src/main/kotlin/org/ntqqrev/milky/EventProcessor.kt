@@ -188,7 +188,7 @@ internal suspend fun MilkyContext.processEvent(event: MilkyEvent) {
                     ctx = this,
                     time = Instant.fromEpochSeconds(event.time),
                     group = group,
-                    newName = data.name,
+                    newName = data.newGroupName,
                     operator = member,
                 )
             )

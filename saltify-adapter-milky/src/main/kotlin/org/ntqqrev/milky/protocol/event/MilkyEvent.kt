@@ -10,12 +10,12 @@ import org.ntqqrev.milky.protocol.request.MilkyGroupRequestData
 class MilkyEvent(
     val time: Long,
     val selfId: Long,
-    @JsonTypeInfo(
+    @param:JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
         property = "event_type",
     )
-    @JsonSubTypes(
+    @param:JsonSubTypes(
         JsonSubTypes.Type(MilkyBotOfflineEvent::class, "bot_offline"),
         JsonSubTypes.Type(MilkyIncomingMessageData::class, "message_receive"),
         JsonSubTypes.Type(MilkyMessageRecallEvent::class, "message_recall"),
@@ -93,7 +93,7 @@ class MilkyGroupMemberDecreaseEvent(
 
 class MilkyGroupNameChangeEvent(
     val groupId: Long,
-    val name: String,
+    val newGroupName: String,
     val operatorId: Long,
 ) : MilkyEventBody
 

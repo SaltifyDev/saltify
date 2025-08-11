@@ -61,7 +61,7 @@ class MilkyMoveGroupFileRequest(
 class MilkyRenameGroupFileRequest(
     val groupId: Long,
     val fileId: String,
-    val newName: String,
+    val newFileName: String,
 )
 
 class MilkyDeleteGroupFileRequest(
@@ -81,7 +81,7 @@ class MilkyCreateGroupFolderResponse(
 class MilkyRenameGroupFolderRequest(
     val groupId: Long,
     val folderId: String,
-    val newName: String,
+    val newFolderName: String,
 )
 
 class MilkyDeleteGroupFolderRequest(

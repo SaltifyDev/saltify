@@ -357,7 +357,7 @@ class MilkyContext internal constructor(
             "set_group_name",
             MilkySetGroupNameRequest(
                 groupId = groupUin,
-                name = name
+                newGroupName = name
             )
         )
     }
@@ -653,7 +653,7 @@ class MilkyContext internal constructor(
             MilkyRenameGroupFileRequest(
                 groupId = groupUin,
                 fileId = fileId,
-                newName = newName
+                newFileName = newName
             )
         )
     }
@@ -687,7 +687,7 @@ class MilkyContext internal constructor(
             MilkyRenameGroupFolderRequest(
                 groupId = groupUin,
                 folderId = folderId,
-                newName = newName
+                newFolderName = newName
             )
         )
     }

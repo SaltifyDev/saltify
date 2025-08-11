@@ -15,7 +15,7 @@ class MilkyGroup(
     override val uin: Long
         get() = dataBinding.groupId
     override val name: String
-        get() = dataBinding.name
+        get() = dataBinding.groupName
     override val memberCount: Int
         get() = dataBinding.memberCount
     override val maxMemberCount: Int

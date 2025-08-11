@@ -4,7 +4,7 @@ import org.ntqqrev.milky.protocol.entity.MilkyGroupAnnouncementData
 
 class MilkySetGroupNameRequest(
     val groupId: Long,
-    val name: String,
+    val newGroupName: String,
 )
 
 class MilkySetGroupAvatarRequest(

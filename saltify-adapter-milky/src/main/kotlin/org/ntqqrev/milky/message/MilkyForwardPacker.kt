@@ -29,7 +29,7 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
         deferredData.addAsync {
             MilkyOutgoingForwardedMessageData(
                 userId = uin,
-                name = name,
+                senderName = name,
                 segments = forwardBuilder.build()
             )
         }
@@ -81,7 +81,7 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
             is ForwardSegment -> MilkyOutgoingForwardData(getMessages().map {
                 MilkyOutgoingForwardedMessageData(
                     userId = 0,
-                    name = it.senderName,
+                    senderName = it.senderName,
                     segments = it.segments.map { segment ->
                         MilkyOutgoingSegmentModel(segment.toMilkyOutgoingData())
                     }
