@@ -1,6 +1,10 @@
+import { Heading } from '@chakra-ui/react';
+
 function Home() {
   return (
-    <div>Welcome to Saltify!</div>
+    <div>
+      <Heading as={'h1'}>Welcome to Saltify!</Heading>
+    </div>
   )
 }
 
