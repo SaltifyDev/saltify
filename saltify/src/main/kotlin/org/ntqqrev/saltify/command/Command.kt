@@ -1,24 +1,34 @@
 package org.ntqqrev.saltify.command
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.ntqqrev.saltify.dsl.CommandDslContext
 import org.ntqqrev.saltify.dsl.CommandExecutionDslContext
 import org.ntqqrev.saltify.dsl.CommonBuilder
 import org.ntqqrev.saltify.dsl.ParamCapturer
-import org.ntqqrev.saltify.message.incoming.*
+import org.ntqqrev.saltify.event.FriendMessageReceiveEvent
+import org.ntqqrev.saltify.event.GroupMessageReceiveEvent
+import org.ntqqrev.saltify.event.MessageReceiveEvent
+import org.ntqqrev.saltify.message.incoming.Segment
+import org.ntqqrev.saltify.message.incoming.TextSegment
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
+import org.ntqqrev.saltify.model.Friend
+import org.ntqqrev.saltify.model.GroupMember
+import org.ntqqrev.saltify.model.User
 import org.ntqqrev.saltify.plugin.Plugin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+
+private val logger = KotlinLogging.logger { }
 
 class Command(
     val name: String,
     val description: String,
     val plugin: Plugin<*>
 ) : CommandDslContext {
-    internal var onPrivateExecuteBlock: (suspend CommandExecutionDslContext<PrivateIncomingMessage, PrivateMessageBuilder>.() -> Unit)? =
+    internal var onPrivateExecuteBlock: (suspend CommandExecutionDslContext<Friend, PrivateMessageBuilder>.() -> Unit)? =
         null
-    internal var onGroupExecuteBlock: (suspend CommandExecutionDslContext<GroupIncomingMessage, GroupMessageBuilder>.() -> Unit)? =
+    internal var onGroupExecuteBlock: (suspend CommandExecutionDslContext<GroupMember, GroupMessageBuilder>.() -> Unit)? =
         null
 
     internal val subCommands = mutableMapOf<String, Command>()
@@ -93,30 +103,31 @@ class Command(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun onExecute(block: suspend CommandExecutionDslContext<IncomingMessage, CommonBuilder>.() -> Unit) {
+    override fun onExecute(block: suspend CommandExecutionDslContext<User, CommonBuilder>.() -> Unit) {
         onPrivateExecuteBlock =
-            block as suspend CommandExecutionDslContext<PrivateIncomingMessage, PrivateMessageBuilder>.() -> Unit
+            block as suspend CommandExecutionDslContext<Friend, PrivateMessageBuilder>.() -> Unit
         onGroupExecuteBlock =
-            block as suspend CommandExecutionDslContext<GroupIncomingMessage, GroupMessageBuilder>.() -> Unit
+            block as suspend CommandExecutionDslContext<GroupMember, GroupMessageBuilder>.() -> Unit
     }
 
-    override fun onPrivateExecute(block: suspend CommandExecutionDslContext<PrivateIncomingMessage, PrivateMessageBuilder>.() -> Unit) {
+    override fun onPrivateExecute(block: suspend CommandExecutionDslContext<Friend, PrivateMessageBuilder>.() -> Unit) {
         onPrivateExecuteBlock = block
     }
 
-    override fun onGroupExecute(block: suspend CommandExecutionDslContext<GroupIncomingMessage, GroupMessageBuilder>.() -> Unit) {
+    override fun onGroupExecute(block: suspend CommandExecutionDslContext<GroupMember, GroupMessageBuilder>.() -> Unit) {
         onGroupExecuteBlock = block
     }
 
     suspend fun tryExecute(
         tokenizer: MessageTokenizer,
-        message: IncomingMessage
+        event: MessageReceiveEvent
     ) {
+        val message = event.message
         val first = tokenizer.read()
         if (first is TextToken) {
             val subCommand = subCommands[first.text]
             if (subCommand != null) {
-                return subCommand.tryExecute(tokenizer, message)
+                return subCommand.tryExecute(tokenizer, event)
             }
         }
         tokenizer.unread()
@@ -131,37 +142,34 @@ class Command(
             } else {
                 tokenizer.read()
             }
-            val matchedValue = node.tryMatch(current)
-            if (matchedValue == null) {
-                throw IllegalArgumentException(
-                    "Failed to match parameter '${node.name}' with value '$current' in command '$name'"
-                )
-            }
+            val matchedValue = node.tryMatch(current) ?: throw IllegalArgumentException(
+                "Failed to match parameter '${node.name}' with value '$current' in command '$name'"
+            )
             captureContext[node] = matchedValue
         }
-        when (message) {
-            is PrivateIncomingMessage -> {
+        when (event) {
+            is FriendMessageReceiveEvent -> {
                 if (onPrivateExecuteBlock == null) {
                     throw IllegalStateException(
                         "Invalid scope for command '$name': " +
                                 "no private execution block defined"
                     )
                 } else {
-                    val execution = CommandExecution.Private(message, captureContext)
+                    val execution = CommandExecution.Private(event, captureContext)
                     execution.apply {
                         onPrivateExecuteBlock!!.invoke(this)
                     }
                 }
             }
 
-            is GroupIncomingMessage -> {
+            is GroupMessageReceiveEvent -> {
                 if (onGroupExecuteBlock == null) {
                     throw IllegalStateException(
                         "Invalid scope for command '$name': " +
                                 "no group execution block defined"
                     )
                 } else {
-                    val execution = CommandExecution.Group(message, captureContext)
+                    val execution = CommandExecution.Group(event, captureContext)
                     execution.apply {
                         onGroupExecuteBlock!!.invoke(this)
                     }
@@ -169,10 +177,10 @@ class Command(
             }
 
             else -> {
-                throw IllegalStateException(
+                logger.warn {
                     "Invalid message type for command '$name': " +
                             "expected PrivateIncomingMessage or GroupIncomingMessage, got ${message::class.simpleName}"
-                )
+                }
             }
         }
     }

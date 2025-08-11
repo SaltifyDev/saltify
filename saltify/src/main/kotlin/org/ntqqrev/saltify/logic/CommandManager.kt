@@ -6,6 +6,7 @@ import org.ntqqrev.saltify.SaltifyAppConfig
 import org.ntqqrev.saltify.command.Command
 import org.ntqqrev.saltify.command.MessageTokenizer
 import org.ntqqrev.saltify.command.TextToken
+import org.ntqqrev.saltify.event.MessageReceiveEvent
 import org.ntqqrev.saltify.exception.CommandNotFoundException
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
 import org.ntqqrev.saltify.message.incoming.MentionSegment
@@ -78,7 +79,8 @@ class CommandManager(
         }
     }
 
-    suspend fun process(message: IncomingMessage) {
+    suspend fun process(event: MessageReceiveEvent) {
+        val message = event.message
         var tokenizer: MessageTokenizer? = null
         var commandLiteral: String? = null
         when (app.config.command.triggerPolicy) {
@@ -142,8 +144,8 @@ class CommandManager(
         if (command == null) {
             throw CommandNotFoundException(commandName)
         }
-        command.tryExecute(tokenizer, message).also {
-            logger.info { "Command '$commandName' executed by ${message.sender.uin}" }
+        command.tryExecute(tokenizer, event).also {
+            logger.info { "Command '$commandName' executed by ${message.senderUin}" }
         }
     }
 }

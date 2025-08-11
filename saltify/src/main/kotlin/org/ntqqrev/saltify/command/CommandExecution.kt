@@ -3,18 +3,21 @@ package org.ntqqrev.saltify.command
 import org.ntqqrev.saltify.Entity
 import org.ntqqrev.saltify.dsl.CommandExecutionDslContext
 import org.ntqqrev.saltify.dsl.ParamCapturer
-import org.ntqqrev.saltify.message.incoming.GroupIncomingMessage
+import org.ntqqrev.saltify.event.FriendMessageReceiveEvent
+import org.ntqqrev.saltify.event.GroupMessageReceiveEvent
 import org.ntqqrev.saltify.message.incoming.IncomingMessage
-import org.ntqqrev.saltify.message.incoming.PrivateIncomingMessage
 import org.ntqqrev.saltify.message.outgoing.GroupMessageBuilder
 import org.ntqqrev.saltify.message.outgoing.PrivateMessageBuilder
 import org.ntqqrev.saltify.model.Friend
+import org.ntqqrev.saltify.model.GroupMember
+import org.ntqqrev.saltify.model.User
 import org.ntqqrev.saltify.sendMessage
 
-abstract class CommandExecution<M : IncomingMessage, B : Entity>(
-    override val message: M,
+abstract class CommandExecution<U : User, B : Entity>(
+    override val sender: U,
+    override val message: IncomingMessage,
     val captureContext: Map<ParamCapturer<*>, Any>
-) : CommandExecutionDslContext<M, B> {
+) : CommandExecutionDslContext<U, B> {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> capture(capturer: ParamCapturer<T>): T =
         captureContext[capturer] as? T
@@ -23,22 +26,20 @@ abstract class CommandExecution<M : IncomingMessage, B : Entity>(
             )
 
     class Private(
-        override val message: PrivateIncomingMessage,
+        event: FriendMessageReceiveEvent,
         captureContext: Map<ParamCapturer<*>, Any>
-    ) : CommandExecution<PrivateIncomingMessage, PrivateMessageBuilder>(message, captureContext) {
+    ) : CommandExecution<Friend, PrivateMessageBuilder>(event.friend, event.message, captureContext) {
         override suspend fun respond(block: PrivateMessageBuilder.() -> Unit) {
-            val friend = message.peer as? Friend
-                ?: throw IllegalStateException("Cannot send message to non-friend peer: ${message.peer}")
-            friend.sendMessage(block)
+            sender.sendMessage(block)
         }
     }
 
     class Group(
-        override val message: GroupIncomingMessage,
+        event: GroupMessageReceiveEvent,
         captureContext: Map<ParamCapturer<*>, Any>
-    ) : CommandExecution<GroupIncomingMessage, GroupMessageBuilder>(message, captureContext) {
+    ) : CommandExecution<GroupMember, GroupMessageBuilder>(event.sender, event.message, captureContext) {
         override suspend fun respond(block: GroupMessageBuilder.() -> Unit) {
-            message.group.sendMessage(block)
+            sender.group.sendMessage(block)
         }
     }
 }
