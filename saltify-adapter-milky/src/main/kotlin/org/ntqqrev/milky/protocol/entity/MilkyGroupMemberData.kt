@@ -4,7 +4,7 @@ class MilkyGroupMemberData(
     val userId: Long,
     val nickname: String,
     val sex: String,
-    val card: String? = null,
+    val card: String,
     val groupId: Long,
     val title: String? = null,
     val level: Int,

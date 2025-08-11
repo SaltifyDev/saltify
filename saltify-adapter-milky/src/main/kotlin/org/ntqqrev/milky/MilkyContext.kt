@@ -152,22 +152,6 @@ class MilkyContext internal constructor(
         }
     }
 
-    internal suspend fun MilkyIncomingMessageData.toSaltifyMessage(): IncomingMessage {
-        val message = when (this.messageScene.toSaltifyMessageScene()) {
-            MessageScene.FRIEND ->
-                MilkyIncomingPrivateMessage.fromFriendMessage(this@MilkyContext, this)
-
-            MessageScene.GROUP ->
-                MilkyIncomingGroupMessage.fromGroupMessage(this@MilkyContext, this)
-
-            else -> throw MilkyException("Unsupported message type: ${this::class.simpleName}")
-        }
-        if (message == null) {
-            throw MilkyException("Failed to parse message data (peerId=$peerId, seq=$messageSeq)")
-        }
-        return message
-    }
-
     override suspend fun stop() {
         client.close()
         instanceState = Context.State.STOPPED
@@ -260,7 +244,8 @@ class MilkyContext internal constructor(
         messageScene: MessageScene,
         peerId: Long,
         sequence: Long
-    ): IncomingMessage =
+    ): IncomingMessage = MilkyIncomingMessage.fromData(
+        this,
         callApi<MilkyGetMessageRequest, MilkyGetMessageResponse>(
             "get_message",
             MilkyGetMessageRequest(
@@ -268,7 +253,8 @@ class MilkyContext internal constructor(
                 peerId = peerId,
                 messageSeq = sequence
             )
-        ).message.toSaltifyMessage()
+        ).message
+    )
 
     override suspend fun getHistoryMessages(
         messageScene: MessageScene,
@@ -287,7 +273,7 @@ class MilkyContext internal constructor(
                 },
                 limit = limit
             )
-        ).messages.map { it.toSaltifyMessage() }
+        ).messages.map { MilkyIncomingMessage.fromData(this, it) }
 
     override suspend fun getResourceTempUrl(resourceId: String): String =
         callApi<MilkyGetResourceTempUrlRequest, MilkyGetResourceTempUrlResponse>(

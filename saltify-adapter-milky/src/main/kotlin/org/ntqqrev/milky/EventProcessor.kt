@@ -1,6 +1,8 @@
 package org.ntqqrev.milky
 
 import kotlinx.datetime.Instant
+import org.ntqqrev.milky.entity.MilkyStranger
+import org.ntqqrev.milky.message.MilkyIncomingMessage
 import org.ntqqrev.milky.protocol.event.*
 import org.ntqqrev.milky.protocol.message.MilkyIncomingMessageData
 import org.ntqqrev.milky.protocol.request.MilkyFriendRequestData
@@ -11,22 +13,52 @@ import org.ntqqrev.milky.util.toSaltifyMessageScene
 import org.ntqqrev.saltify.Context
 import org.ntqqrev.saltify.event.*
 import org.ntqqrev.saltify.getMember
+import org.ntqqrev.saltify.message.MessageScene
+import org.ntqqrev.saltify.model.Gender
 
 internal suspend fun MilkyContext.processEvent(event: MilkyEvent) {
-    val data = event.data
-    when (data) {
+    when (val data = event.data) {
         is MilkyBotOfflineEvent -> {
             instanceState = Context.State.INTERRUPTED
         }
 
         is MilkyIncomingMessageData -> {
-            val message = data.toSaltifyMessage()
-            flow.emit(
-                MessageReceiveEvent(
-                    ctx = this,
-                    message = message
-                )
-            )
+            val message = MilkyIncomingMessage.fromData(this, data)
+            when (message.scene) {
+                MessageScene.FRIEND -> {
+                    val friend = getFriend(message.peerUin)
+                    if (friend == null) {
+                        logger.warn { "Received message from unknown friend ${message.peerUin}" }
+                        return
+                    }
+                    flow.emit(FriendMessageReceiveEvent(this, message, friend))
+                }
+
+                MessageScene.GROUP -> {
+                    val group = getGroup(message.peerUin)
+                    if (group == null) {
+                        logger.warn { "Received message from unknown group ${message.peerUin}" }
+                        return
+                    }
+                    val member = group.getMember(message.senderUin)
+                    if (member == null) {
+                        logger.warn { "Received message from unknown member ${message.senderUin} in group ${message.peerUin}" }
+                        return
+                    }
+                    flow.emit(GroupMessageReceiveEvent(this, message, group, member))
+                }
+
+                MessageScene.TEMP -> {
+                    val group = getGroup(message.peerUin)
+                    val sender = group?.getMember(message.senderUin) ?: MilkyStranger(
+                        this,
+                        message.senderUin,
+                        message.senderName,
+                        Gender.UNKNOWN
+                    )
+                    flow.emit(TempMessageReceiveEvent(this, message, sender, group))
+                }
+            }
         }
 
         is MilkyMessageRecallEvent -> {

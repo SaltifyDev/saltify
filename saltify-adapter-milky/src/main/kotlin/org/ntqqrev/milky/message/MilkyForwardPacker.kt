@@ -36,27 +36,13 @@ class MilkyForwardPacker(val ctx: MilkyContext) : ForwardFeature.Packer {
     }
 
     override fun existing(incomingMessage: IncomingMessage) {
-        when (incomingMessage) {
-            is PrivateIncomingMessage -> {
-                deferredData.addAsync {
-                    val userId: Long
-                    val name: String
-                    if (incomingMessage.isSelf) {
-                        val (aUserId, aName) = incomingMessage.ctx.getLoginInfo()
-                        userId = aUserId
-                        name = aName
-                    } else {
-                        userId = incomingMessage.peer.uin
-                        name = incomingMessage.peer.nickname
-                    }
-                    MilkyOutgoingForwardedMessageData(
-                        userId, name,
-                        segments = incomingMessage.segments.map {
-                            MilkyOutgoingSegmentModel(it.toMilkyOutgoingData())
-                        }
-                    )
+        deferredData.addAsync {
+            MilkyOutgoingForwardedMessageData(
+                incomingMessage.senderUin, incomingMessage.senderName,
+                segments = incomingMessage.segments.map {
+                    MilkyOutgoingSegmentModel(it.toMilkyOutgoingData())
                 }
-            }
+            )
         }
     }
 
