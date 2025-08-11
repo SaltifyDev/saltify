@@ -2,13 +2,19 @@ import { Box, Flex, Text, Avatar, HStack, VStack } from '@chakra-ui/react';
 import { Outlet } from 'react-router';
 import logo from './assets/logo.png';
 import SideNavItem from './components/SideNavItem.tsx';
+import type { ReactNode } from 'react';
+import { Blocks, House } from 'lucide-react';
 
 interface NavItem {
   href: string;
   title: string;
+  icon: ReactNode;
 }
 
-const navItems: NavItem[] = [{ href: '/', title: '首页' }];
+const navItems: NavItem[] = [
+  { href: '/', title: '首页', icon: <House /> },
+  { href: '/plugins', title: '插件管理', icon: <Blocks /> },
+];
 
 function App() {
   return (
@@ -40,7 +46,7 @@ function App() {
         >
           <VStack align={'stretch'}>
             {navItems.map((item) => (
-              <SideNavItem key={item.href} href={item.href} title={item.title} />
+              <SideNavItem key={item.href} href={item.href} title={item.title} icon={item.icon} />
             ))}
           </VStack>
         </Box>

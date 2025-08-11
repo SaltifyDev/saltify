@@ -30,8 +30,9 @@
 
 import { HStack, Link } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router';
+import type { ReactNode } from 'react';
 
-function SideNavItem(props: { href: string; title: string }) {
+function SideNavItem(props: { href: string; title: string; icon: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   return (
@@ -56,6 +57,7 @@ function SideNavItem(props: { href: string; title: string }) {
         _hover={{ textDecoration: 'none' }}
         onClick={() => navigate(props.href)}
       >
+        {props.icon}
         {props.title}
       </Link>
     </HStack>
