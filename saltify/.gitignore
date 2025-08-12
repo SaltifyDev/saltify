@@ -1,0 +1,5 @@
+/config/
+/plugins/
+/data/
+/logs/
+/saltify-config.json
