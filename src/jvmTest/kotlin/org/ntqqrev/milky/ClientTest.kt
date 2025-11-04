@@ -3,7 +3,6 @@ package org.ntqqrev.milky
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlin.math.log
 import kotlin.test.Test
 
 class ClientTest {
@@ -28,12 +27,11 @@ class ClientTest {
         val job = launch {
             client.subscribe {
                 if (it is Event.MessageReceive) {
-                    when (it.data) {
+                    when (val data = it.data) {
                         is IncomingMessage.Group -> {
-                            println("Group message from ${it.data.peerId} by ${it.data.senderId}:")
-                            println(milkyJsonModule.encodeToString(it.data.segments))
+                            println("Group message from ${data.peerId} by ${data.senderId}:")
+                            println(milkyJsonModule.encodeToString(data.segments))
                         }
-
                         else -> {}
                     }
                 }
