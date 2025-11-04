@@ -1,10 +1,8 @@
-<div align="center">
+# Milky SDK for Kotlin
 
-<h1>milky-kt-sdk</h1>
-
-[Milky](https://milky.ntqqrev.org/) 协议的 Kotlin SDK
-
-</div>
+[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/milky-kt-sdk?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/milky-kt-sdk)
+![kotlinx-serialization](https://img.shields.io/badge/kotlinx--serialization-1.9.0-blue?logo=kotlin&logoColor=white)
+![ktor](https://img.shields.io/badge/ktor-3.3.1-blue?logo=ktor&logoColor=white)
 
 ## 特性
 

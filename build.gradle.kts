@@ -1,24 +1,51 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
-    kotlin("multiplatform") version "2.2.20"
-    kotlin("plugin.serialization") version "2.2.20"
-    id("maven-publish")
-    id("signing")
+    kotlin("multiplatform") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 group = "org.ntqqrev"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
 }
 
 kotlin {
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
+    iosArm64()
+    iosSimulatorArm64()
+    iosX64()
+    js(IR) {
+        browser()
+        nodejs()
+    }
     jvm()
-    macosX64()
-    macosArm64()
     linuxArm64()
     linuxX64()
+    macosArm64()
+    macosX64()
     mingwX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    wasmJs {
+        browser()
+        nodejs()
+        d8()
+    }
+    watchosArm32()
+    watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
+    watchosX64()
 
     sourceSets {
         commonMain.dependencies {
@@ -29,6 +56,7 @@ kotlin {
             implementation(ktorLibs.serialization.kotlinx.json)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+            implementation("org.ntqqrev:milky-kt-types:1.0.0")
         }
         jvmMain.dependencies {
             implementation(ktorLibs.client.cio)
@@ -42,6 +70,15 @@ kotlin {
         mingwMain.dependencies {
             implementation(ktorLibs.client.winhttp)
         }
+        androidMain.dependencies {
+            implementation(ktorLibs.client.android)
+        }
+        jsMain.dependencies {
+            implementation(ktorLibs.client.js)
+        }
+        wasmJsMain.dependencies {
+            implementation(ktorLibs.client.cio)
+        }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -49,4 +86,39 @@ kotlin {
     }
 
     jvmToolchain(21)
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    coordinates(
+        groupId = project.group.toString(),
+        artifactId = project.name,
+        version = project.version.toString()
+    )
+
+    pom {
+        name = project.name
+        description = "Milky SDK for Kotlin Multiplatform"
+        url = "https://github.com/SaltifyDev/milky-kt-sdk"
+        inceptionYear = "2025"
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://opensource.org/licenses/MIT"
+            }
+        }
+        developers {
+            developer {
+                id = "Wesley-Young"
+                name = "Wesley F. Young"
+                email = "wesley.f.young@outlook.com"
+            }
+        }
+        scm {
+            connection = "scm:git:git://github.com/SaltifyDev/milky-kt-sdk.git"
+            developerConnection = "scm:git:ssh://github.com/SaltifyDev/milky-kt-sdk.git"
+            url = "https://github.com/SaltifyDev/milky-kt-sdk"
+        }
+    }
 }
