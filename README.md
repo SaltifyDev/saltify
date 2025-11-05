@@ -6,10 +6,13 @@
 
 ## 特性
 
-- 基于 Ktor Client 实现
+- 基于 Ktor Client 和 Kotlinx Serialization 实现
 - 兼容 JVM / Native (Windows, macOS, Linux) 平台
 - 支持 Milky 协议的所有功能
   - 例外：不支持通过 WebHook 事件推送监听事件
+
+> [!tip]
+> 使用时，你需要在项目中添加一个 Ktor Client 引擎依赖，例如 `ktor-client-cio`、`ktor-client-okhttp` 等。
 
 ## 用例
 
