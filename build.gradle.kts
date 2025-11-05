@@ -58,30 +58,12 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation("org.ntqqrev:milky-kt-types:1.0.0")
         }
-        jvmMain.dependencies {
-            implementation(ktorLibs.client.cio)
-        }
-        appleMain.dependencies {
-            implementation(ktorLibs.client.darwin)
-        }
-        linuxMain.dependencies {
-            implementation(ktorLibs.client.curl)
-        }
-        mingwMain.dependencies {
-            implementation(ktorLibs.client.winhttp)
-        }
-        androidMain.dependencies {
-            implementation(ktorLibs.client.android)
-        }
-        jsMain.dependencies {
-            implementation(ktorLibs.client.js)
-        }
-        wasmJsMain.dependencies {
-            implementation(ktorLibs.client.cio)
-        }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+        }
+        jvmTest.dependencies {
+            implementation(ktorLibs.client.cio)
         }
     }
 
