@@ -10,8 +10,10 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 
@@ -66,7 +68,7 @@ class MilkyClient(
                 val session = webSocketSession
                     ?: throw MilkyException(-1, "WebSocket session is not connected")
                 for (frame in session.incoming) {
-                        if (!currentCoroutineContext().isActive) break
+                    if (!currentCoroutineContext().isActive) break
                     if (frame is Frame.Text) {
                         val event = milkyJsonModule.decodeFromString<Event>(frame.readText())
                         callback(event)
