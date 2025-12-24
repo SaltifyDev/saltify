@@ -16,7 +16,7 @@
 
 ## 用例
 
-见 [ClientTest.kt](/src/commonTest/kotlin/org/ntqqrev/milky/ClientTest.kt)
+见 [ClientTest.kt](/sdk/src/jvmTest/kotlin/org/ntqqrev/milky/ClientTest.kt)
 
 ### 初始化
 
