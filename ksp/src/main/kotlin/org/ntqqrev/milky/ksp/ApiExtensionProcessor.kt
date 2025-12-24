@@ -109,7 +109,7 @@ class ApiExtensionProcessor(
                         it.append("return ")
                     }
                     it.appendLine("this.callApi(")
-                    it.appendLine("        endpoint = ApiEndpoint.${endpointName},")
+                    it.appendLine("        endpoint = ApiEndpoint.$endpointName,")
                     if (inputStruct is KSClassDeclaration) {
                         it.appendLine("        param = ${inputStruct.simpleName.asString()}(")
                         val inputProperties = inputStruct.getAllProperties().toList()
@@ -127,6 +127,127 @@ class ApiExtensionProcessor(
                     it.appendLine("    )")
 
                     it.appendLine("}")
+                    it.appendLine()
+                }
+
+                // Additional methods for sending messages
+                it.appendLine(
+                    """
+                    suspend inline fun $originalName.sendPrivateMessage(
+                        userId: Long,
+                        block: MutableList<OutgoingSegment>.() -> Unit
+                    ) = run {
+                        val segments = mutableListOf<OutgoingSegment>().apply(block)
+                        sendPrivateMessage(
+                            userId = userId,
+                            message = segments
+                        )
+                    }
+                    
+                    suspend inline fun $originalName.sendGroupMessage(
+                        groupId: Long,
+                        block: MutableList<OutgoingSegment>.() -> Unit
+                    ) = run {
+                        val segments = mutableListOf<OutgoingSegment>().apply(block)
+                        sendGroupMessage(
+                            groupId = groupId,
+                            message = segments
+                        )
+                    }
+                """.trimIndent()
+                )
+
+                // Additional methods for building segments
+                val outgoingSegmentClazz = resolver.getClassDeclarationByName(
+                    resolver.getKSNameFromString("org.ntqqrev.milky.OutgoingSegment")
+                )!!
+                outgoingSegmentClazz.getSealedSubclasses().forEach { segment ->
+                    val segmentName = segment.simpleName.asString()
+                    if (segmentName == "Forward") return@forEach
+                    it.appendLine()
+                    it.append("fun MutableList<OutgoingSegment>.${segmentName.lowerFirstChar()}(")
+
+                    val segmentProperties = (segment.getAllProperties()
+                        .first().type.resolve().declaration
+                            as KSClassDeclaration)
+                        .getAllProperties()
+                        .toList()
+                        .sortedWith { a, b ->
+                            // compare nullability
+                            when {
+                                a.type.resolve().isMarkedNullable && !b.type.resolve().isMarkedNullable -> 1
+                                !a.type.resolve().isMarkedNullable && b.type.resolve().isMarkedNullable -> -1
+                                else -> 0 // preserve original order
+                            }
+                        }
+                    segmentProperties.forEachIndexed { index, property ->
+                        val propName = property.simpleName.asString()
+                        val propType = property.type.resolve().declaration.simpleName.asString()
+                        it.append("$propName: $propType")
+                        if (property.type.resolve().isMarkedNullable) {
+                            it.append("?")
+                        }
+                        if (index < segmentProperties.size - 1) {
+                            it.append(", ")
+                        }
+                    }
+                    it.appendLine(") = add(")
+                    it.appendLine("    OutgoingSegment.$segmentName(")
+                    it.appendLine("        data = OutgoingSegment.$segmentName.Data(")
+                    segmentProperties.forEachIndexed { index, property ->
+                        val propName = property.simpleName.asString()
+                        it.append("                $propName = $propName")
+                        if (index < segmentProperties.size - 1) {
+                            it.appendLine(",")
+                        } else {
+                            it.appendLine()
+                        }
+                    }
+                    it.appendLine("        )")
+                    it.appendLine("    )")
+                    it.appendLine(")")
+                    it.appendLine()
+                }
+
+                it.appendLine("""
+                    inline fun MutableList<OutgoingSegment>.forward(block: MutableList<OutgoingForwardedMessage>.() -> Unit) = add(
+                        OutgoingSegment.Forward(
+                            data = OutgoingSegment.Forward.Data(
+                                messages = mutableListOf<OutgoingForwardedMessage>().apply(block)
+                            )
+                        )
+                    )
+                    
+                    inline fun MutableList<OutgoingForwardedMessage>.node(
+                        userId: Long,
+                        senderName: String,
+                        block: MutableList<OutgoingSegment>.() -> Unit
+                    ) = add(
+                        OutgoingForwardedMessage(
+                            userId = userId,
+                            senderName = senderName,
+                            segments = mutableListOf<OutgoingSegment>().apply(block)
+                        )
+                    )
+                """.trimIndent())
+
+                // additional ext properties for incoming segments
+                // access properties directly, crossing `data` layer
+                it.appendLine()
+                val incomingSegmentClazz = resolver.getClassDeclarationByName(
+                    resolver.getKSNameFromString("org.ntqqrev.milky.IncomingSegment")
+                )!!
+                incomingSegmentClazz.getSealedSubclasses().forEach { segment ->
+                    val segmentName = segment.simpleName.asString()
+                    val segmentProperties = (segment.getAllProperties()
+                        .first().type.resolve().declaration
+                            as KSClassDeclaration)
+                        .getAllProperties()
+                    segmentProperties.forEach { prop ->
+                        val propName = prop.simpleName.asString()
+                        it.appendLine("val IncomingSegment.$segmentName.$propName")
+                        it.appendLine("    get() = this.data.$propName")
+                    }
                     it.appendLine()
                 }
             }
