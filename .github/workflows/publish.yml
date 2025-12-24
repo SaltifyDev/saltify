@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: Publish and Release to Maven Central
 on:
   workflow_dispatch:
 
@@ -16,8 +16,8 @@ jobs:
           java-version: 21
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
-      - name: Publish to MavenCentral
-        run: ./gradlew :sdk:publishToMavenCentral --no-configuration-cache
+      - name: Publish and release to MavenCentral
+        run: ./gradlew :sdk:publishAndReleaseToMavenCentral --no-configuration-cache
         env:
           GITHUB_ACTIONS_BUILD_CORE_LIBRARY: 'true'
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
