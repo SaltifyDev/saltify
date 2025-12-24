@@ -109,14 +109,18 @@ mavenPublishing {
     }
 }
 
-tasks.withType<KotlinCompile>().configureEach {
+tasks.withType<KotlinCompile> {
     dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
 
-tasks.withType<KotlinNativeCompile>().configureEach {
+tasks.withType<KotlinNativeCompile> {
     dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
 
-tasks.withType<KotlinJsCompile>().configureEach {
+tasks.withType<KotlinJsCompile> {
+    dependsOn(":sdk:kspCommonMainKotlinMetadata")
+}
+
+tasks.matching { it.name.endsWith("SourcesJar") }.configureEach {
     dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
