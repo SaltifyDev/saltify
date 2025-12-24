@@ -17,6 +17,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 
+@WithApiExtension
 class MilkyClient(
     addressBase: String,
     val eventConnectionType: EventConnectionType = EventConnectionType.WebSocket,

@@ -6,6 +6,11 @@ plugins {
     kotlin("multiplatform") version "2.3.0"
     kotlin("plugin.serialization") version "2.3.0"
     id("com.vanniktech.maven.publish") version "0.35.0"
+    id("com.google.devtools.ksp") version "2.3.4"
+}
+
+dependencies {
+    add("kspCommonMainMetadata", project(":ksp"))
 }
 
 kotlin {
@@ -41,15 +46,17 @@ kotlin {
     watchosX64()
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(ktorLibs.client.core)
-            implementation(ktorLibs.client.contentNegotiation)
-            implementation(ktorLibs.client.serialization)
-            implementation(ktorLibs.client.websockets)
-            implementation(ktorLibs.serialization.kotlinx.json)
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-            api("org.ntqqrev:milky-kt-types:1.0.0")
+        commonMain {
+            dependencies {
+                implementation(ktorLibs.client.core)
+                implementation(ktorLibs.client.contentNegotiation)
+                implementation(ktorLibs.client.serialization)
+                implementation(ktorLibs.client.websockets)
+                implementation(ktorLibs.serialization.kotlinx.json)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+                api("org.ntqqrev:milky-kt-types:1.0.0")
+            }
         }
 
         commonTest.dependencies {
