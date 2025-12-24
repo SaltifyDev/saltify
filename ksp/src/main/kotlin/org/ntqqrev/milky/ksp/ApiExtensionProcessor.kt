@@ -8,6 +8,11 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 
+fun String.lowerFirstChar(): String {
+    if (this.isEmpty()) return this
+    return this[0].lowercaseChar() + this.substring(1)
+}
+
 class ApiExtensionProcessor(
     private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
@@ -36,7 +41,94 @@ class ApiExtensionProcessor(
             file.bufferedWriter().use {
                 it.appendLine("package $pkg")
                 it.appendLine()
-                // TODO: write extensions
+                if (pkg != "org.ntqqrev.milky") {
+                    it.appendLine("import org.ntqqrev.milky.*")
+                    it.appendLine()
+                }
+
+                val apiEndpointsClazz = resolver.getClassDeclarationByName(
+                    resolver.getKSNameFromString("org.ntqqrev.milky.ApiEndpoint")
+                )!!
+                apiEndpointsClazz.getSealedSubclasses().forEach { api ->
+                    val endpointName = api.simpleName.asString()
+                    val superType = api.superTypes.first().resolve()
+                    val typeArgs = superType.arguments
+                    if (typeArgs.size != 2) return@forEach
+                    val inputStruct = typeArgs[0].type?.resolve()?.declaration ?: return@forEach
+                    val outputStruct = typeArgs[1].type?.resolve()?.declaration ?: return@forEach
+
+                    it.append("suspend fun $originalName.${endpointName.lowerFirstChar()}(")
+
+                    // input parameters
+                    if (inputStruct is KSClassDeclaration) {
+                        val inputProperties = inputStruct.getAllProperties().toList().sortedWith { a, b ->
+                            // compare nullability
+                            when {
+                                a.type.resolve().isMarkedNullable && !b.type.resolve().isMarkedNullable -> 1
+                                !a.type.resolve().isMarkedNullable && b.type.resolve().isMarkedNullable -> -1
+                                else -> 0 // preserve original order
+                            }
+                        }
+                        inputProperties.forEachIndexed { index, property ->
+                            it.appendLine()
+                            val propName = property.simpleName.asString()
+                            val propType = property.type.resolve().declaration.simpleName.asString()
+                            it.append("    $propName: $propType")
+                            val typeArguments = property.type.resolve().arguments
+                            if (typeArguments.isNotEmpty()) {
+                                it.append("<")
+                                typeArguments.forEachIndexed { argIndex, typeArg ->
+                                    val argType = typeArg.type?.resolve()?.declaration?.simpleName?.asString() ?: "*"
+                                    it.append(argType)
+                                    if (argIndex < typeArguments.size - 1) {
+                                        it.append(", ")
+                                    }
+                                }
+                                it.append(">")
+                            }
+                            if (property.type.resolve().isMarkedNullable) {
+                                it.append("?")
+                            }
+                            if (index < inputProperties.size - 1) {
+                                it.append(", ")
+                            }
+                        }
+                        it.appendLine()
+                    }
+                    it.append(")")
+
+                    // output type
+                    if (outputStruct is KSClassDeclaration) {
+                        it.append(": ${outputStruct.simpleName.asString()}")
+                    }
+
+                    it.appendLine(" {")
+
+                    it.append("    ")
+                    if (outputStruct is KSClassDeclaration) {
+                        it.append("return ")
+                    }
+                    it.appendLine("this.callApi(")
+                    it.appendLine("        endpoint = ApiEndpoint.${endpointName},")
+                    if (inputStruct is KSClassDeclaration) {
+                        it.appendLine("        param = ${inputStruct.simpleName.asString()}(")
+                        val inputProperties = inputStruct.getAllProperties().toList()
+                        inputProperties.forEachIndexed { index, property ->
+                            val propName = property.simpleName.asString()
+                            it.append("            $propName = $propName")
+                            if (index < inputProperties.size - 1) {
+                                it.appendLine(",")
+                            } else {
+                                it.appendLine()
+                            }
+                        }
+                        it.appendLine("        ),")
+                    }
+                    it.appendLine("    )")
+
+                    it.appendLine("}")
+                    it.appendLine()
+                }
             }
         }
 

@@ -13,13 +13,10 @@ class ClientTest {
             eventConnectionType = EventConnectionType.WebSocket
         )
 
-        val loginInfo = client.callApi(ApiEndpoint.GetLoginInfo)
+        val loginInfo = client.getLoginInfo()
         println("Login uin: ${loginInfo.uin}")
 
-        val userProfile = client.callApi(
-            ApiEndpoint.GetUserProfile,
-            GetUserProfileInput(userId = loginInfo.uin)
-        )
+        val userProfile = client.getUserProfile(loginInfo.uin)
         println("Your nickname: ${userProfile.nickname}")
         println("Your bio: ${userProfile.bio}")
 

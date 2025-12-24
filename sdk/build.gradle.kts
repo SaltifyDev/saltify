@@ -1,6 +1,10 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
 
 plugins {
     kotlin("multiplatform") version "2.3.0"
@@ -47,6 +51,7 @@ kotlin {
 
     sourceSets {
         commonMain {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(ktorLibs.client.core)
                 implementation(ktorLibs.client.contentNegotiation)
@@ -103,4 +108,16 @@ mavenPublishing {
             url = "https://github.com/SaltifyDev/milky-kt-sdk"
         }
     }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    dependsOn(":sdk:kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<KotlinNativeCompile>().configureEach {
+    dependsOn(":sdk:kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<KotlinJsCompile>().configureEach {
+    dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
