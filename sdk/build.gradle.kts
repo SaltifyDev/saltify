@@ -121,6 +121,6 @@ tasks.withType<KotlinJsCompile> {
     dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
 
-tasks.matching { it.name.endsWith("SourcesJar") }.configureEach {
+tasks.matching { it.name.lowercase().endsWith("sourcesjar") }.configureEach {
     dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }
