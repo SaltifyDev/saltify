@@ -87,7 +87,7 @@ class ApiExtensionProcessor(
                                 it.append(">")
                             }
                             if (property.type.resolve().isMarkedNullable) {
-                                it.append("?")
+                                it.append("? = null")
                             }
                             if (index < inputProperties.size - 1) {
                                 it.append(", ")
@@ -185,7 +185,7 @@ class ApiExtensionProcessor(
                         val propType = property.type.resolve().declaration.simpleName.asString()
                         it.append("$propName: $propType")
                         if (property.type.resolve().isMarkedNullable) {
-                            it.append("?")
+                            it.append("? = null")
                         }
                         if (index < segmentProperties.size - 1) {
                             it.append(", ")
