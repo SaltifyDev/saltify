@@ -6,11 +6,35 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.validate
 
 fun String.lowerFirstChar(): String {
     if (this.isEmpty()) return this
     return this[0].lowercaseChar() + this.substring(1)
+}
+
+fun Appendable.writeConstructor(
+    properties: Iterable<KSPropertyDeclaration>,
+    indent: String = "    ",
+) = properties.forEach { property ->
+    val propName = property.simpleName.asString()
+    append("$indent$propName = $propName")
+    appendLine(",")
+}
+
+fun Appendable.writeDefault(property: KSPropertyDeclaration) {
+    if (property.type.resolve().isMarkedNullable) {
+        append("? = null")
+    }
+    property.annotations.find { annotation ->
+        annotation.shortName.asString() == "LiteralDefault"
+    }?.let { annotation ->
+        val defaultValue = annotation.arguments.firstOrNull { arg ->
+            arg.name?.asString() == "value"
+        }?.value
+        append(" = $defaultValue")
+    }
 }
 
 class ApiExtensionProcessor(
@@ -86,9 +110,7 @@ class ApiExtensionProcessor(
                                 }
                                 it.append(">")
                             }
-                            if (property.type.resolve().isMarkedNullable) {
-                                it.append("? = null")
-                            }
+                            it.writeDefault(property)
                             if (index < inputProperties.size - 1) {
                                 it.append(", ")
                             }
@@ -113,15 +135,7 @@ class ApiExtensionProcessor(
                     if (inputStruct is KSClassDeclaration) {
                         it.appendLine("        param = ${inputStruct.simpleName.asString()}(")
                         val inputProperties = inputStruct.getAllProperties().toList()
-                        inputProperties.forEachIndexed { index, property ->
-                            val propName = property.simpleName.asString()
-                            it.append("            $propName = $propName")
-                            if (index < inputProperties.size - 1) {
-                                it.appendLine(",")
-                            } else {
-                                it.appendLine()
-                            }
-                        }
+                        it.writeConstructor(inputProperties, "            ")
                         it.appendLine("        ),")
                     }
                     it.appendLine("    )")
@@ -184,9 +198,7 @@ class ApiExtensionProcessor(
                         val propName = property.simpleName.asString()
                         val propType = property.type.resolve().declaration.simpleName.asString()
                         it.append("$propName: $propType")
-                        if (property.type.resolve().isMarkedNullable) {
-                            it.append("? = null")
-                        }
+                        it.writeDefault(property)
                         if (index < segmentProperties.size - 1) {
                             it.append(", ")
                         }
@@ -194,15 +206,7 @@ class ApiExtensionProcessor(
                     it.appendLine(") = add(")
                     it.appendLine("    OutgoingSegment.$segmentName(")
                     it.appendLine("        data = OutgoingSegment.$segmentName.Data(")
-                    segmentProperties.forEachIndexed { index, property ->
-                        val propName = property.simpleName.asString()
-                        it.append("                $propName = $propName")
-                        if (index < segmentProperties.size - 1) {
-                            it.appendLine(",")
-                        } else {
-                            it.appendLine()
-                        }
-                    }
+                    it.writeConstructor(segmentProperties, "            ")
                     it.appendLine("        )")
                     it.appendLine("    )")
                     it.appendLine(")")
