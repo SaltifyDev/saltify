@@ -7,7 +7,7 @@
 ## 特性
 
 - 基于 Ktor Client 和 Kotlinx Serialization 实现
-- 兼容 JVM / Native (Windows, macOS, Linux) 平台
+- 兼容 JVM / Native / JS / WASM 平台
 - 支持 Milky 协议的所有功能
   - 例外：不支持通过 WebHook 事件推送监听事件
 
@@ -32,13 +32,20 @@ val client = MilkyClient(
 
 ```kotlin
 // API 无参数
-val loginInfo = client.callApi(ApiEndpoint.GetLoginInfo)
+val loginInfo = client.getLoginInfo()
 
 // API 有参数
-val userProfile = client.callApi(
-    ApiEndpoint.GetUserProfile,
-    GetUserProfileInput(userId = loginInfo.uin)
-)
+val userProfile = client.getUserProfile(/* userId = */ loginInfo.uin)
+```
+
+### 发送消息
+
+```kotlin
+client.sendGroupMessage(123456789L) {
+    text("Hello from Milky🥛!")
+    image("https://example.com/example.jpg")
+    image("https://example.com/example2.jpg", subType = "sticker")
+}
 ```
 
 ### 监听事件
