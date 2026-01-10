@@ -1,7 +1,7 @@
 # Milky SDK for Kotlin
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/milky-kt-sdk?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/milky-kt-sdk)
-![kotlinx-serialization](https://img.shields.io/badge/kotlinx--serialization-1.9.0-blue?logo=kotlin&logoColor=white)
+![kotlinx-serialization](https://img.shields.io/badge/kotlinx--serialization-1.10.0--RC-blue?logo=kotlin&logoColor=white)
 ![ktor](https://img.shields.io/badge/ktor-3.3.3-blue?logo=ktor&logoColor=white)
 
 ## 特性
