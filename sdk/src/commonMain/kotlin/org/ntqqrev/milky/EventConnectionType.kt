@@ -1,6 +1,6 @@
 package org.ntqqrev.milky
 
-enum class EventConnectionType {
+public enum class EventConnectionType {
     WebSocket,
     SSE
 }

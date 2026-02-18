@@ -7,6 +7,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.validate
 
 fun String.lowerFirstChar(): String {
@@ -35,6 +36,22 @@ fun Appendable.writeDefault(property: KSPropertyDeclaration) {
         }?.value
         append(" = $defaultValue")
     }
+}
+
+fun KSTypeReference.typeString(): String {
+    val type = this.resolve()
+    val typeName = type.declaration.qualifiedName?.asString() ?: type.declaration.simpleName.asString()
+    val arguments = this.element?.typeArguments ?: emptyList()
+
+    val typeArgs = if (arguments.isNotEmpty()) {
+        arguments.joinToString(prefix = "<", postfix = ">") { arg ->
+            val variance = arg.variance.label
+            val argType = arg.type?.typeString() ?: "*"
+            if (variance.isNotEmpty()) "$variance $argType" else argType
+        }
+    } else ""
+
+    return "$typeName$typeArgs${if (type.isMarkedNullable) "?" else ""}"
 }
 
 class ApiExtensionProcessor(
@@ -81,7 +98,7 @@ class ApiExtensionProcessor(
                     val inputStruct = typeArgs[0].type?.resolve()?.declaration ?: return@forEach
                     val outputStruct = typeArgs[1].type?.resolve()?.declaration ?: return@forEach
 
-                    it.append("suspend fun $originalName.${endpointName.lowerFirstChar()}(")
+                    it.append("public suspend fun $originalName.${endpointName.lowerFirstChar()}(")
 
                     // input parameters
                     if (inputStruct is KSClassDeclaration) {
@@ -147,10 +164,10 @@ class ApiExtensionProcessor(
                 // Additional methods for sending messages
                 it.appendLine(
                     """
-                    suspend inline fun $originalName.sendPrivateMessage(
+                    public suspend inline fun $originalName.sendPrivateMessage(
                         userId: Long,
                         block: MutableList<OutgoingSegment>.() -> Unit
-                    ) = run {
+                    ): SendPrivateMessageOutput = run {
                         val segments = mutableListOf<OutgoingSegment>().apply(block)
                         sendPrivateMessage(
                             userId = userId,
@@ -158,10 +175,10 @@ class ApiExtensionProcessor(
                         )
                     }
                     
-                    suspend inline fun $originalName.sendGroupMessage(
+                    public suspend inline fun $originalName.sendGroupMessage(
                         groupId: Long,
                         block: MutableList<OutgoingSegment>.() -> Unit
-                    ) = run {
+                    ): SendGroupMessageOutput = run {
                         val segments = mutableListOf<OutgoingSegment>().apply(block)
                         sendGroupMessage(
                             groupId = groupId,
@@ -179,7 +196,7 @@ class ApiExtensionProcessor(
                     val segmentName = segment.simpleName.asString()
                     if (segmentName == "Forward") return@forEach
                     it.appendLine()
-                    it.append("fun MutableList<OutgoingSegment>.${segmentName.lowerFirstChar()}(")
+                    it.append("public fun MutableList<OutgoingSegment>.${segmentName.lowerFirstChar()}(")
 
                     val segmentProperties = (segment.getAllProperties()
                         .first().type.resolve().declaration
@@ -203,7 +220,7 @@ class ApiExtensionProcessor(
                             it.append(", ")
                         }
                     }
-                    it.appendLine(") = add(")
+                    it.appendLine("): Boolean = add(")
                     it.appendLine("    OutgoingSegment.$segmentName(")
                     it.appendLine("        data = OutgoingSegment.$segmentName.Data(")
                     it.writeConstructor(segmentProperties, "            ")
@@ -214,7 +231,9 @@ class ApiExtensionProcessor(
                 }
 
                 it.appendLine("""
-                    inline fun MutableList<OutgoingSegment>.forward(block: MutableList<OutgoingForwardedMessage>.() -> Unit) = add(
+                    public inline fun MutableList<OutgoingSegment>.forward(
+                        block: MutableList<OutgoingForwardedMessage>.() -> Unit
+                    ): Boolean = add(
                         OutgoingSegment.Forward(
                             data = OutgoingSegment.Forward.Data(
                                 messages = mutableListOf<OutgoingForwardedMessage>().apply(block)
@@ -222,11 +241,11 @@ class ApiExtensionProcessor(
                         )
                     )
                     
-                    inline fun MutableList<OutgoingForwardedMessage>.node(
+                    public inline fun MutableList<OutgoingForwardedMessage>.node(
                         userId: Long,
                         senderName: String,
                         block: MutableList<OutgoingSegment>.() -> Unit
-                    ) = add(
+                    ): Boolean = add(
                         OutgoingForwardedMessage(
                             userId = userId,
                             senderName = senderName,
@@ -236,7 +255,7 @@ class ApiExtensionProcessor(
                 """.trimIndent())
 
                 // additional ext properties for incoming segments
-                // access properties directly, crossing `data` layer
+                // access properties directly, crossing the ` data ` layer
                 it.appendLine()
                 val incomingSegmentClazz = resolver.getClassDeclarationByName(
                     resolver.getKSNameFromString("org.ntqqrev.milky.IncomingSegment")
@@ -249,7 +268,7 @@ class ApiExtensionProcessor(
                         .getAllProperties()
                     segmentProperties.forEach { prop ->
                         val propName = prop.simpleName.asString()
-                        it.appendLine("val IncomingSegment.$segmentName.$propName")
+                        it.appendLine("public val IncomingSegment.$segmentName.$propName: ${prop.type.typeString()}")
                         it.appendLine("    get() = this.data.$propName")
                     }
                     it.appendLine()

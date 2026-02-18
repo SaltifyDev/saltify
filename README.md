@@ -21,11 +21,11 @@
 ### 初始化
 
 ```kotlin
-val client = MilkyClient(
-    addressBase = "http://localhost:3000",
-    eventConnectionType = EventConnectionType.WebSocket,
+val client = MilkyClient {
+    addressBase = "http://localhost:3000"
+    eventConnectionType = EventConnectionType.WebSocket
     // accessToken = "..."
-)
+}
 ```
 
 ### 调用 API
@@ -56,18 +56,21 @@ client.connectEvent()
 
 // 监听消息事件，并创建 Job 以便后续取消监听
 val job = launch {
-    client.subscribe {
-        if (it is Event.MessageReceive) {
-            when (it.data) {
+    client.eventFlow 
+        .filterIsInstance<Event.MessageReceive>()
+        .collect { event ->
+            when (val data = event.data) {
                 is IncomingMessage.Group -> {
-                    println("Group message from ${it.data.peerId} by ${it.data.senderId}:")
-                    println(milkyJsonModule.encodeToString(it.data.segments))
+                    println("Group message from ${data.senderId} in ${data.group.groupId}:")
+                    println(milkyJsonModule.encodeToString(data.segments))
                 }
-
+                is IncomingMessage.Friend -> {
+                    println("Private message from ${data.senderId}:")
+                    println(milkyJsonModule.encodeToString(data.segments))
+                }
                 else -> {}
             }
         }
-    }
 }
 
 // 退出时取消监听

@@ -2,6 +2,7 @@ package org.ntqqrev.milky
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.sse.*
 import io.ktor.client.plugins.websocket.*
@@ -10,122 +11,112 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.isActive
-import kotlinx.serialization.json.JsonElement
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.decodeFromJsonElement
 
 @WithApiExtension
-class MilkyClient(
-    addressBase: String,
-    val eventConnectionType: EventConnectionType = EventConnectionType.WebSocket,
-    val accessToken: String? = null
-) {
-    private val addressBaseNormalized = addressBase.trimEnd('/')
-    private val apiBase = "$addressBaseNormalized/api"
-    private val eventBase = "$addressBaseNormalized/event"
-    private val client = HttpClient {
+public sealed class MilkyClient(private val config: MilkyClientConfig) {
+    public companion object {
+        public operator fun invoke(block: MilkyClientConfig.() -> Unit): MilkyClient {
+            val config = MilkyClientConfig().apply(block)
+            return when (config.eventConnectionType) {
+                EventConnectionType.WebSocket -> MilkyClientWebSocket(config)
+                EventConnectionType.SSE -> MilkyClientSSE(config)
+            }
+        }
+    }
+
+    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
+
+    protected val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+
+    protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
+    public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
+
+    @PublishedApi
+    internal val client: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(milkyJsonModule)
         }
-        when (eventConnectionType) {
-            EventConnectionType.WebSocket -> install(WebSockets) {
+
+        defaultRequest {
+            url(addressBaseNormalized)
+            config.accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+        }
+
+        when (config.eventConnectionType) {
+            EventConnectionType.WebSocket -> install(WebSockets.Plugin) {
                 contentConverter = KotlinxWebsocketSerializationConverter(milkyJsonModule)
             }
 
             EventConnectionType.SSE -> install(SSE)
         }
     }
-    private var webSocketSession: DefaultClientWebSocketSession? = null
-    private var sseSession: SSESession? = null
 
-    suspend fun connectEvent() {
-        when (eventConnectionType) {
-            EventConnectionType.WebSocket -> {
-                webSocketSession = client.webSocketSession(
-                    urlString = eventBase.replaceFirst("http", "ws")
-                ) {
-                    accessToken?.let {
-                        headers.append(HttpHeaders.Authorization, "Bearer $it")
-                    }
-                }
-            }
-
-            EventConnectionType.SSE -> {
-                sseSession = client.sseSession(eventBase) {
-                    accessToken?.let {
-                        headers.append(HttpHeaders.Authorization, "Bearer $it")
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun subscribe(callback: suspend (Event) -> Unit) {
-        when (eventConnectionType) {
-            EventConnectionType.WebSocket -> {
-                val session = webSocketSession
-                    ?: throw MilkyException(-1, "WebSocket session is not connected")
-                for (frame in session.incoming) {
-                    if (!currentCoroutineContext().isActive) break
-                    if (frame is Frame.Text) {
-                        val event = milkyJsonModule.decodeFromString<Event>(frame.readText())
-                        callback(event)
-                    }
-                }
-            }
-
-            EventConnectionType.SSE -> {
-                val session = sseSession
-                    ?: throw MilkyException(-1, "SSE session is not connected")
-                session.incoming.filter { it.event == "milky_event" }
-                    .collect {
-                        val event = milkyJsonModule.decodeFromString<Event>(it.data!!)
-                        callback(event)
-                    }
-            }
-        }
-    }
-
-    suspend fun disconnectEvent() {
-        when (eventConnectionType) {
-            EventConnectionType.WebSocket -> {
-                webSocketSession?.close()
-                webSocketSession = null
-            }
-
-            EventConnectionType.SSE -> {
-                sseSession?.cancel()
-                sseSession = null
-            }
-        }
-    }
-
-    suspend fun callApiRaw(endpointPath: String, jsonBody: String): JsonElement {
-        val response = client.post(apiBase + endpointPath) {
-            accessToken?.let {
-                headers.append(HttpHeaders.Authorization, "Bearer $it")
-            }
-            contentType(ContentType.Application.Json)
-            setBody(jsonBody)
-        }.body<ApiGeneralResponse>()
-        if (response.retcode != 0) {
-            throw MilkyException(response.retcode, response.message!!)
-        }
-        return response.data!!
-    }
-
-    suspend inline fun <reified T : Any, reified R : Any> callApi(
+    public suspend inline fun <reified T : Any, reified R : Any> callApi(
         endpoint: ApiEndpoint<T, R>,
         param: T
-    ): R = callApiRaw(
-        endpointPath = endpoint.path,
-        jsonBody = milkyJsonModule.encodeToString(param)
-    ).let { milkyJsonModule.decodeFromJsonElement(it) }
+    ): R {
+        val response: ApiGeneralResponse = client.post("/api${endpoint.path}") {
+            contentType(ContentType.Application.Json)
+            setBody(param)
+        }.body()
 
-    suspend inline fun <reified R : Any> callApi(
+        if (response.retcode != 0) throw MilkyException(response.retcode, response.message ?: "Unknown error")
+        return milkyJsonModule.decodeFromJsonElement(response.data!!)
+    }
+
+    public suspend inline fun <reified R : Any> callApi(
         endpoint: ApiEndpoint<ApiEmptyStruct, R>
     ): R = callApi(endpoint, ApiEmptyStruct())
+
+    public abstract suspend fun connectEvent()
+
+    public abstract suspend fun disconnectEvent()
+}
+
+public class MilkyClientWebSocket(config: MilkyClientConfig) : MilkyClient(config) {
+    private lateinit var session: DefaultClientWebSocketSession
+
+    override suspend fun connectEvent() {
+        session = client.webSocketSession(
+            "$addressBaseNormalized/event".replaceFirst("http", "ws")
+        )
+
+        scope.launch {
+            session.incoming.consumeAsFlow()
+                .filterIsInstance<Frame.Text>()
+                .mapNotNull { milkyJsonModule.decodeFromString<Event>(it.readText()) }
+                .collect { events.emit(it) }
+        }
+    }
+
+    override suspend fun disconnectEvent() {
+        scope.cancel()
+        session.close()
+    }
+}
+
+public class MilkyClientSSE(config: MilkyClientConfig) : MilkyClient(config) {
+    private lateinit var session: SSESession
+
+    override suspend fun connectEvent() {
+        session = client.sseSession("$addressBaseNormalized/event")
+
+        scope.launch {
+            session.incoming
+                .filter { it.event == "milky_event" }
+                .mapNotNull { event -> event.data?.let { milkyJsonModule.decodeFromString<Event>(it) } }
+                .collect { events.emit(it) }
+        }
+    }
+
+    override suspend fun disconnectEvent() {
+        scope.cancel()
+        session.cancel()
+    }
 }
