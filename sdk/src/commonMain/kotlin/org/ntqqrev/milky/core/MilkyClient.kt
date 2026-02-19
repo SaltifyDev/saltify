@@ -18,7 +18,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
 import org.ntqqrev.milky.annotation.WithApiExtension
 import org.ntqqrev.milky.dsl.MilkyClientConfig
-import org.ntqqrev.milky.dsl.MilkyPluginContext
+import org.ntqqrev.milky.dsl.MilkyPluginDsl
 import org.ntqqrev.milky.entity.EventConnectionType
 import org.ntqqrev.milky.exception.MilkyException
 
@@ -42,7 +42,7 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
-    private val activePlugins = mutableListOf<MilkyPluginContext>()
+    private val activePlugins = mutableListOf<MilkyPluginDsl>()
 
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
@@ -71,7 +71,7 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
                 clientScope.coroutineContext + pluginJob + CoroutineName("MilkyPlugin-${plugin.name}")
             )
 
-            val context = MilkyPluginContext(this, pluginScope)
+            val context = MilkyPluginDsl(this, pluginScope)
             plugin.setup(context)
 
             activePlugins.add(context)

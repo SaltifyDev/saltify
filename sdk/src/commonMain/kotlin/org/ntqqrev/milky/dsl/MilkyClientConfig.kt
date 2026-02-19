@@ -1,5 +1,6 @@
 package org.ntqqrev.milky.dsl
 
+import org.ntqqrev.milky.annotation.MilkyDsl
 import org.ntqqrev.milky.entity.EventConnectionType
 
 @MilkyDsl
@@ -13,7 +14,7 @@ public class MilkyClientConfig {
         installedPlugins.add(plugin)
     }
 
-    public fun plugin(name: String, block: MilkyPluginContext.() -> Unit) {
+    public fun plugin(name: String, block: MilkyPluginDsl.() -> Unit) {
         install(milkyPlugin(name, block))
     }
 }

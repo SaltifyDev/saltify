@@ -4,9 +4,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.core.MilkyClient
 import org.ntqqrev.milky.core.getLoginInfo
-import org.ntqqrev.milky.core.getUserProfile
 import org.ntqqrev.milky.core.text
 import org.ntqqrev.milky.dsl.milkyPlugin
+import org.ntqqrev.milky.dsl.parameter
 import org.ntqqrev.milky.entity.EventConnectionType
 import kotlin.test.Test
 
@@ -17,7 +17,7 @@ class ClientTest {
             addressBase = "http://localhost:3000"
             eventConnectionType = EventConnectionType.WebSocket
 
-            install(mainPlugin)
+            install(testPlugin)
         }
 
         client.connectEvent()
@@ -26,14 +26,15 @@ class ClientTest {
         client.close()
     }
 
-    val mainPlugin = milkyPlugin("main") {
+    val testPlugin = milkyPlugin("test") {
         onStart {
-            val loginInfo = client.getLoginInfo()
-            println("Login uin: ${loginInfo.uin}")
+            println("--- Test plugin started")
+            val self = client.getLoginInfo()
+            println("Current uin：${self.uin}")
+        }
 
-            val userProfile = client.getUserProfile(loginInfo.uin)
-            println("Your nickname: ${userProfile.nickname}")
-            println("Your bio: ${userProfile.bio}")
+        onStop {
+            println("--- Test plugin stopped")
         }
 
         on<Event.MessageReceive> {
@@ -50,9 +51,73 @@ class ClientTest {
             }
         }
 
-        command("hello milky", prefix = "") { event ->
-            event.reply {
-                text("Hello milky!")
+        // greedy test
+        command("say") {
+            val content = greedyStringParameter("content", "words to repeat")
+
+            onExecute {
+                val text = capture(content)
+                respond {
+                    text(text)
+                }
+            }
+        }
+
+        // sub command test
+        command("math") {
+            // /math add <num1> <num2>
+            subCommand("add") {
+                val a = parameter<Int>("a")
+                val b = parameter<Int>("b")
+
+                onExecute {
+                    val result = capture(a) + capture(b)
+                    respond { text("$result") }
+                }
+            }
+
+            // /math power <base>
+            subCommand("power") {
+                val base = parameter<Int>("base")
+                onExecute {
+                    val value = capture(base)
+                    respond { text("The power of $value is ${value * value}") }
+                }
+            }
+        }
+
+        // chat environment test
+        command("whereami") {
+            onGroupExecute {
+                val data = event.data as IncomingMessage.Group
+                respond {
+                    text("In group：${data.group.groupName} (${data.group.groupId})")
+                }
+            }
+
+            onPrivateExecute {
+                respond {
+                    text("In private chat")
+                }
+            }
+
+            onExecute {
+                respond { text("unknown") }
+            }
+        }
+
+        // comprehensive parameters test
+        // /order <id> <note>
+        command("order") {
+            val id = parameter<Int>("id")
+            val note = greedyStringParameter("note")
+
+            onExecute {
+                val orderId = capture(id)
+                val orderNote = capture(note)
+                respond {
+                    text("Order #$orderId created\nnote：$orderNote")
+                }
             }
         }
     }

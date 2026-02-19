@@ -6,18 +6,15 @@ import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
+import org.ntqqrev.milky.annotation.MilkyDsl
 import org.ntqqrev.milky.core.MilkyClient
 import org.ntqqrev.milky.core.sendGroupMessage
 import org.ntqqrev.milky.core.sendPrivateMessage
 import org.ntqqrev.milky.extension.command
 import org.ntqqrev.milky.extension.on
 
-@DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-public annotation class MilkyDsl
-
 @MilkyDsl
-public class MilkyPluginContext internal constructor(
+public class MilkyPluginDsl internal constructor(
     public val client: MilkyClient,
     private val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
@@ -38,7 +35,7 @@ public class MilkyPluginContext internal constructor(
     public fun command(
         name: String,
         prefix: String = "/",
-        block: suspend MilkyClient.(event: Event.MessageReceive) -> Unit
+        block: MilkyCommandDsl.() -> Unit
     ): Job = launch { client.command(name, prefix, block) }
 
     public suspend fun Event.MessageReceive.reply(message: List<OutgoingSegment>): Any =
@@ -56,9 +53,9 @@ public class MilkyPluginContext internal constructor(
 
 public class MilkyPlugin(
     public val name: String,
-    internal val setup: MilkyPluginContext.() -> Unit
+    internal val setup: MilkyPluginDsl.() -> Unit
 )
 
-public fun milkyPlugin(name: String, block: MilkyPluginContext.() -> Unit): MilkyPlugin {
+public fun milkyPlugin(name: String, block: MilkyPluginDsl.() -> Unit): MilkyPlugin {
     return MilkyPlugin(name, block)
 }
