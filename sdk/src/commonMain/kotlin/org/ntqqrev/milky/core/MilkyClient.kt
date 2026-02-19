@@ -96,19 +96,19 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
     ): R = callApi(endpoint, ApiEmptyStruct())
 
     public open suspend fun connectEvent() {
-        activePlugins.forEach { context ->
-            context.launch {
+        activePlugins.map { context ->
+            context.async {
                 context.onStartHooks.forEach { it() }
             }
-        }
+        }.awaitAll()
     }
 
     public open suspend fun disconnectEvent() {
-        activePlugins.forEach { context ->
-            context.launch {
+        activePlugins.map { context ->
+            context.async {
                 context.onStopHooks.forEach { it() }
             }
-        }
+        }.awaitAll()
     }
 
     override fun close() {
