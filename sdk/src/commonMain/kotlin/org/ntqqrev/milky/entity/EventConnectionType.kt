@@ -1,4 +1,4 @@
-package org.ntqqrev.milky
+package org.ntqqrev.milky.entity
 
 public enum class EventConnectionType {
     WebSocket,

@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.ksp
+package org.ntqqrev.milky
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -49,7 +49,9 @@ fun KSTypeReference.typeString(): String {
             val argType = arg.type?.typeString() ?: "*"
             if (variance.isNotEmpty()) "$variance $argType" else argType
         }
-    } else ""
+    } else {
+        ""
+    }
 
     return "$typeName$typeArgs${if (type.isMarkedNullable) "?" else ""}"
 }
@@ -58,7 +60,9 @@ class ApiExtensionProcessor(
     private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val symbols = resolver.getSymbolsWithAnnotation("org.ntqqrev.milky.WithApiExtension")
+        val symbols = resolver.getSymbolsWithAnnotation(
+            "org.ntqqrev.milky.annotation.WithApiExtension"
+        )
         val unableToProcess = mutableListOf<KSAnnotated>()
         symbols.forEach { symbol ->
             if (!symbol.validate()) {
@@ -84,6 +88,7 @@ class ApiExtensionProcessor(
                 it.appendLine()
                 if (pkg != "org.ntqqrev.milky") {
                     it.appendLine("import org.ntqqrev.milky.*")
+                    it.appendLine("import org.ntqqrev.milky.entity.*")
                     it.appendLine()
                 }
 
@@ -185,7 +190,7 @@ class ApiExtensionProcessor(
                             message = segments
                         )
                     }
-                """.trimIndent()
+                    """.trimIndent()
                 )
 
                 // Additional methods for building segments
@@ -198,9 +203,11 @@ class ApiExtensionProcessor(
                     it.appendLine()
                     it.append("public fun MutableList<OutgoingSegment>.${segmentName.lowerFirstChar()}(")
 
-                    val segmentProperties = (segment.getAllProperties()
-                        .first().type.resolve().declaration
-                            as KSClassDeclaration)
+                    val segmentProperties = (
+                        segment.getAllProperties()
+                            .first().type.resolve().declaration
+                            as KSClassDeclaration
+                        )
                         .getAllProperties()
                         .toList()
                         .sortedWith { a, b ->
@@ -230,7 +237,8 @@ class ApiExtensionProcessor(
                     it.appendLine()
                 }
 
-                it.appendLine("""
+                it.appendLine(
+                    """
                     public inline fun MutableList<OutgoingSegment>.forward(
                         block: MutableList<OutgoingForwardedMessage>.() -> Unit
                     ): Boolean = add(
@@ -252,7 +260,8 @@ class ApiExtensionProcessor(
                             segments = mutableListOf<OutgoingSegment>().apply(block)
                         )
                     )
-                """.trimIndent())
+                    """.trimIndent()
+                )
 
                 // additional ext properties for incoming segments
                 // access properties directly, crossing the ` data ` layer
@@ -262,9 +271,11 @@ class ApiExtensionProcessor(
                 )!!
                 incomingSegmentClazz.getSealedSubclasses().forEach { segment ->
                     val segmentName = segment.simpleName.asString()
-                    val segmentProperties = (segment.getAllProperties()
-                        .first().type.resolve().declaration
-                            as KSClassDeclaration)
+                    val segmentProperties = (
+                        segment.getAllProperties()
+                            .first().type.resolve().declaration
+                            as KSClassDeclaration
+                        )
                         .getAllProperties()
                     segmentProperties.forEach { prop ->
                         val propName = prop.simpleName.asString()

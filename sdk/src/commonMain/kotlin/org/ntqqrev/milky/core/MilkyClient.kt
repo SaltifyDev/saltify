@@ -1,4 +1,4 @@
-package org.ntqqrev.milky
+package org.ntqqrev.milky.core
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -10,16 +10,20 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.websocket.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.decodeFromJsonElement
+import org.ntqqrev.milky.*
+import org.ntqqrev.milky.annotation.WithApiExtension
+import org.ntqqrev.milky.dsl.MilkyClientConfig
+import org.ntqqrev.milky.dsl.MilkyPluginContext
+import org.ntqqrev.milky.entity.EventConnectionType
+import org.ntqqrev.milky.exception.MilkyException
 
 @WithApiExtension
-public sealed class MilkyClient(private val config: MilkyClientConfig) {
+public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoCloseable {
     public companion object {
         public operator fun invoke(block: MilkyClientConfig.() -> Unit): MilkyClient {
             val config = MilkyClientConfig().apply(block)
@@ -30,15 +34,18 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) {
         }
     }
 
-    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
+    @PublishedApi
+    internal val clientScope: CoroutineScope = CoroutineScope(SupervisorJob())
 
-    protected val scope: CoroutineScope = CoroutineScope(SupervisorJob())
+    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
 
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
+    private val activePlugins = mutableListOf<MilkyPluginContext>()
+
     @PublishedApi
-    internal val client: HttpClient = HttpClient {
+    internal val httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(milkyJsonModule)
         }
@@ -57,11 +64,25 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) {
         }
     }
 
+    init {
+        config.installedPlugins.forEach { plugin ->
+            val pluginJob = SupervisorJob(clientScope.coroutineContext.job)
+            val pluginScope = CoroutineScope(
+                clientScope.coroutineContext + pluginJob + CoroutineName("MilkyPlugin-${plugin.name}")
+            )
+
+            val context = MilkyPluginContext(this, pluginScope)
+            plugin.setup(context)
+
+            activePlugins.add(context)
+        }
+    }
+
     public suspend inline fun <reified T : Any, reified R : Any> callApi(
         endpoint: ApiEndpoint<T, R>,
         param: T
     ): R {
-        val response: ApiGeneralResponse = client.post("/api${endpoint.path}") {
+        val response: ApiGeneralResponse = httpClient.post("/api${endpoint.path}") {
             contentType(ContentType.Application.Json)
             setBody(param)
         }.body()
@@ -74,49 +95,24 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) {
         endpoint: ApiEndpoint<ApiEmptyStruct, R>
     ): R = callApi(endpoint, ApiEmptyStruct())
 
-    public abstract suspend fun connectEvent()
-
-    public abstract suspend fun disconnectEvent()
-}
-
-public class MilkyClientWebSocket(config: MilkyClientConfig) : MilkyClient(config) {
-    private lateinit var session: DefaultClientWebSocketSession
-
-    override suspend fun connectEvent() {
-        session = client.webSocketSession(
-            "$addressBaseNormalized/event".replaceFirst("http", "ws")
-        )
-
-        scope.launch {
-            session.incoming.consumeAsFlow()
-                .filterIsInstance<Frame.Text>()
-                .mapNotNull { milkyJsonModule.decodeFromString<Event>(it.readText()) }
-                .collect { events.emit(it) }
+    public open suspend fun connectEvent() {
+        activePlugins.forEach { context ->
+            context.launch {
+                context.onStartHooks.forEach { it() }
+            }
         }
     }
 
-    override suspend fun disconnectEvent() {
-        scope.cancel()
-        session.close()
-    }
-}
-
-public class MilkyClientSSE(config: MilkyClientConfig) : MilkyClient(config) {
-    private lateinit var session: SSESession
-
-    override suspend fun connectEvent() {
-        session = client.sseSession("$addressBaseNormalized/event")
-
-        scope.launch {
-            session.incoming
-                .filter { it.event == "milky_event" }
-                .mapNotNull { event -> event.data?.let { milkyJsonModule.decodeFromString<Event>(it) } }
-                .collect { events.emit(it) }
+    public open suspend fun disconnectEvent() {
+        activePlugins.forEach { context ->
+            context.launch {
+                context.onStopHooks.forEach { it() }
+            }
         }
     }
 
-    override suspend fun disconnectEvent() {
-        scope.cancel()
-        session.cancel()
+    override fun close() {
+        httpClient.close()
+        clientScope.cancel()
     }
 }

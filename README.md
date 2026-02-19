@@ -25,6 +25,28 @@ val client = MilkyClient {
     addressBase = "http://localhost:3000"
     eventConnectionType = EventConnectionType.WebSocket
     // accessToken = "..."
+
+    // 直接定义插件
+    plugin("name") {
+        // ...
+    }
+
+    // 导入插件
+    install(myPlugin)
+}
+
+val myPlugin = milkyPlugin {
+    onStart {
+        // ...
+    }
+  
+    command("ping") {
+        it.reply {
+            text("Pong!")
+        }
+    }
+
+    // ...
 }
 ```
 
@@ -56,24 +78,25 @@ client.connectEvent()
 
 // 监听消息事件，并创建 Job 以便后续取消监听
 val job = launch {
-    client.eventFlow 
-        .filterIsInstance<Event.MessageReceive>()
-        .collect { event ->
-            when (val data = event.data) {
-                is IncomingMessage.Group -> {
-                    println("Group message from ${data.senderId} in ${data.group.groupId}:")
-                    println(milkyJsonModule.encodeToString(data.segments))
-                }
-                is IncomingMessage.Friend -> {
-                    println("Private message from ${data.senderId}:")
-                    println(milkyJsonModule.encodeToString(data.segments))
-                }
-                else -> {}
+    client.on<Event.MessageReceive> {
+        when (val data = it.data) {
+            is IncomingMessage.Group -> {
+                println("Group message from ${data.senderId} in ${data.group.groupId}:")
+                println(milkyJsonModule.encodeToString(data.segments))
             }
+            is IncomingMessage.Friend -> {
+                println("Private message from ${data.senderId}:")
+                println(milkyJsonModule.encodeToString(data.segments))
+            }
+            else -> {} 
         }
+    }
 }
 
 // 退出时取消监听
 job.cancel()
 client.disconnectEvent()
+
+// 彻底关闭 CoroutineScope
+client.close()
 ```
