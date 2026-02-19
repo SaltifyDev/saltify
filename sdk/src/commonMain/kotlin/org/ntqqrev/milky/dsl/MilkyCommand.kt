@@ -14,7 +14,7 @@ public class MilkyCommandDsl internal constructor() {
     internal var executionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var groupExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
-    internal var failureBlock: (suspend MilkyCommandExecution.(Throwable) -> Unit)? = null
+    internal var failureBlock: (suspend MilkyCommandExecution.(CommandCallException) -> Unit)? = null
 
     public fun subCommand(name: String, block: MilkyCommandDsl.() -> Unit) {
         subCommands.add(name to MilkyCommandDsl().apply(block))
@@ -47,7 +47,7 @@ public class MilkyCommandDsl internal constructor() {
         privateExecutionBlock = block
     }
 
-    public fun onFailure(block: suspend MilkyCommandExecution.(Throwable) -> Unit) {
+    public fun onFailure(block: suspend MilkyCommandExecution.(CommandCallException) -> Unit) {
         failureBlock = block
     }
 }
