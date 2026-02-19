@@ -40,9 +40,14 @@ val myPlugin = milkyPlugin {
         // ...
     }
   
-    command("ping") {
-        it.reply {
-            text("Pong!")
+    command("say") {
+        val content = greedyStringParameter("content", "words to repeat")
+  
+        onExecute {
+            val text = capture(content)
+            respond {
+                text(text)
+            }
         }
     }
 
