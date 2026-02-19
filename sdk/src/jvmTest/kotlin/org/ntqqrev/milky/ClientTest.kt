@@ -81,7 +81,7 @@ class ClientTest {
 
             onFailure {
                 respond {
-                    text("Command run failed: ${it.message}")
+                    text("Command run failed: $it")
                 }
             }
         }
@@ -100,7 +100,7 @@ class ClientTest {
 
                 onFailure {
                     respond {
-                        text("Command run failed: ${it.message}")
+                        text("Command run failed: $it")
                     }
                 }
             }

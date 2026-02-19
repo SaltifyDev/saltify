@@ -58,7 +58,7 @@ val myPlugin = milkyPlugin {
 
         onFailure {
             respond {
-                text("Command run failed: ${it.message}")
+                text("Command run failed: $it")
             }
         }
     }
@@ -121,9 +121,3 @@ runBlocking {
 }
 ```
 
-关于 `MilkyCommandDsl.onFailure` 与 `MilkyClient.on` 的 Throwable 变体: 前者用于预料内的异常, 即命令参数缺失等。后者用于全局异常捕捉。
-
-- 没有在 command 作用域内定义 onFailure 时，*预料内的异常*会被忽视，其他异常重新抛出。
-- 在 command 作用域内定义了 onFailure 时，只会传*预料内的异常*，其他异常重新抛出。 
-
-就是说可以把*预料内的异常*当成一种 CancellationException。

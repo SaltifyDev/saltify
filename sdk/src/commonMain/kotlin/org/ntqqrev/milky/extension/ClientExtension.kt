@@ -10,7 +10,8 @@ import org.ntqqrev.milky.core.MilkyClient
 import org.ntqqrev.milky.dsl.MilkyCommandDsl
 import org.ntqqrev.milky.dsl.MilkyCommandExecution
 import org.ntqqrev.milky.dsl.MilkyParamCapturer
-import org.ntqqrev.milky.exception.CommandCallException
+import org.ntqqrev.milky.dsl.ParameterParseResult
+import org.ntqqrev.milky.entity.CommandError
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -62,39 +63,50 @@ private suspend fun executeCommand(
         }
     }
 
-    val argumentMap = mutableMapOf<MilkyParamCapturer<*>, Any?>()
+    val argumentMap = mutableMapOf<MilkyParamCapturer<*>, ParameterParseResult<Any>>()
+    val errors = mutableListOf<CommandError>()
     var currentTokens = tokens
 
     for (param in dsl.parameters) {
-        if (currentTokens.isEmpty()) {
-            argumentMap[param] = CommandCallException.ParameterMissing(param)
-            continue
+        val result: ParameterParseResult<Any> = when {
+            currentTokens.isEmpty() -> ParameterParseResult.MissingParam
+            param.isGreedy -> {
+                val value = currentTokens.joinToString(" ")
+                currentTokens = emptyList()
+                ParameterParseResult.Success(value)
+            }
+            else -> {
+                val rawValue = currentTokens[0]
+                currentTokens = currentTokens.drop(1)
+                val converted = convertValue(rawValue, param.type)
+                if (converted != null) {
+                    ParameterParseResult.Success(converted)
+                } else {
+                    ParameterParseResult.InvalidParam(rawValue)
+                }
+            }
         }
 
-        if (param.isGreedy) {
-            argumentMap[param] = currentTokens.joinToString(" ")
-            currentTokens = emptyList()
-        } else {
-            val rawValue = currentTokens[0]
-            argumentMap[param] = convertValue(rawValue, param.type)
-                ?: CommandCallException.ParameterInvalidType(param, rawValue)
-            currentTokens = currentTokens.drop(1)
+        argumentMap[param] = result
+
+        when (result) {
+            is ParameterParseResult.MissingParam -> errors.add(CommandError.MissingParam(param))
+            is ParameterParseResult.InvalidParam -> errors.add(CommandError.InvalidParam(param, result.rawValue))
+            else -> {}
         }
     }
 
     val execution = MilkyCommandExecution(client, event, argumentMap)
 
-    runCatching {
-        when (event.data) {
-            is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
-            else -> dsl.privateExecutionBlock ?: dsl.executionBlock
-        }?.invoke(execution)
-    }.onFailure {
-        val failureBlock = dsl.failureBlock
-
-        if (it !is CommandCallException) throw it
-        if (failureBlock != null) execution.failureBlock(it)
+    if (errors.isNotEmpty()) {
+        val handler = dsl.failureBlock ?: return
+        return execution.handler(errors.first())
     }
+
+    when (event.data) {
+        is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
+        else -> dsl.privateExecutionBlock ?: dsl.executionBlock
+    }?.invoke(execution)
 }
 
 @Suppress("UNCHECKED_CAST")

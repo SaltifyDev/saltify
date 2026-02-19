@@ -4,7 +4,7 @@ import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.OutgoingSegment
 import org.ntqqrev.milky.annotation.MilkyDsl
 import org.ntqqrev.milky.core.MilkyClient
-import org.ntqqrev.milky.exception.CommandCallException
+import org.ntqqrev.milky.entity.CommandError
 import kotlin.reflect.KClass
 
 @MilkyDsl
@@ -14,7 +14,7 @@ public class MilkyCommandDsl internal constructor() {
     internal var executionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var groupExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
-    internal var failureBlock: (suspend MilkyCommandExecution.(CommandCallException) -> Unit)? = null
+    internal var failureBlock: (suspend MilkyCommandExecution.(CommandError) -> Unit)? = null
 
     public fun subCommand(name: String, block: MilkyCommandDsl.() -> Unit) {
         subCommands.add(name to MilkyCommandDsl().apply(block))
@@ -47,7 +47,7 @@ public class MilkyCommandDsl internal constructor() {
         privateExecutionBlock = block
     }
 
-    public fun onFailure(block: suspend MilkyCommandExecution.(CommandCallException) -> Unit) {
+    public fun onFailure(block: suspend MilkyCommandExecution.(CommandError) -> Unit) {
         failureBlock = block
     }
 }
@@ -65,9 +65,8 @@ public class MilkyCommandExecution(
     @Suppress("UNCHECKED_CAST")
     public fun <T : Any> capture(capturer: MilkyParamCapturer<T>): T {
         val result = argumentMap[capturer]
-        if (result is CommandCallException) throw result
-
-        return (result as? T) ?: throw CommandCallException.ParameterMissing(capturer)
+        return (result as? ParameterParseResult.Success<T>)?.value
+            ?: error("Parameter ${capturer.name} accessed without validation")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -87,3 +86,9 @@ public class MilkyParamCapturer<T : Any>(
     public val description: String = "",
     internal val isGreedy: Boolean = false
 )
+
+internal sealed class ParameterParseResult<out T : Any> {
+    data class Success<T : Any>(val value: T) : ParameterParseResult<T>()
+    data class InvalidParam(val rawValue: String) : ParameterParseResult<Unit>()
+    object MissingParam : ParameterParseResult<Unit>()
+}
