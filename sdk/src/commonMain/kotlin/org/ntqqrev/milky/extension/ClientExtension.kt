@@ -10,12 +10,20 @@ import org.ntqqrev.milky.core.MilkyClient
 import org.ntqqrev.milky.dsl.MilkyCommandDsl
 import org.ntqqrev.milky.dsl.MilkyCommandExecution
 import org.ntqqrev.milky.dsl.MilkyParamCapturer
+import org.ntqqrev.milky.exception.CommandCallException
+import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
 public inline fun <reified T : Event> MilkyClient.on(
     crossinline block: suspend MilkyClient.(event: T) -> Unit
 ): Job = clientScope.launch {
     eventFlow.filter { it is T }.collect { block(it as T) }
+}
+
+public inline fun <reified T : Throwable> MilkyClient.on(
+    crossinline block: suspend MilkyClient.(context: CoroutineContext, e: Throwable) -> Unit
+): Job = clientScope.launch {
+    exceptionFlow.filter { it.second is T }.collect { block(it.first, it.second as T) }
 }
 
 public fun MilkyClient.command(
@@ -49,8 +57,7 @@ private suspend fun executeCommand(
         val subName = tokens[0]
         val subCommand = dsl.subCommands.find { it.first == subName }
         if (subCommand != null) {
-            val subDsl = MilkyCommandDsl().apply(subCommand.second)
-            executeCommand(subDsl, tokens.drop(1), client, event)
+            executeCommand(subCommand.second, tokens.drop(1), client, event)
             return
         }
     }
@@ -60,7 +67,7 @@ private suspend fun executeCommand(
 
     for (param in dsl.parameters) {
         if (currentTokens.isEmpty()) {
-            argumentMap[param] = null
+            argumentMap[param] = CommandCallException.ParameterMissing(param)
             continue
         }
 
@@ -70,17 +77,24 @@ private suspend fun executeCommand(
         } else {
             val rawValue = currentTokens[0]
             argumentMap[param] = convertValue(rawValue, param.type)
+                ?: CommandCallException.ParameterInvalidType(param, rawValue)
             currentTokens = currentTokens.drop(1)
         }
     }
 
     val execution = MilkyCommandExecution(client, event, argumentMap)
-    val block = when (event.data) {
-        is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
-        else -> dsl.privateExecutionBlock ?: dsl.executionBlock
-    }
 
-    block?.invoke(execution)
+    runCatching {
+        when (event.data) {
+            is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
+            else -> dsl.privateExecutionBlock ?: dsl.executionBlock
+        }?.invoke(execution)
+    }.onFailure {
+        val failureBlock = dsl.failureBlock
+
+        if (it !is CommandCallException) throw it
+        if (failureBlock != null) execution.failureBlock(it)
+    }
 }
 
 @Suppress("UNCHECKED_CAST")

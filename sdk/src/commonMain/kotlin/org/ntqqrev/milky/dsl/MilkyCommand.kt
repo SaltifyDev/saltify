@@ -4,18 +4,20 @@ import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.OutgoingSegment
 import org.ntqqrev.milky.annotation.MilkyDsl
 import org.ntqqrev.milky.core.MilkyClient
+import org.ntqqrev.milky.exception.CommandCallException
 import kotlin.reflect.KClass
 
 @MilkyDsl
 public class MilkyCommandDsl internal constructor() {
-    internal val subCommands = mutableListOf<Pair<String, MilkyCommandDsl.() -> Unit>>()
+    internal val subCommands = mutableListOf<Pair<String, MilkyCommandDsl>>()
     internal val parameters = mutableListOf<MilkyParamCapturer<*>>()
     internal var executionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var groupExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
+    internal var failureBlock: (suspend MilkyCommandExecution.(Throwable) -> Unit)? = null
 
     public fun subCommand(name: String, block: MilkyCommandDsl.() -> Unit) {
-        subCommands.add(name to block)
+        subCommands.add(name to MilkyCommandDsl().apply(block))
     }
 
     public fun <T : Any> parameter(
@@ -44,6 +46,10 @@ public class MilkyCommandDsl internal constructor() {
     public fun onPrivateExecute(block: suspend MilkyCommandExecution.() -> Unit) {
         privateExecutionBlock = block
     }
+
+    public fun onFailure(block: suspend MilkyCommandExecution.(Throwable) -> Unit) {
+        failureBlock = block
+    }
 }
 
 public inline fun <reified T : Any> MilkyCommandDsl.parameter(
@@ -58,7 +64,10 @@ public class MilkyCommandExecution(
 ) {
     @Suppress("UNCHECKED_CAST")
     public fun <T : Any> capture(capturer: MilkyParamCapturer<T>): T {
-        return argumentMap[capturer] as? T ?: error("Parameter ${capturer.name} not found or type mismatch")
+        val result = argumentMap[capturer]
+        if (result is CommandCallException) throw result
+
+        return (result as? T) ?: throw CommandCallException.ParameterMissing(capturer)
     }
 
     @Suppress("UNCHECKED_CAST")

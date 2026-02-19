@@ -20,7 +20,8 @@ import org.ntqqrev.milky.annotation.WithApiExtension
 import org.ntqqrev.milky.dsl.MilkyClientConfig
 import org.ntqqrev.milky.dsl.MilkyPluginDsl
 import org.ntqqrev.milky.entity.EventConnectionType
-import org.ntqqrev.milky.exception.MilkyException
+import org.ntqqrev.milky.exception.ApiCallException
+import kotlin.coroutines.CoroutineContext
 
 @WithApiExtension
 public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoCloseable {
@@ -34,8 +35,15 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
         }
     }
 
+    private val exceptionHandlerProvider = MilkyExceptionHandlerProvider()
+
+    public val exceptionFlow: SharedFlow<Pair<CoroutineContext, Throwable>> =
+        exceptionHandlerProvider.exceptionFlow.asSharedFlow()
+
     @PublishedApi
-    internal val clientScope: CoroutineScope = CoroutineScope(SupervisorJob())
+    internal val clientScope: CoroutineScope = CoroutineScope(
+        SupervisorJob() + exceptionHandlerProvider.handler
+    )
 
     protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
 
@@ -66,9 +74,11 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
 
     init {
         config.installedPlugins.forEach { plugin ->
-            val pluginJob = SupervisorJob(clientScope.coroutineContext.job)
             val pluginScope = CoroutineScope(
-                clientScope.coroutineContext + pluginJob + CoroutineName("MilkyPlugin-${plugin.name}")
+                clientScope.coroutineContext +
+                    SupervisorJob(clientScope.coroutineContext.job) +
+                    CoroutineName("MilkyPlugin-${plugin.name}") +
+                    exceptionHandlerProvider.handler
             )
 
             val context = MilkyPluginDsl(this, pluginScope)
@@ -87,7 +97,7 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
             setBody(param)
         }.body()
 
-        if (response.retcode != 0) throw MilkyException(response.retcode, response.message ?: "Unknown error")
+        if (response.retcode != 0) throw ApiCallException(response.retcode, response.message ?: "Unknown error")
         return milkyJsonModule.decodeFromJsonElement(response.data!!)
     }
 
@@ -96,19 +106,19 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
     ): R = callApi(endpoint, ApiEmptyStruct())
 
     public open suspend fun connectEvent() {
-        activePlugins.map { context ->
-            context.async {
+        activePlugins.forEach { context ->
+            context.launch {
                 context.onStartHooks.forEach { it() }
-            }
-        }.awaitAll()
+            }.join()
+        }
     }
 
     public open suspend fun disconnectEvent() {
-        activePlugins.map { context ->
-            context.async {
+        activePlugins.forEach { context ->
+            context.launch {
                 context.onStopHooks.forEach { it() }
-            }
-        }.awaitAll()
+            }.join()
+        }
     }
 
     override fun close() {

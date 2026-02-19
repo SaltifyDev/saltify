@@ -1,5 +1,6 @@
 package org.ntqqrev.milky
 
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.core.MilkyClient
@@ -8,16 +9,25 @@ import org.ntqqrev.milky.core.text
 import org.ntqqrev.milky.dsl.milkyPlugin
 import org.ntqqrev.milky.dsl.parameter
 import org.ntqqrev.milky.entity.EventConnectionType
+import org.ntqqrev.milky.extension.on
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 
 class ClientTest {
     @Test
-    fun test() = runBlocking {
+    fun test(): Unit = runBlocking {
         val client = MilkyClient {
             addressBase = "http://localhost:3000"
             eventConnectionType = EventConnectionType.WebSocket
 
             install(testPlugin)
+        }
+
+        client.on<IllegalStateException> { _, e ->
+            println("Receive exception: ${e.message}")
+            if (e.message != "This should not fail the test") {
+                this@runBlocking.cancel(CancellationException(e.message, e))
+            }
         }
 
         client.connectEvent()
@@ -31,6 +41,7 @@ class ClientTest {
             println("--- Test plugin started")
             val self = client.getLoginInfo()
             println("Current uin：${self.uin}")
+            error("This should not fail the test")
         }
 
         onStop {
@@ -51,6 +62,12 @@ class ClientTest {
             }
         }
 
+        command("error") {
+            onExecute {
+                error("This should fail the test")
+            }
+        }
+
         // greedy test
         command("say") {
             val content = greedyStringParameter("content", "words to repeat")
@@ -59,6 +76,12 @@ class ClientTest {
                 val text = content.value
                 respond {
                     text(text)
+                }
+            }
+
+            onFailure {
+                respond {
+                    text("Command run failed: ${it.message}")
                 }
             }
         }
@@ -73,6 +96,12 @@ class ClientTest {
                 onExecute {
                     val result = a.value + b.value
                     respond { text("$result") }
+                }
+
+                onFailure {
+                    respond {
+                        text("Command run failed: ${it.message}")
+                    }
                 }
             }
 
@@ -113,10 +142,8 @@ class ClientTest {
             val note = greedyStringParameter("note")
 
             onExecute {
-                val orderId = id.value
-                val orderNote = note.value
                 respond {
-                    text("Order #$orderId created\nnote：$orderNote")
+                    text("Order #${id.value} created\nnote：${note.value}")
                 }
             }
         }

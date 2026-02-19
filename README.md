@@ -35,18 +35,30 @@ val client = MilkyClient {
     install(myPlugin)
 }
 
+// 释放 client
+client.close()
+```
+
+### 定义插件
+
+```kotlin
 val myPlugin = milkyPlugin {
     onStart {
         // ...
     }
-  
+
     command("say") {
         val content = greedyStringParameter("content", "words to repeat")
-  
+
         onExecute {
-            val text = capture(content)
             respond {
-                text(text)
+                text(content.value)
+            }
+        }
+
+        onFailure {
+            respond {
+                text("Command run failed: ${it.message}")
             }
         }
     }
@@ -58,16 +70,8 @@ val myPlugin = milkyPlugin {
 ### 调用 API
 
 ```kotlin
-// API 无参数
 val loginInfo = client.getLoginInfo()
 
-// API 有参数
-val userProfile = client.getUserProfile(/* userId = */ loginInfo.uin)
-```
-
-### 发送消息
-
-```kotlin
 client.sendGroupMessage(123456789L) {
     text("Hello from Milky🥛!")
     image("https://example.com/example.jpg")
@@ -100,8 +104,26 @@ val job = launch {
 
 // 退出时取消监听
 job.cancel()
+// tips: disconnectEvent() 不会被 client.close() 自动调用
 client.disconnectEvent()
-
-// 彻底关闭 CoroutineScope
-client.close()
 ```
+
+### 异常处理
+
+```kotlin
+runBlocking {
+    client.on<IllegalStateException> { _, e ->
+        println("Receive exception: ${e.message}")
+        if (e.message != "test exception") {
+            this@runBlocking.cancel(CancellationException(e.message, e))
+        }
+    }
+}
+```
+
+关于 `MilkyCommandDsl.onFailure` 与 `MilkyClient.on` 的 Throwable 变体: 前者用于预料内的异常, 即命令参数缺失等。后者用于全局异常捕捉。
+
+- 没有在 command 作用域内定义 onFailure 时，*预料内的异常*会被忽视，其他异常重新抛出。
+- 在 command 作用域内定义了 onFailure 时，只会传*预料内的异常*，其他异常重新抛出。 
+
+就是说可以把*预料内的异常*当成一种 CancellationException。
