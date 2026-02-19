@@ -3,6 +3,8 @@ package org.ntqqrev.milky
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.core.MilkyClient
+import org.ntqqrev.milky.core.getLoginInfo
+import org.ntqqrev.milky.core.text
 import org.ntqqrev.milky.dsl.milkyPlugin
 import org.ntqqrev.milky.dsl.parameter
 import org.ntqqrev.milky.entity.EventConnectionType
