@@ -1,4 +1,4 @@
-package org.ntqqrev.milky
+package org.ntqqrev.milky.ksp
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies

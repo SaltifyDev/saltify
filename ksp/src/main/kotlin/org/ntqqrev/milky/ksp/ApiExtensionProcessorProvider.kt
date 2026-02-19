@@ -1,4 +1,4 @@
-package org.ntqqrev.milky
+package org.ntqqrev.milky.ksp
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
