@@ -7,7 +7,7 @@ import org.ntqqrev.milky.core.MilkyClient
 import kotlin.reflect.KClass
 
 @MilkyDsl
-public class MilkyCommandDsl {
+public class MilkyCommandDsl internal constructor() {
     internal val subCommands = mutableListOf<Pair<String, MilkyCommandDsl.() -> Unit>>()
     internal val parameters = mutableListOf<MilkyParamCapturer<*>>()
     internal var executionBlock: (suspend MilkyCommandExecution.() -> Unit)? = null
@@ -60,6 +60,10 @@ public class MilkyCommandExecution(
     public fun <T : Any> capture(capturer: MilkyParamCapturer<T>): T {
         return argumentMap[capturer] as? T ?: error("Parameter ${capturer.name} not found or type mismatch")
     }
+
+    @Suppress("UNCHECKED_CAST")
+    public val <T : Any> MilkyParamCapturer<T>.value: T
+        get() = capture(this)
 
     public suspend fun respond(block: MutableList<OutgoingSegment>.() -> Unit) {
         with(MilkyPluginDsl(client, client.clientScope)) {

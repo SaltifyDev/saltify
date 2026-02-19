@@ -3,8 +3,6 @@ package org.ntqqrev.milky
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.core.MilkyClient
-import org.ntqqrev.milky.core.getLoginInfo
-import org.ntqqrev.milky.core.text
 import org.ntqqrev.milky.dsl.milkyPlugin
 import org.ntqqrev.milky.dsl.parameter
 import org.ntqqrev.milky.entity.EventConnectionType
@@ -56,7 +54,7 @@ class ClientTest {
             val content = greedyStringParameter("content", "words to repeat")
 
             onExecute {
-                val text = capture(content)
+                val text = content.value
                 respond {
                     text(text)
                 }
@@ -71,7 +69,7 @@ class ClientTest {
                 val b = parameter<Int>("b")
 
                 onExecute {
-                    val result = capture(a) + capture(b)
+                    val result = a.value + b.value
                     respond { text("$result") }
                 }
             }
@@ -80,7 +78,7 @@ class ClientTest {
             subCommand("power") {
                 val base = parameter<Int>("base")
                 onExecute {
-                    val value = capture(base)
+                    val value = base.value
                     respond { text("The power of $value is ${value * value}") }
                 }
             }
@@ -113,8 +111,8 @@ class ClientTest {
             val note = greedyStringParameter("note")
 
             onExecute {
-                val orderId = capture(id)
-                val orderNote = capture(note)
+                val orderId = id.value
+                val orderNote = note.value
                 respond {
                     text("Order #$orderId created\nnote：$orderNote")
                 }
