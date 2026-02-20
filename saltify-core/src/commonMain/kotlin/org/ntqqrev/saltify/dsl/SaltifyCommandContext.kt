@@ -1,12 +1,19 @@
 package org.ntqqrev.saltify.dsl
 
+import kotlinx.coroutines.delay
 import org.ntqqrev.milky.Event
+import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
+import org.ntqqrev.saltify.annotation.ContextParametersMigrationNeeded
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.entity.CommandError
+import org.ntqqrev.saltify.core.recallGroupMessage
+import org.ntqqrev.saltify.core.recallPrivateMessage
 import org.ntqqrev.saltify.extension.respond
+import org.ntqqrev.saltify.model.CommandError
+import org.ntqqrev.saltify.model.milky.SendMessageOutput
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 
 @SaltifyDsl
 public class SaltifyCommandContext internal constructor() {
@@ -74,14 +81,6 @@ public class SaltifyCommandContext internal constructor() {
     }
 }
 
-/**
- * 定义一个命令参数。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
- */
-public inline fun <reified T : Any> SaltifyCommandContext.parameter(
-    name: String,
-    description: String = ""
-): SaltifyCommandParamDef<T> = parameter(T::class, name, description)
-
 public class SaltifyCommandExecutionContext(
     public val client: SaltifyApplication,
     public val event: Event.MessageReceive,
@@ -100,20 +99,37 @@ public class SaltifyCommandExecutionContext(
     /**
      * 获取已解析的参数值。这是 [capture] 的简写形式。
      */
+    @ContextParametersMigrationNeeded
     @Suppress("UNCHECKED_CAST")
     public val <T : Any> SaltifyCommandParamDef<T>.value: T
         get() = capture(this)
 
     /**
-     * 回复当前命令。
+     * 响应命令。
      */
-    public suspend fun respond(block: MutableList<OutgoingSegment>.() -> Unit) {
-        event.respond(client, block)
+    public suspend fun respond(
+        block: MutableList<OutgoingSegment>.() -> Unit
+    ): SendMessageOutput = event.respond(client, block)
+
+    /**
+     * 响应命令，并在指定延迟后撤回消息。
+     */
+    @ContextParametersMigrationNeeded
+    public suspend fun respondWithRecall(
+        delay: Duration,
+        block: MutableList<OutgoingSegment>.() -> Unit
+    ) {
+        val output = respond(block)
+        delay(delay)
+        when (val data = event.data) {
+            is IncomingMessage.Group -> client.recallGroupMessage(data.peerId, output.messageSeq)
+            else -> client.recallPrivateMessage(data.peerId, output.messageSeq)
+        }
     }
 }
 
 /**
- * 命令参数。
+ * 命令参数
  */
 public class SaltifyCommandParamDef<T : Any>(
     public val type: KClass<T>,

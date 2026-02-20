@@ -2,16 +2,23 @@ package org.ntqqrev.saltify.dsl
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.ntqqrev.milky.Event
+import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
+import org.ntqqrev.saltify.annotation.ContextParametersMigrationNeeded
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
+import org.ntqqrev.saltify.core.recallGroupMessage
+import org.ntqqrev.saltify.core.recallPrivateMessage
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.respond
+import org.ntqqrev.saltify.model.milky.SendMessageOutput
+import kotlin.time.Duration
 
 @SaltifyDsl
-public class SaltifyPluginBuilder internal constructor(
+public class SaltifyPluginContext internal constructor(
     public val client: SaltifyApplication,
     @PublishedApi internal val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
@@ -74,8 +81,25 @@ public class SaltifyPluginBuilder internal constructor(
     /**
      * 响应事件。
      */
-    public suspend fun Event.MessageReceive.respond(block: MutableList<OutgoingSegment>.() -> Unit): Any =
-        respond(client, block)
+    public suspend fun Event.MessageReceive.respond(
+        block: MutableList<OutgoingSegment>.() -> Unit
+    ): SendMessageOutput = respond(client, block)
+
+    /**
+     * 响应事件，并在指定延迟后撤回消息。
+     */
+    @ContextParametersMigrationNeeded
+    public suspend fun Event.MessageReceive.respondWithRecall(
+        delay: Duration,
+        block: MutableList<OutgoingSegment>.() -> Unit
+    ) {
+        val output = respond(block)
+        delay(delay)
+        when (data) {
+            is IncomingMessage.Group -> client.recallGroupMessage(data.peerId, output.messageSeq)
+            else -> client.recallPrivateMessage(data.peerId, output.messageSeq)
+        }
+    }
 }
 
 /**
@@ -83,7 +107,7 @@ public class SaltifyPluginBuilder internal constructor(
  */
 public class SaltifyPlugin(
     public val name: String,
-    internal val setup: SaltifyPluginBuilder.() -> Unit
+    internal val setup: SaltifyPluginContext.() -> Unit
 )
 
 /**
@@ -91,5 +115,5 @@ public class SaltifyPlugin(
  */
 public fun createSaltifyPlugin(
     name: String = "unspecified",
-    block: SaltifyPluginBuilder.() -> Unit
+    block: SaltifyPluginContext.() -> Unit
 ): SaltifyPlugin = SaltifyPlugin(name, block)

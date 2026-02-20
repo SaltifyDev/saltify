@@ -10,6 +10,7 @@ import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.createSaltifyPlugin
+import org.ntqqrev.saltify.extension.parameter
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.saltifyComponent
