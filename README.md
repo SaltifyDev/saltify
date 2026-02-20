@@ -1,8 +1,12 @@
-# Milky SDK for Kotlin
+![banner](https://socialify.git.ci/SaltifyDev/saltify/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F208890061%3Fs%3D400%26u%3D49580f4a3a7837cdd8d43a532d0789b2488a2ffb%26v%3D4&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Light)
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/milky-kt-sdk?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/milky-kt-sdk)
-![kotlinx-serialization](https://img.shields.io/badge/kotlinx--serialization-1.10.0-blue?logo=kotlin&logoColor=white)
-![ktor](https://img.shields.io/badge/ktor-3.4.0-blue?logo=ktor&logoColor=white)
+<div align="center">
+
+[![QQ 群](https://img.shields.io/badge/QQ_Group-570335215-green?logo=qq)](https://qm.qq.com/q/C04kPQzayk)
+[![Telegram](https://img.shields.io/badge/Telegram-WeavingStar-orange?logo=telegram)](https://t.me/WeavingStar)
+[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/saltify?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/saltify-core)
+
+</div>
 
 ## 特性
 
@@ -10,13 +14,14 @@
 - 兼容 JVM / Native / JS / WASM 平台
 - 支持 Milky 协议的所有功能
   - 例外：不支持通过 WebHook 事件推送监听事件
+- 支持插件化开发、命令路由、事件监听等功能的 DSL
 
 > [!tip]
 > 使用时，你需要在项目中添加一个 Ktor Client 引擎依赖，例如 `ktor-client-cio`、`ktor-client-okhttp` 等。
 
 ## 用例
 
-见 [ClientTest.kt](/sdk/src/jvmTest/kotlin/org/ntqqrev/milky/ClientTest.kt)
+完整的用例见 [ClientTest.kt](/saltify-core/src/jvmTest/kotlin/org/ntqqrev/milky/ClientTest.kt)。
 
 ### 初始化
 

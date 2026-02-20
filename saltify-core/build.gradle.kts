@@ -13,7 +13,7 @@ plugins {
 }
 
 dependencies {
-    add("kspCommonMainMetadata", project(":ksp"))
+    add("kspCommonMainMetadata", project(":saltify-processor"))
 }
 
 kotlin {
@@ -76,19 +76,35 @@ kotlin {
     explicitApi()
 }
 
+tasks.withType<KotlinCompile> {
+    dependsOn(":saltify-core:kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<KotlinNativeCompile> {
+    dependsOn(":saltify-core:kspCommonMainKotlinMetadata")
+}
+
+tasks.withType<KotlinJsCompile> {
+    dependsOn(":saltify-core:kspCommonMainKotlinMetadata")
+}
+
+tasks.matching { it.name.lowercase().endsWith("sourcesjar") }.configureEach {
+    dependsOn(":saltify-core:kspCommonMainKotlinMetadata")
+}
+
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
     coordinates(
         groupId = rootProject.group.toString(),
-        artifactId = "milky-kt-sdk",
+        artifactId = "saltify-core",
         version = rootProject.version.toString()
     )
 
     pom {
         name = rootProject.name
         description = "Milky SDK for Kotlin Multiplatform"
-        url = "https://github.com/SaltifyDev/milky-kt-sdk"
+        url = "https://github.com/SaltifyDev/saltify"
         inceptionYear = "2025"
         licenses {
             license {
@@ -104,25 +120,9 @@ mavenPublishing {
             }
         }
         scm {
-            connection = "scm:git:git://github.com/SaltifyDev/milky-kt-sdk.git"
-            developerConnection = "scm:git:ssh://github.com/SaltifyDev/milky-kt-sdk.git"
-            url = "https://github.com/SaltifyDev/milky-kt-sdk"
+            connection = "scm:git:git://github.com/SaltifyDev/saltify.git"
+            developerConnection = "scm:git:ssh://github.com/SaltifyDev/saltify.git"
+            url = "https://github.com/SaltifyDev/saltify"
         }
     }
-}
-
-tasks.withType<KotlinCompile> {
-    dependsOn(":sdk:kspCommonMainKotlinMetadata")
-}
-
-tasks.withType<KotlinNativeCompile> {
-    dependsOn(":sdk:kspCommonMainKotlinMetadata")
-}
-
-tasks.withType<KotlinJsCompile> {
-    dependsOn(":sdk:kspCommonMainKotlinMetadata")
-}
-
-tasks.matching { it.name.lowercase().endsWith("sourcesjar") }.configureEach {
-    dependsOn(":sdk:kspCommonMainKotlinMetadata")
 }

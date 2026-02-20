@@ -1,4 +1,5 @@
 dependencyResolutionManagement {
+    @Incubating
     repositories {
         mavenCentral()
     }
@@ -14,6 +15,9 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "milky-kt-sdk"
+rootProject.name = "saltify"
 
-include(":sdk", ":ksp")
+include(
+    ":saltify-core",
+    ":saltify-processor"
+)
