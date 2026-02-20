@@ -145,7 +145,7 @@ val myPlugin = createSaltifyPlugin("test") {
             // ...
         }
 
-        // 使用 Typed error 处理命令参数类型不匹配，命令参数缺失等情况。
+        // 使用 Typed error 处理命令参数类型不匹配，命令参数缺失等情况
         onFailure {
             respond {
                 text("Command run failed: $it")
@@ -169,7 +169,8 @@ val client = SaltifyApplication {
 
 ## 异常处理
 
-`SaltifyApplication` 会将插件和事件监听器中的异常通过 `exceptionFlow` 抛出。默认情况下，应用级别的异常会被重新抛出，而组件级别的异常会被捕获并打印到控制台。你也可以通过收集 `exceptionFlow` 来实现自定义的异常处理逻辑：
+`SaltifyApplication` 会将插件和事件监听器中的异常通过 `exceptionFlow` 抛出。默认情况下，所有异常都会被无视。
+你可以收集 (通常来说是必须) `exceptionFlow` 来实现自定义逻辑。
 
 ```kotlin
 launch {
@@ -178,9 +179,9 @@ launch {
 
         when (component.type) {
             SaltifyComponentType.Application -> throw exception
-            else -> println(
-                "Component ${component.name}(${component.type}) occurred an exception: " +
-                        exception.stackTraceToString()
+            else -> logger.error(
+                "Saltify component ${component.name}(${component.type}) occurred an exception: ",
+                exception
             )
         }
     }
