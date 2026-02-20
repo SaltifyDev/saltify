@@ -14,7 +14,7 @@ public class SaltifyConfig {
         installedPlugins.add(plugin)
     }
 
-    public fun plugin(name: String, block: SaltifyPluginBuilder.() -> Unit) {
+    public fun plugin(name: String = "unspecified", block: SaltifyPluginBuilder.() -> Unit) {
         install(createSaltifyPlugin(name, block))
     }
 }

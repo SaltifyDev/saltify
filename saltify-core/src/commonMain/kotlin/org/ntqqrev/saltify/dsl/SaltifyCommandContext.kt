@@ -75,7 +75,7 @@ public class SaltifyCommandExecutionContext(
 
     public suspend fun respond(block: MutableList<OutgoingSegment>.() -> Unit) {
         with(SaltifyPluginBuilder(client, client.clientScope)) {
-            event.reply(block)
+            event.respond(block)
         }
     }
 }

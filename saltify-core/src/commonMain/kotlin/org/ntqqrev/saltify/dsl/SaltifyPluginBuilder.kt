@@ -39,13 +39,13 @@ public class SaltifyPluginBuilder internal constructor(
         block: SaltifyCommandContext.() -> Unit
     ): Job = launch { client.command(name, prefix, block) }
 
-    public suspend fun Event.MessageReceive.reply(message: List<OutgoingSegment>): Any =
+    public suspend fun Event.MessageReceive.respond(message: List<OutgoingSegment>): Any =
         when (val data = this.data) {
             is IncomingMessage.Group -> client.sendGroupMessage(data.peerId, message)
             else -> client.sendPrivateMessage(data.peerId, message)
         }
 
-    public suspend fun Event.MessageReceive.reply(block: MutableList<OutgoingSegment>.() -> Unit): Any =
+    public suspend fun Event.MessageReceive.respond(block: MutableList<OutgoingSegment>.() -> Unit): Any =
         when (val data = this.data) {
             is IncomingMessage.Group -> client.sendGroupMessage(data.peerId, block)
             else -> client.sendPrivateMessage(data.peerId, block)
@@ -57,6 +57,7 @@ public class SaltifyPlugin(
     internal val setup: SaltifyPluginBuilder.() -> Unit
 )
 
-public fun createSaltifyPlugin(name: String, block: SaltifyPluginBuilder.() -> Unit): SaltifyPlugin {
-    return SaltifyPlugin(name, block)
-}
+public fun createSaltifyPlugin(
+    name: String = "unspecified",
+    block: SaltifyPluginBuilder.() -> Unit
+): SaltifyPlugin = SaltifyPlugin(name, block)
