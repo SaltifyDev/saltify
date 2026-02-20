@@ -1,15 +1,12 @@
-@file:OptIn(ExperimentalWasmDsl::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
-    kotlin("multiplatform") version "2.3.10"
-    kotlin("plugin.serialization") version "2.3.10"
-    id("com.vanniktech.maven.publish") version "0.36.0"
-    id("com.google.devtools.ksp") version "2.3.6"
+    id("buildsrc.convention.kotlin-multiplatform")
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.ksp)
 }
 
 dependencies {
@@ -17,61 +14,29 @@ dependencies {
 }
 
 kotlin {
-    androidNativeArm32()
-    androidNativeArm64()
-    androidNativeX64()
-    androidNativeX86()
-    iosArm64()
-    iosSimulatorArm64()
-    iosX64()
-    js(IR) {
-        browser()
-        nodejs()
-    }
-    jvm()
-    linuxArm64()
-    linuxX64()
-    macosArm64()
-    macosX64()
-    mingwX64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    tvosX64()
-    wasmJs {
-        browser()
-        nodejs()
-        d8()
-    }
-    watchosArm32()
-    watchosArm64()
-    watchosDeviceArm64()
-    watchosSimulatorArm64()
-    watchosX64()
-
     sourceSets {
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
-                implementation(ktorLibs.client.core)
-                implementation(ktorLibs.client.contentNegotiation)
-                implementation(ktorLibs.client.serialization)
-                implementation(ktorLibs.client.websockets)
-                implementation(ktorLibs.serialization.kotlinx.json)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-                api("org.ntqqrev:milky-kt-types:1.2.0-RC2")
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.client.serialization)
+                implementation(libs.ktor.client.websockets)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
+                api(libs.milky.types)
             }
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+
         jvmTest.dependencies {
-            implementation(ktorLibs.client.cio)
+            implementation(libs.ktor.client.cio)
         }
     }
-
-    jvmToolchain(21)
 
     explicitApi()
 }

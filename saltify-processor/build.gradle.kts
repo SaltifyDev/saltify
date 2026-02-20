@@ -1,11 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.3.10"
-}
-
-kotlin {
-    jvmToolchain(21)
+    id("buildsrc.convention.kotlin-jvm")
 }
 
 dependencies {
-    implementation("com.google.devtools.ksp:symbol-processing-api:2.3.6")
+    implementation(libs.ksp.api)
 }
