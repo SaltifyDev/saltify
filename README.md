@@ -4,7 +4,7 @@
 
 [![QQ 群](https://img.shields.io/badge/QQ_Group-570335215-green?logo=qq)](https://qm.qq.com/q/C04kPQzayk)
 [![Telegram](https://img.shields.io/badge/Telegram-WeavingStar-orange?logo=telegram)](https://t.me/WeavingStar)
-[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/saltify?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/saltify-core)
+[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/saltify-core?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/saltify-core)
 
 </div>
 
