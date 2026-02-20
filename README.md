@@ -19,7 +19,7 @@
 > [!tip]
 > 使用时，你需要在项目中添加一个 Ktor Client 引擎依赖，例如 `ktor-client-cio`、`ktor-client-okhttp` 等。
 
-## 用例
+## 快速开始
 
 ### 初始化
 
@@ -28,48 +28,12 @@ val client = SaltifyApplication {
     addressBase = "http://localhost:3000"
     eventConnectionType = EventConnectionType.WebSocket
     // accessToken = "..."
-
-    // 直接定义插件
-    plugin("name") {
-        // ...
-    }
-
-    // 导入插件
-    install(myPlugin)
 }
+
+// ...
 
 // 释放 client
 client.close()
-```
-
-### 定义插件
-
-完整的用例见 [PluginTest.kt](/saltify-core/src/jvmTest/kotlin/org/ntqqrev/saltify/PluginTest.kt)。
-
-```kotlin
-val myPlugin = createSaltifyPlugin {
-    onStart {
-        // ...
-    }
-
-    command("say") {
-        val content = greedyStringParameter("content", "words to repeat")
-
-        onExecute {
-            respond {
-                text(content.value)
-            }
-        }
-
-        onFailure {
-            respond {
-                text("Command run failed: $it")
-            }
-        }
-    }
-
-    // ...
-}
 ```
 
 ### 调用 API
@@ -78,7 +42,7 @@ val myPlugin = createSaltifyPlugin {
 val loginInfo = client.getLoginInfo()
 
 client.sendGroupMessage(123456789L) {
-    text("Hello from Milky🥛!")
+    text("Hello from Saltify!")
     image("https://example.com/example.jpg")
     image("https://example.com/example2.jpg", subType = "sticker")
 }
@@ -109,8 +73,62 @@ val job = launch {
 
 // 退出时取消监听
 job.cancel()
-// tips: disconnectEvent() 不会被 client.close() 自动调用
+// 断开事件服务
+// client.disconnectEvent() 不会被 client.close() 自动调用，事件服务可复用。
 client.disconnectEvent()
+```
+
+### 定义插件
+
+```kotlin
+val myPlugin = createSaltifyPlugin("test") {
+    onStart {
+        // ...
+    }
+
+    on<Event.GroupMemberIncrease> {
+        // ...
+    }
+
+    //order <id> <note>
+    command("order") {
+        // id.value 的类型为 Int
+        val id = parameter<Int>("id")
+        // 贪婪匹配，即后面的参数视为一个参数
+        val note = greedyStringParameter("note")
+
+        onExecute {
+            respond {
+                text("Order #${id.value} created\nnote：${note.value}")
+            }
+        }
+
+        // 优先级高于 onExecute，同样还有 onPrivateExecute
+        onGroupExecute {
+            // ...
+        }
+
+        // 使用 Typed error 处理命令参数类型不匹配，命令参数缺失等情况。
+        onFailure {
+            respond {
+                text("Command run failed: $it")
+            }
+        }
+    }
+}
+```
+
+可以在 SaltifyApplication 内声明使用这个插件，或者直接在其中定义插件：
+
+```kotlin
+val client = SaltifyApplication {
+    // ...
+    install(myPlugin)
+    
+    plugin {
+        // ...
+    }
+}
 ```
 
 ### 异常处理
@@ -126,3 +144,4 @@ runBlocking {
 }
 ```
 
+完整的用例见 [PluginTest.kt](/saltify-core/src/jvmTest/kotlin/org/ntqqrev/saltify/PluginTest.kt)。
