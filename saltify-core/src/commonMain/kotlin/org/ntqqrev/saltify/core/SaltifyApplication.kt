@@ -27,7 +27,7 @@ import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
 import kotlin.coroutines.CoroutineContext
 
 /**
- * 一个 Saltify 应用实例。
+ * 一个 Saltify 应用实例
  */
 @WithApiExtension
 public sealed class SaltifyApplication(private val config: SaltifyConfig) : AutoCloseable {
