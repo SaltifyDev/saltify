@@ -9,17 +9,19 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: temurin
           java-version: 21
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
+
       - name: Publish and release to MavenCentral
         run: ./gradlew :saltify-core:publishAndReleaseToMavenCentral --no-configuration-cache
         env:
-          GITHUB_ACTIONS_BUILD_CORE_LIBRARY: 'true'
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
