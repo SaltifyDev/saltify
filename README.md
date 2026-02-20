@@ -21,8 +21,6 @@
 
 ## 用例
 
-完整的用例见 [ClientTest.kt](/saltify-core/src/jvmTest/kotlin/org/ntqqrev/milky/ClientTest.kt)。
-
 ### 初始化
 
 ```kotlin
@@ -45,6 +43,8 @@ client.close()
 ```
 
 ### 定义插件
+
+完整的用例见 [PluginTest.kt](/saltify-core/src/jvmTest/kotlin/org/ntqqrev/saltify/PluginTest.kt)。
 
 ```kotlin
 val myPlugin = createSaltifyPlugin {
