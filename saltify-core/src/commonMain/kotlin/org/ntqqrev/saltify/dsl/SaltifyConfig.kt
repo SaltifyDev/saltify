@@ -1,7 +1,7 @@
 package org.ntqqrev.saltify.dsl
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
-import org.ntqqrev.saltify.entity.EventConnectionType
+import org.ntqqrev.saltify.model.EventConnectionType
 
 @SaltifyDsl
 public class SaltifyConfig {
@@ -28,7 +28,7 @@ public class SaltifyConfig {
     /**
      * 定义并安装插件，用法与 [createSaltifyPlugin] 相同。
      */
-    public fun plugin(name: String = "unspecified", block: SaltifyPluginBuilder.() -> Unit) {
+    public fun plugin(name: String = "unspecified", block: SaltifyPluginContext.() -> Unit) {
         install(createSaltifyPlugin(name, block))
     }
 }

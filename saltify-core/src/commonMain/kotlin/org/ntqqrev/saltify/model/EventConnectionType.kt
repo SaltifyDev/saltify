@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.entity
+package org.ntqqrev.saltify.model
 
 /**
  * 事件服务的协议类型

@@ -88,7 +88,7 @@ class ApiExtensionProcessor(
                 it.appendLine()
                 if (pkg != "org.ntqqrev.milky") {
                     it.appendLine("import org.ntqqrev.milky.*")
-                    it.appendLine("import org.ntqqrev.saltify.entity.*")
+                    it.appendLine("import org.ntqqrev.saltify.model.*")
                     it.appendLine()
                 }
 

@@ -12,7 +12,7 @@ import org.ntqqrev.saltify.dsl.ParameterParseResult
 import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
-import org.ntqqrev.saltify.entity.CommandError
+import org.ntqqrev.saltify.model.CommandError
 import kotlin.reflect.KClass
 
 /**

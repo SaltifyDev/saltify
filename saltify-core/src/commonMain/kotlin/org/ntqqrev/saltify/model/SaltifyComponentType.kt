@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.entity
+package org.ntqqrev.saltify.model
 
 /**
  * Saltify 的协程组件类型

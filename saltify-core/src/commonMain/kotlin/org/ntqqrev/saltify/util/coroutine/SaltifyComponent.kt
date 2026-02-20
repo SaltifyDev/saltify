@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify.util.coroutine
 
-import org.ntqqrev.saltify.entity.SaltifyComponentType
+import org.ntqqrev.saltify.model.SaltifyComponentType
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 

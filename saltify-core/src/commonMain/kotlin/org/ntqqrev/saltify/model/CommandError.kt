@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.entity
+package org.ntqqrev.saltify.model
 
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 

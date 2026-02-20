@@ -18,9 +18,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
 import org.ntqqrev.saltify.annotation.WithApiExtension
 import org.ntqqrev.saltify.dsl.SaltifyConfig
-import org.ntqqrev.saltify.dsl.SaltifyPluginBuilder
-import org.ntqqrev.saltify.entity.EventConnectionType
-import org.ntqqrev.saltify.entity.SaltifyComponentType
+import org.ntqqrev.saltify.dsl.SaltifyPluginContext
+import org.ntqqrev.saltify.model.EventConnectionType
+import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.exception.ApiCallException
 import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
 import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
@@ -84,7 +84,7 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
      */
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
-    private val activePlugins = mutableListOf<SaltifyPluginBuilder>()
+    private val activePlugins = mutableListOf<SaltifyPluginContext>()
 
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
@@ -114,7 +114,7 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
                     SaltifyComponent(SaltifyComponentType.Plugin, plugin.name)
             )
 
-            val context = SaltifyPluginBuilder(this, pluginScope)
+            val context = SaltifyPluginContext(this, pluginScope)
             plugin.setup(context)
 
             activePlugins.add(context)
