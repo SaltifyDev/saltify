@@ -26,9 +26,15 @@ import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
 import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * 一个 Saltify 应用实例。
+ */
 @WithApiExtension
 public sealed class SaltifyApplication(private val config: SaltifyConfig) : AutoCloseable {
     public companion object {
+        /**
+         * 创建一个 Saltify 应用实例。
+         */
         public operator fun invoke(block: SaltifyConfig.() -> Unit): SaltifyApplication {
             val config = SaltifyConfig().apply(block)
             return when (config.eventConnectionType) {
@@ -39,6 +45,19 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
     }
 
     internal val exceptionHandlerProvider = SaltifyExceptionHandlerProvider()
+
+    /**
+     * 全局异常流。
+     *
+     * 可以通过 [SaltifyComponent] 判断异常抛出位置。
+     *
+     * ```kotlin
+     * client.exceptionFlow.collect { (context, exception) ->
+     *     val component = context.saltifyComponent!!
+     *     println("Component ${component.name}(${component.type}) occurred an exception: $exception")
+     * }
+     * ```
+     */
     public val exceptionFlow: SharedFlow<Pair<CoroutineContext, Throwable>> =
         exceptionHandlerProvider.exceptionFlow.asSharedFlow()
 
@@ -57,6 +76,12 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
     protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
 
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
+
+    /**
+     * 事件流。
+     *
+     * 通常不需要手动操作这个流，因为已经提供了一些高层 API。
+     */
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
     private val activePlugins = mutableListOf<SaltifyPluginBuilder>()
@@ -96,6 +121,9 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
         }
     }
 
+    /**
+     * 手动构建接口调用。不建议直接使用。
+     */
     public suspend inline fun <reified T : Any, reified R : Any> callApi(
         endpoint: ApiEndpoint<T, R>,
         param: T
@@ -109,10 +137,16 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
         return milkyJsonModule.decodeFromJsonElement(response.data!!)
     }
 
+    /**
+     * 手动构建接口调用。不建议直接使用。
+     */
     public suspend inline fun <reified R : Any> callApi(
         endpoint: ApiEndpoint<ApiEmptyStruct, R>
     ): R = callApi(endpoint, ApiEmptyStruct())
 
+    /**
+     * 连接事件服务。需要在监听事件时调用。请搭配 [disconnectEvent] 使用。
+     */
     public open suspend fun connectEvent(): Unit = coroutineScope {
         activePlugins.map { context ->
             context.launch {
@@ -121,6 +155,9 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
         }.joinAll()
     }
 
+    /**
+     * 断开事件服务。请搭配 [connectEvent] 使用。
+     */
     public open suspend fun disconnectEvent(): Unit = coroutineScope {
         activePlugins.map { context ->
             context.launch {

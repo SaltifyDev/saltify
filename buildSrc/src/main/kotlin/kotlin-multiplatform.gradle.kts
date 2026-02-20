@@ -1,4 +1,8 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
 package buildsrc.convention
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")

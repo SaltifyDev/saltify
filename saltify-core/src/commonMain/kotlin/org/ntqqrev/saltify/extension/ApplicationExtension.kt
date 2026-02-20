@@ -15,6 +15,9 @@ import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 import org.ntqqrev.saltify.entity.CommandError
 import kotlin.reflect.KClass
 
+/**
+ * 注册一个事件监听器。
+ */
 public inline fun <reified T : Event> SaltifyApplication.on(
     scope: CoroutineScope = extensionScope,
     crossinline block: suspend SaltifyApplication.(event: T) -> Unit
@@ -22,6 +25,9 @@ public inline fun <reified T : Event> SaltifyApplication.on(
     eventFlow.filter { it is T }.collect { block(it as T) }
 }
 
+/**
+ * 注册一个命令。
+ */
 public fun SaltifyApplication.command(
     name: String,
     prefix: String = "/",
