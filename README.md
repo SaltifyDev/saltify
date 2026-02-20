@@ -26,7 +26,7 @@
 ### 初始化
 
 ```kotlin
-val client = MilkyClient {
+val client = SaltifyApplication {
     addressBase = "http://localhost:3000"
     eventConnectionType = EventConnectionType.WebSocket
     // accessToken = "..."
@@ -47,7 +47,7 @@ client.close()
 ### 定义插件
 
 ```kotlin
-val myPlugin = milkyPlugin {
+val myPlugin = createSaltifyPlugin {
     onStart {
         // ...
     }

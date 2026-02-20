@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.ksp
+package org.ntqqrev.saltify.ksp
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -61,7 +61,7 @@ class ApiExtensionProcessor(
 ) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation(
-            "org.ntqqrev.milky.annotation.WithApiExtension"
+            "org.ntqqrev.saltify.annotation.WithApiExtension"
         )
         val unableToProcess = mutableListOf<KSAnnotated>()
         symbols.forEach { symbol ->
@@ -88,7 +88,7 @@ class ApiExtensionProcessor(
                 it.appendLine()
                 if (pkg != "org.ntqqrev.milky") {
                     it.appendLine("import org.ntqqrev.milky.*")
-                    it.appendLine("import org.ntqqrev.milky.entity.*")
+                    it.appendLine("import org.ntqqrev.saltify.entity.*")
                     it.appendLine()
                 }
 

@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.core
+package org.ntqqrev.saltify.core
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -16,26 +16,26 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
-import org.ntqqrev.milky.annotation.WithApiExtension
-import org.ntqqrev.milky.dsl.MilkyClientConfig
-import org.ntqqrev.milky.dsl.MilkyPluginDsl
-import org.ntqqrev.milky.entity.EventConnectionType
-import org.ntqqrev.milky.exception.ApiCallException
+import org.ntqqrev.saltify.annotation.WithApiExtension
+import org.ntqqrev.saltify.dsl.SaltifyConfig
+import org.ntqqrev.saltify.dsl.SaltifyPluginBuilder
+import org.ntqqrev.saltify.entity.EventConnectionType
+import org.ntqqrev.saltify.exception.ApiCallException
 import kotlin.coroutines.CoroutineContext
 
 @WithApiExtension
-public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoCloseable {
+public sealed class SaltifyApplication(private val config: SaltifyConfig) : AutoCloseable {
     public companion object {
-        public operator fun invoke(block: MilkyClientConfig.() -> Unit): MilkyClient {
-            val config = MilkyClientConfig().apply(block)
+        public operator fun invoke(block: SaltifyConfig.() -> Unit): SaltifyApplication {
+            val config = SaltifyConfig().apply(block)
             return when (config.eventConnectionType) {
-                EventConnectionType.WebSocket -> MilkyClientWebSocket(config)
-                EventConnectionType.SSE -> MilkyClientSSE(config)
+                EventConnectionType.WebSocket -> SaltifyApplicationWebSocket(config)
+                EventConnectionType.SSE -> SaltifyApplicationSSE(config)
             }
         }
     }
 
-    private val exceptionHandlerProvider = MilkyExceptionHandlerProvider()
+    private val exceptionHandlerProvider = SaltifyExceptionHandlerProvider()
 
     public val exceptionFlow: SharedFlow<Pair<CoroutineContext, Throwable>> =
         exceptionHandlerProvider.exceptionFlow.asSharedFlow()
@@ -50,7 +50,7 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
-    private val activePlugins = mutableListOf<MilkyPluginDsl>()
+    private val activePlugins = mutableListOf<SaltifyPluginBuilder>()
 
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
@@ -76,12 +76,12 @@ public sealed class MilkyClient(private val config: MilkyClientConfig) : AutoClo
         config.installedPlugins.forEach { plugin ->
             val pluginScope = CoroutineScope(
                 clientScope.coroutineContext +
-                    SupervisorJob(clientScope.coroutineContext.job) +
-                    CoroutineName("MilkyPlugin-${plugin.name}") +
-                    exceptionHandlerProvider.handler
+                        SupervisorJob(clientScope.coroutineContext.job) +
+                        CoroutineName("SaltifyPlugin-${plugin.name}") +
+                        exceptionHandlerProvider.handler
             )
 
-            val context = MilkyPluginDsl(this, pluginScope)
+            val context = SaltifyPluginBuilder(this, pluginScope)
             plugin.setup(context)
 
             activePlugins.add(context)

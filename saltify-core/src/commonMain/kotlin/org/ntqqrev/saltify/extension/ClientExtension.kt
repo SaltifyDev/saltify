@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.extension
+package org.ntqqrev.saltify.extension
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
@@ -6,33 +6,33 @@ import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.IncomingSegment
-import org.ntqqrev.milky.core.MilkyClient
-import org.ntqqrev.milky.dsl.MilkyCommandDsl
-import org.ntqqrev.milky.dsl.MilkyCommandExecution
-import org.ntqqrev.milky.dsl.MilkyParamCapturer
-import org.ntqqrev.milky.dsl.ParameterParseResult
-import org.ntqqrev.milky.entity.CommandError
+import org.ntqqrev.saltify.core.SaltifyApplication
+import org.ntqqrev.saltify.dsl.ParameterParseResult
+import org.ntqqrev.saltify.dsl.SaltifyCommandContext
+import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
+import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
+import org.ntqqrev.saltify.entity.CommandError
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
-public inline fun <reified T : Event> MilkyClient.on(
-    crossinline block: suspend MilkyClient.(event: T) -> Unit
+public inline fun <reified T : Event> SaltifyApplication.on(
+    crossinline block: suspend SaltifyApplication.(event: T) -> Unit
 ): Job = clientScope.launch {
     eventFlow.filter { it is T }.collect { block(it as T) }
 }
 
-public inline fun <reified T : Throwable> MilkyClient.on(
-    crossinline block: suspend MilkyClient.(context: CoroutineContext, e: Throwable) -> Unit
+public inline fun <reified T : Throwable> SaltifyApplication.on(
+    crossinline block: suspend SaltifyApplication.(context: CoroutineContext, e: Throwable) -> Unit
 ): Job = clientScope.launch {
     exceptionFlow.filter { it.second is T }.collect { block(it.first, it.second as T) }
 }
 
-public fun MilkyClient.command(
+public fun SaltifyApplication.command(
     name: String,
     prefix: String = "/",
-    builder: MilkyCommandDsl.() -> Unit
+    builder: SaltifyCommandContext.() -> Unit
 ) {
-    val rootDsl = MilkyCommandDsl().apply(builder)
+    val rootDsl = SaltifyCommandContext().apply(builder)
 
     on<Event.MessageReceive> { event ->
         val rawText = event.data.segments.filterIsInstance<IncomingSegment.Text>()
@@ -49,9 +49,9 @@ public fun MilkyClient.command(
 }
 
 private suspend fun executeCommand(
-    dsl: MilkyCommandDsl,
+    dsl: SaltifyCommandContext,
     tokens: List<String>,
-    client: MilkyClient,
+    client: SaltifyApplication,
     event: Event.MessageReceive
 ) {
     if (tokens.isNotEmpty()) {
@@ -63,7 +63,7 @@ private suspend fun executeCommand(
         }
     }
 
-    val argumentMap = mutableMapOf<MilkyParamCapturer<*>, ParameterParseResult<Any>>()
+    val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
     val errors = mutableListOf<CommandError>()
     var currentTokens = tokens
 
@@ -75,6 +75,7 @@ private suspend fun executeCommand(
                 currentTokens = emptyList()
                 ParameterParseResult.Success(value)
             }
+
             else -> {
                 val rawValue = currentTokens[0]
                 currentTokens = currentTokens.drop(1)
@@ -96,7 +97,7 @@ private suspend fun executeCommand(
         }
     }
 
-    val execution = MilkyCommandExecution(client, event, argumentMap)
+    val execution = SaltifyCommandExecutionContext(client, event, argumentMap)
 
     if (errors.isNotEmpty()) {
         val handler = dsl.failureBlock ?: return

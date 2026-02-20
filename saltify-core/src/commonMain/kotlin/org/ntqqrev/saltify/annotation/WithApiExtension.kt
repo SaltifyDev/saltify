@@ -1,3 +1,3 @@
-package org.ntqqrev.milky.annotation
+package org.ntqqrev.saltify.annotation
 
 internal annotation class WithApiExtension

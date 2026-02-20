@@ -1,22 +1,25 @@
-package org.ntqqrev.milky
+package org.ntqqrev.saltify
 
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.ntqqrev.milky.core.MilkyClient
-import org.ntqqrev.milky.core.getLoginInfo
-import org.ntqqrev.milky.core.text
-import org.ntqqrev.milky.dsl.milkyPlugin
-import org.ntqqrev.milky.dsl.parameter
-import org.ntqqrev.milky.entity.EventConnectionType
-import org.ntqqrev.milky.extension.on
+import org.ntqqrev.milky.Event
+import org.ntqqrev.milky.IncomingMessage
+import org.ntqqrev.milky.milkyJsonModule
+import org.ntqqrev.saltify.core.SaltifyApplication
+import org.ntqqrev.saltify.core.getLoginInfo
+import org.ntqqrev.saltify.core.text
+import org.ntqqrev.saltify.dsl.createSaltifyPlugin
+import org.ntqqrev.saltify.dsl.parameter
+import org.ntqqrev.saltify.entity.EventConnectionType
+import org.ntqqrev.saltify.extension.on
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 
-class ClientTest {
+class PluginTest {
     @Test
     fun test(): Unit = runBlocking {
-        val client = MilkyClient {
+        val client = SaltifyApplication {
             addressBase = "http://localhost:3000"
             eventConnectionType = EventConnectionType.WebSocket
 
@@ -36,7 +39,7 @@ class ClientTest {
         client.close()
     }
 
-    val testPlugin = milkyPlugin("test") {
+    val testPlugin = createSaltifyPlugin("test") {
         onStart {
             println("--- Test plugin started")
             val self = client.getLoginInfo()

@@ -1,14 +1,14 @@
-package org.ntqqrev.milky.core
+package org.ntqqrev.saltify.core
 
 import io.ktor.client.plugins.sse.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.dsl.MilkyClientConfig
 import org.ntqqrev.milky.milkyJsonModule
+import org.ntqqrev.saltify.dsl.SaltifyConfig
 
-public class MilkyClientSSE(config: MilkyClientConfig) : MilkyClient(config) {
+public class SaltifyApplicationSSE(config: SaltifyConfig) : SaltifyApplication(config) {
     private var connectionJob: Job? = null
 
     override suspend fun connectEvent() {

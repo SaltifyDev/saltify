@@ -1,4 +1,4 @@
-package org.ntqqrev.milky.core
+package org.ntqqrev.saltify.core
 
 import io.ktor.client.plugins.websocket.*
 import kotlinx.coroutines.Job
@@ -6,9 +6,9 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.dsl.MilkyClientConfig
+import org.ntqqrev.saltify.dsl.SaltifyConfig
 
-public class MilkyClientWebSocket(config: MilkyClientConfig) : MilkyClient(config) {
+public class SaltifyApplicationWebSocket(config: SaltifyConfig) : SaltifyApplication(config) {
     private var connectionJob: Job? = null
 
     override suspend fun connectEvent() {

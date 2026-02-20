@@ -1,10 +1,10 @@
-package org.ntqqrev.milky.core
+package org.ntqqrev.saltify.core
 
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.coroutines.CoroutineContext
 
-internal class MilkyExceptionHandlerProvider {
+internal class SaltifyExceptionHandlerProvider {
     val exceptionFlow: MutableSharedFlow<Pair<CoroutineContext, Throwable>> =
         MutableSharedFlow(replay = 1, extraBufferCapacity = 16)
 
