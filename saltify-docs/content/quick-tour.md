@@ -55,8 +55,13 @@ dependencies {
 ```kotlin
 val client = SaltifyApplication {
     addressBase = "http://localhost:3000" // 在协议端中配置的地址
-    eventConnectionType = EventConnectionType.WebSocket // 连接事件服务的方式，支持 WebSocket 和 Server-Sent Events
-    // accessToken = "..." // 在协议端中配置的 Access Token，如果协议端启用了 Access Token 验证，则需要提供。
+    accessToken = "..." // 在协议端中配置的 Access Token，如果协议端启用了 Access Token 验证，则需要提供。
+    
+    // 事件服务相关配置
+    eventConnection {
+        type = EventConnectionType.WebSocket // 连接事件服务的方式，支持 WebSocket 和 Server-Sent Events
+        autoReconnect = true // 是否自动重连
+    }
 }
 
 // ...
@@ -169,7 +174,9 @@ val client = SaltifyApplication {
 
 ## 异常处理
 
-`SaltifyApplication` 会将插件和事件监听器中的异常通过 `exceptionFlow` 抛出。默认情况下，所有异常都会被无视。
+### 全局异常处理
+
+Saltify 会将插件和事件监听器中的异常通过 `exceptionFlow` 抛出。默认情况下，所有异常都会被无视。
 你可以收集 (通常来说是必须) `exceptionFlow` 来实现自定义逻辑。
 
 ```kotlin
@@ -183,6 +190,21 @@ launch {
                 "Saltify component ${component.name}(${component.type}) occurred an exception: ",
                 exception
             )
+        }
+    }
+}
+```
+
+### 事件服务连接状态流转
+
+可以通过 `eventConnectionStateFlow` 收集事件服务连接的状态。由连接断开触发的异常不会进入 `exceptionFlow`。
+
+```kotlin
+launch {
+    client.eventConnectionStateFlow.collect {
+        when (it) {
+            is EventConnectionState.Disconnected if it.throwable != null -> throw it.throwable
+            else -> println("Event connection state changed to: $it")
         }
     }
 }

@@ -11,6 +11,7 @@ import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.createSaltifyPlugin
 import org.ntqqrev.saltify.extension.parameter
+import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.saltifyComponent
@@ -21,7 +22,10 @@ class PluginTest {
     fun test(): Unit = runBlocking {
         val client = SaltifyApplication {
             addressBase = "http://localhost:3000"
-            eventConnectionType = EventConnectionType.WebSocket
+            eventConnection {
+                type = EventConnectionType.WebSocket
+                autoReconnect = false
+            }
 
             install(testPlugin)
         }
@@ -36,6 +40,15 @@ class PluginTest {
                         "Component ${component.name}(${component.type}) occurred an exception: " +
                             exception.stackTraceToString()
                     )
+                }
+            }
+        }
+
+        launch {
+            client.eventConnectionStateFlow.collect {
+                when (it) {
+                    is EventConnectionState.Disconnected if it.throwable != null -> throw it.throwable
+                    else -> println("Event connection state changed to: $it")
                 }
             }
         }

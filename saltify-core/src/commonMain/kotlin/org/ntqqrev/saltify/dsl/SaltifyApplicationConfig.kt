@@ -1,26 +1,29 @@
 package org.ntqqrev.saltify.dsl
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
-import org.ntqqrev.saltify.model.EventConnectionType
 
 @SaltifyDsl
-public class SaltifyConfig {
+public class SaltifyApplicationConfig {
     /**
      * 接口根地址，如：`https://localhost:3000`。
      */
     public var addressBase: String = ""
 
+    internal var eventConnectionConfig = EventConnectionConfig()
+
     /**
-     * 事件服务使用的协议。
+     * 事件服务配置。
      */
-    public var eventConnectionType: EventConnectionType = EventConnectionType.WebSocket
+    public fun eventConnection(block: EventConnectionConfig.() -> Unit) {
+        eventConnectionConfig.block()
+    }
 
     /**
      * 访问令牌，无需 Bearer。
      */
     public var accessToken: String? = null
-    internal val installedPlugins = mutableListOf<SaltifyPlugin>()
 
+    internal val installedPlugins = mutableListOf<SaltifyPlugin>()
     public fun install(plugin: SaltifyPlugin) {
         installedPlugins.add(plugin)
     }

@@ -23,19 +23,19 @@ public class SaltifyPluginContext internal constructor(
     @PublishedApi internal val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
-    internal val onStopHooks = mutableListOf<suspend () -> Unit>()
+    internal val onStopHooks = mutableListOf<() -> Unit>()
 
     /**
-     * 插件被加载，即 [SaltifyApplication.connectEvent] 后执行的逻辑。
+     * 插件被加载，即 [SaltifyApplication.Companion.invoke] 后执行的逻辑。
      */
     public fun onStart(block: suspend () -> Unit) {
         onStartHooks.add(block)
     }
 
     /**
-     * 插件被卸载，即 [SaltifyApplication.disconnectEvent] 后执行的逻辑。
+     * 插件被卸载，即 [SaltifyApplication.close] 前执行的逻辑。
      */
-    public fun onStop(block: suspend () -> Unit) {
+    public fun onStop(block: () -> Unit) {
         onStopHooks.add(block)
     }
 

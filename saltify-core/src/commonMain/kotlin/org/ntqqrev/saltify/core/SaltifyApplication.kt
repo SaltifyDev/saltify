@@ -12,16 +12,20 @@ import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
 import org.ntqqrev.saltify.annotation.WithApiExtension
-import org.ntqqrev.saltify.dsl.SaltifyConfig
+import org.ntqqrev.saltify.dsl.SaltifyApplicationConfig
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
+import org.ntqqrev.saltify.exception.ApiCallException
+import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.model.SaltifyComponentType
-import org.ntqqrev.saltify.exception.ApiCallException
 import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
 import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
 import kotlin.coroutines.CoroutineContext
@@ -30,14 +34,14 @@ import kotlin.coroutines.CoroutineContext
  * 一个 Saltify 应用实例
  */
 @WithApiExtension
-public sealed class SaltifyApplication(private val config: SaltifyConfig) : AutoCloseable {
+public sealed class SaltifyApplication(protected val config: SaltifyApplicationConfig) : AutoCloseable {
     public companion object {
         /**
          * 创建一个 Saltify 应用实例。
          */
-        public operator fun invoke(block: SaltifyConfig.() -> Unit): SaltifyApplication {
-            val config = SaltifyConfig().apply(block)
-            return when (config.eventConnectionType) {
+        public operator fun invoke(block: SaltifyApplicationConfig.() -> Unit): SaltifyApplication {
+            val config = SaltifyApplicationConfig().apply(block)
+            return when (config.eventConnectionConfig.type) {
                 EventConnectionType.WebSocket -> SaltifyApplicationWebSocket(config)
                 EventConnectionType.SSE -> SaltifyApplicationSSE(config)
             }
@@ -61,19 +65,18 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
     public val exceptionFlow: SharedFlow<Pair<CoroutineContext, Throwable>> =
         exceptionHandlerProvider.exceptionFlow.asSharedFlow()
 
+    protected val eventConnectionState: MutableStateFlow<EventConnectionState> =
+        MutableStateFlow(EventConnectionState.Disconnected(null))
+
+    /**
+     * 事件服务连接状态流。
+     */
+    public val eventConnectionStateFlow: StateFlow<EventConnectionState> = eventConnectionState.asStateFlow()
+
     internal val applicationScope: CoroutineScope = CoroutineScope(
         SaltifyComponent(SaltifyComponentType.Application, "SaltifyApplication") +
             exceptionHandlerProvider.handler
     )
-
-    @PublishedApi
-    internal val extensionScope: CoroutineScope = CoroutineScope(
-        applicationScope.coroutineContext +
-            SupervisorJob(applicationScope.coroutineContext.job) +
-            SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
-    )
-
-    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
 
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
 
@@ -84,7 +87,16 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
      */
     public val eventFlow: SharedFlow<Event> = events.asSharedFlow()
 
-    private val activePlugins = mutableListOf<SaltifyPluginContext>()
+    @PublishedApi
+    internal val extensionScope: CoroutineScope = CoroutineScope(
+        applicationScope.coroutineContext +
+            SupervisorJob(applicationScope.coroutineContext.job) +
+            SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
+    )
+
+    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
+
+    private val loadedPlugins = mutableListOf<SaltifyPluginContext>()
 
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
@@ -97,7 +109,7 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
             config.accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
         }
 
-        when (config.eventConnectionType) {
+        when (config.eventConnectionConfig.type) {
             EventConnectionType.WebSocket -> install(WebSockets.Plugin) {
                 contentConverter = KotlinxWebsocketSerializationConverter(milkyJsonModule)
             }
@@ -116,8 +128,11 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
 
             val context = SaltifyPluginContext(this, pluginScope)
             plugin.setup(context)
+            loadedPlugins.add(context)
 
-            activePlugins.add(context)
+            pluginScope.launch {
+                context.onStartHooks.forEach { it() }
+            }
         }
     }
 
@@ -147,26 +162,17 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
     /**
      * 连接事件服务。需要在监听事件时调用。请搭配 [disconnectEvent] 使用。
      */
-    public open suspend fun connectEvent(): Unit = coroutineScope {
-        activePlugins.map { context ->
-            context.launch {
-                context.onStartHooks.forEach { it() }
-            }
-        }.joinAll()
-    }
+    public abstract suspend fun connectEvent()
 
     /**
      * 断开事件服务。请搭配 [connectEvent] 使用。
      */
-    public open suspend fun disconnectEvent(): Unit = coroutineScope {
-        activePlugins.map { context ->
-            context.launch {
-                context.onStopHooks.forEach { it() }
-            }
-        }.joinAll()
-    }
+    public abstract suspend fun disconnectEvent()
 
     override fun close() {
+        loadedPlugins.forEach {
+            it.onStopHooks.forEach { block -> block() }
+        }
         httpClient.close()
         applicationScope.cancel()
     }

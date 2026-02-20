@@ -6,30 +6,51 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.saltify.dsl.SaltifyConfig
+import org.ntqqrev.saltify.dsl.SaltifyApplicationConfig
+import org.ntqqrev.saltify.model.EventConnectionState
+import org.ntqqrev.saltify.model.EventConnectionType
+import org.ntqqrev.saltify.util.coroutine.withRetry
 
-public class SaltifyApplicationWebSocket(config: SaltifyConfig) : SaltifyApplication(config) {
+public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : SaltifyApplication(config) {
     private var connectionJob: Job? = null
 
     override suspend fun connectEvent() {
         connectionJob?.cancelAndJoin()
+        eventConnectionState.emit(EventConnectionState.Connecting)
 
         connectionJob = applicationScope.launch {
             val urlString = "$addressBaseNormalized/event".replaceFirst("http", "ws")
 
-            httpClient.webSocket(urlString) {
-                while (isActive) {
-                    val event = receiveDeserialized<Event>()
-                    events.emit(event)
-                }
-            }
-        }
+            withRetry(
+                config.eventConnectionConfig.maxReconnectionAttempts,
+                config.eventConnectionConfig.baseReconnectionInterval,
+                config.eventConnectionConfig.maxReconnectionInterval,
+                config.eventConnectionConfig.autoReconnect,
+                onRetry = { throwable, retryCount ->
+                    eventConnectionState.emit(EventConnectionState.Reconnecting(throwable, retryCount))
+                },
+                onFailure = {
+                    eventConnectionState.emit(EventConnectionState.Disconnected(it))
+                },
+                block = {
+                    httpClient.webSocket(urlString) {
+                        eventConnectionState.emit(
+                            EventConnectionState.Connected(
+                                EventConnectionType.WebSocket, this@SaltifyApplicationWebSocket
+                            )
+                        )
 
-        super.connectEvent()
+                        while (isActive) {
+                            val event = receiveDeserialized<Event>()
+                            events.emit(event)
+                        }
+                    }
+                }
+            )
+        }
     }
 
     override suspend fun disconnectEvent() {
         connectionJob?.cancelAndJoin()
-        super.disconnectEvent()
     }
 }
