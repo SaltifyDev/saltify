@@ -90,7 +90,7 @@ val myPlugin = createSaltifyPlugin("test") {
         // ...
     }
 
-    //order <id> <note>
+    // /order <id> <note>
     command("order") {
         // id.value 的类型为 Int
         val id = parameter<Int>("id")
@@ -134,11 +134,16 @@ val client = SaltifyApplication {
 ### 异常处理
 
 ```kotlin
-runBlocking {
-    client.on<IllegalStateException> { _, e ->
-        println("Receive exception: ${e.message}")
-        if (e.message != "test exception") {
-            this@runBlocking.cancel(CancellationException(e.message, e))
+launch {
+    client.exceptionFlow.collect { (context, exception) ->
+        val component = context.saltifyComponent!!
+
+        when (component.type) {
+            SaltifyComponentType.Application -> throw exception
+            else -> println(
+                "Component ${component.name}(${component.type}) occurred an exception: " +
+                        exception.stackTraceToString()
+            )
         }
     }
 }

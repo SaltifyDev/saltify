@@ -1,5 +1,6 @@
 package org.ntqqrev.saltify.extension
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -12,29 +13,24 @@ import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 import org.ntqqrev.saltify.entity.CommandError
-import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
 public inline fun <reified T : Event> SaltifyApplication.on(
+    scope: CoroutineScope = extensionScope,
     crossinline block: suspend SaltifyApplication.(event: T) -> Unit
-): Job = clientScope.launch {
+): Job = scope.launch {
     eventFlow.filter { it is T }.collect { block(it as T) }
-}
-
-public inline fun <reified T : Throwable> SaltifyApplication.on(
-    crossinline block: suspend SaltifyApplication.(context: CoroutineContext, e: Throwable) -> Unit
-): Job = clientScope.launch {
-    exceptionFlow.filter { it.second is T }.collect { block(it.first, it.second as T) }
 }
 
 public fun SaltifyApplication.command(
     name: String,
     prefix: String = "/",
+    scope: CoroutineScope = extensionScope,
     builder: SaltifyCommandContext.() -> Unit
-) {
+): Job {
     val rootDsl = SaltifyCommandContext().apply(builder)
 
-    on<Event.MessageReceive> { event ->
+    return on<Event.MessageReceive>(scope) { event ->
         val rawText = event.data.segments.filterIsInstance<IncomingSegment.Text>()
             .joinToString("") { it.data.text }
             .trim()

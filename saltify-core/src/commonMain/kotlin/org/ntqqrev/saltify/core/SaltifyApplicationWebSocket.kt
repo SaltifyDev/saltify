@@ -14,8 +14,8 @@ public class SaltifyApplicationWebSocket(config: SaltifyConfig) : SaltifyApplica
     override suspend fun connectEvent() {
         connectionJob?.cancelAndJoin()
 
-        connectionJob = clientScope.launch {
-            val urlString = "$addressBaseNormalized/event".replace("http", "ws")
+        connectionJob = applicationScope.launch {
+            val urlString = "$addressBaseNormalized/event".replaceFirst("http", "ws")
 
             httpClient.webSocket(urlString) {
                 while (isActive) {

@@ -5,6 +5,7 @@ import org.ntqqrev.milky.OutgoingSegment
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.entity.CommandError
+import org.ntqqrev.saltify.extension.respond
 import kotlin.reflect.KClass
 
 @SaltifyDsl
@@ -74,9 +75,7 @@ public class SaltifyCommandExecutionContext(
         get() = capture(this)
 
     public suspend fun respond(block: MutableList<OutgoingSegment>.() -> Unit) {
-        with(SaltifyPluginBuilder(client, client.clientScope)) {
-            event.respond(block)
-        }
+        event.respond(client, block)
     }
 }
 

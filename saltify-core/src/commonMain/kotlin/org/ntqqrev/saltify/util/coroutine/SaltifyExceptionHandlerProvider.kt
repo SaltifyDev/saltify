@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.core
+package org.ntqqrev.saltify.util.coroutine
 
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow

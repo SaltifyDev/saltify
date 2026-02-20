@@ -20,7 +20,10 @@ import org.ntqqrev.saltify.annotation.WithApiExtension
 import org.ntqqrev.saltify.dsl.SaltifyConfig
 import org.ntqqrev.saltify.dsl.SaltifyPluginBuilder
 import org.ntqqrev.saltify.entity.EventConnectionType
+import org.ntqqrev.saltify.entity.SaltifyComponentType
 import org.ntqqrev.saltify.exception.ApiCallException
+import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
+import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
 import kotlin.coroutines.CoroutineContext
 
 @WithApiExtension
@@ -35,14 +38,20 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
         }
     }
 
-    private val exceptionHandlerProvider = SaltifyExceptionHandlerProvider()
-
+    internal val exceptionHandlerProvider = SaltifyExceptionHandlerProvider()
     public val exceptionFlow: SharedFlow<Pair<CoroutineContext, Throwable>> =
         exceptionHandlerProvider.exceptionFlow.asSharedFlow()
 
+    internal val applicationScope: CoroutineScope = CoroutineScope(
+        SaltifyComponent(SaltifyComponentType.Application, "SaltifyApplication") +
+            exceptionHandlerProvider.handler
+    )
+
     @PublishedApi
-    internal val clientScope: CoroutineScope = CoroutineScope(
-        SupervisorJob() + exceptionHandlerProvider.handler
+    internal val extensionScope: CoroutineScope = CoroutineScope(
+        applicationScope.coroutineContext +
+            SupervisorJob(applicationScope.coroutineContext.job) +
+            SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
     )
 
     protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
@@ -75,10 +84,9 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
     init {
         config.installedPlugins.forEach { plugin ->
             val pluginScope = CoroutineScope(
-                clientScope.coroutineContext +
-                        SupervisorJob(clientScope.coroutineContext.job) +
-                        CoroutineName("SaltifyPlugin-${plugin.name}") +
-                        exceptionHandlerProvider.handler
+                applicationScope.coroutineContext +
+                    SupervisorJob(applicationScope.coroutineContext.job) +
+                    SaltifyComponent(SaltifyComponentType.Plugin, plugin.name)
             )
 
             val context = SaltifyPluginBuilder(this, pluginScope)
@@ -105,24 +113,24 @@ public sealed class SaltifyApplication(private val config: SaltifyConfig) : Auto
         endpoint: ApiEndpoint<ApiEmptyStruct, R>
     ): R = callApi(endpoint, ApiEmptyStruct())
 
-    public open suspend fun connectEvent() {
-        activePlugins.forEach { context ->
+    public open suspend fun connectEvent(): Unit = coroutineScope {
+        activePlugins.map { context ->
             context.launch {
                 context.onStartHooks.forEach { it() }
-            }.join()
-        }
+            }
+        }.joinAll()
     }
 
-    public open suspend fun disconnectEvent() {
-        activePlugins.forEach { context ->
+    public open suspend fun disconnectEvent(): Unit = coroutineScope {
+        activePlugins.map { context ->
             context.launch {
                 context.onStopHooks.forEach { it() }
-            }.join()
-        }
+            }
+        }.joinAll()
     }
 
     override fun close() {
         httpClient.close()
-        clientScope.cancel()
+        applicationScope.cancel()
     }
 }

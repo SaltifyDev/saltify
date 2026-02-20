@@ -2,21 +2,18 @@ package org.ntqqrev.saltify.dsl
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.core.sendGroupMessage
-import org.ntqqrev.saltify.core.sendPrivateMessage
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.on
+import org.ntqqrev.saltify.extension.respond
 
 @SaltifyDsl
 public class SaltifyPluginBuilder internal constructor(
     public val client: SaltifyApplication,
-    private val pluginScope: CoroutineScope
+    @PublishedApi internal val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
     internal val onStopHooks = mutableListOf<suspend () -> Unit>()
@@ -31,25 +28,16 @@ public class SaltifyPluginBuilder internal constructor(
 
     public inline fun <reified T : Event> on(
         crossinline block: suspend SaltifyApplication.(event: T) -> Unit
-    ): Job = launch { client.on(block) }
+    ): Job = client.on(pluginScope, block)
 
     public fun command(
         name: String,
         prefix: String = "/",
         block: SaltifyCommandContext.() -> Unit
-    ): Job = launch { client.command(name, prefix, block) }
-
-    public suspend fun Event.MessageReceive.respond(message: List<OutgoingSegment>): Any =
-        when (val data = this.data) {
-            is IncomingMessage.Group -> client.sendGroupMessage(data.peerId, message)
-            else -> client.sendPrivateMessage(data.peerId, message)
-        }
+    ): Job = client.command(name, prefix, pluginScope, block)
 
     public suspend fun Event.MessageReceive.respond(block: MutableList<OutgoingSegment>.() -> Unit): Any =
-        when (val data = this.data) {
-            is IncomingMessage.Group -> client.sendGroupMessage(data.peerId, block)
-            else -> client.sendPrivateMessage(data.peerId, block)
-        }
+        respond(client, block)
 }
 
 public class SaltifyPlugin(

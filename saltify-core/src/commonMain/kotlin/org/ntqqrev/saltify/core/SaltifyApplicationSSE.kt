@@ -14,7 +14,7 @@ public class SaltifyApplicationSSE(config: SaltifyConfig) : SaltifyApplication(c
     override suspend fun connectEvent() {
         connectionJob?.cancelAndJoin()
 
-        connectionJob = clientScope.launch {
+        connectionJob = applicationScope.launch {
             httpClient.sse("$addressBaseNormalized/event") {
                 incoming.collect { sseEvent ->
                     if (sseEvent.event == "milky_event") {

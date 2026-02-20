@@ -1,7 +1,7 @@
 package org.ntqqrev.saltify
 
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
@@ -12,8 +12,8 @@ import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.createSaltifyPlugin
 import org.ntqqrev.saltify.dsl.parameter
 import org.ntqqrev.saltify.entity.EventConnectionType
-import org.ntqqrev.saltify.extension.on
-import kotlin.coroutines.cancellation.CancellationException
+import org.ntqqrev.saltify.entity.SaltifyComponentType
+import org.ntqqrev.saltify.util.coroutine.saltifyComponent
 import kotlin.test.Test
 
 class PluginTest {
@@ -26,10 +26,17 @@ class PluginTest {
             install(testPlugin)
         }
 
-        client.on<IllegalStateException> { _, e ->
-            println("Receive exception: ${e.message}")
-            if (e.message != "This should not fail the test") {
-                this@runBlocking.cancel(CancellationException(e.message, e))
+        launch {
+            client.exceptionFlow.collect { (context, exception) ->
+                val component = context.saltifyComponent!!
+
+                when (component.type) {
+                    SaltifyComponentType.Application -> throw exception
+                    else -> println(
+                        "Component ${component.name}(${component.type}) occurred an exception: " +
+                            exception.stackTraceToString()
+                    )
+                }
             }
         }
 
@@ -44,7 +51,7 @@ class PluginTest {
             println("--- Test plugin started")
             val self = client.getLoginInfo()
             println("Current uin：${self.uin}")
-            error("This should not fail the test")
+            error("test exception")
         }
 
         onStop {
@@ -62,12 +69,6 @@ class PluginTest {
                     println(milkyJsonModule.encodeToString(data.segments))
                 }
                 else -> {}
-            }
-        }
-
-        command("error") {
-            onExecute {
-                error("This should fail the test")
             }
         }
 
