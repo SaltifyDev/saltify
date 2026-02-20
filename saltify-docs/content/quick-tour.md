@@ -63,16 +63,13 @@ val client = SaltifyApplication {
         autoReconnect = true // 是否自动重连
     }
 }
-
-// ...
-
-// 释放 client
-client.close()
 ```
+
+下文所指的所有 `client` 均指本例中定义的 `SaltifyApplication` 实例。
 
 ## 调用 API
 
-`SaltifyApplication` 暴露了许多 API 来与协议端进行交互，例如获取登录信息、发送消息等：
+Saltify 暴露了许多 API 来与协议端进行交互，例如获取登录信息、发送消息等：
 
 ```kotlin
 val loginInfo = client.getLoginInfo()
@@ -116,41 +113,30 @@ job.cancel()
 client.disconnectEvent()
 ```
 
-`client.disconnectEvent()` 不会被 `client.close()` 自动调用，事件服务可复用。
-
 ## 定义插件
 
-可以通过 `createSaltifyPlugin` 定义一个插件。在其中同样可以使用 `on` 监听事件，也可以使用 `onStart` 和 `onStop` 定义插件的启动和停止逻辑，还可以使用 `command` 定义命令：
+插件是一系列功能的集合，可以通过 `createSaltifyPlugin` 定义一个插件。在其中同样可以使用 `on` 监听事件，也可以使用 `onStart` 和 `onStop` 定义插件的启动和停止逻辑，还可以使用 `command` 定义命令：
 
 ```kotlin
 val myPlugin = createSaltifyPlugin("test") {
     onStart {
-        // ...
+        println("Plugin initialized!")
     }
 
     on<Event.GroupMemberIncrease> {
         // ...
     }
 
-    // /order <id> <note>
-    command("order") {
-        // id.value 的类型为 Int
-        val id = parameter<Int>("id")
-        // 贪婪匹配，即后面的参数视为一个参数
-        val note = greedyStringParameter("note")
+    // /say <content>
+    command("say") {
+        val content = greedyStringParameter("content", "words to repeat")
 
         onExecute {
             respond {
-                text("Order #${id.value} created\nnote：${note.value}")
+                text(content.value)
             }
         }
 
-        // 优先级高于 onExecute，同样还有 onPrivateExecute
-        onGroupExecute {
-            // ...
-        }
-
-        // 使用 Typed error 处理命令参数类型不匹配，命令参数缺失等情况
         onFailure {
             respond {
                 text("Command run failed: $it")
@@ -160,7 +146,7 @@ val myPlugin = createSaltifyPlugin("test") {
 }
 ```
 
-可以在 SaltifyApplication 的初始化块内声明使用之前定义的插件，也可以直接定义一个匿名插件：
+可以在 SaltifyApplication 的初始化块内声明使用之前定义的插件，也可以直接在初始化块内直接定义插件：
 
 ```kotlin
 val client = SaltifyApplication {

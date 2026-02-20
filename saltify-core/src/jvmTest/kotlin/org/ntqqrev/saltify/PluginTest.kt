@@ -90,9 +90,8 @@ class PluginTest {
             val content = greedyStringParameter("content", "words to repeat")
 
             onExecute {
-                val text = content.value
                 respond {
-                    text(text)
+                    text(content.value)
                 }
             }
 
