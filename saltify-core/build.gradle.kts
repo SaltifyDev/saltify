@@ -102,8 +102,8 @@ mavenPublishing {
     )
 
     pom {
-        name = rootProject.name
-        description = "Milky SDK for Kotlin Multiplatform"
+        name = "saltify-core"
+        description = "Cross platform and extensible QQ Bot framework & Milky SDK"
         url = "https://github.com/SaltifyDev/saltify"
         inceptionYear = "2025"
         licenses {
