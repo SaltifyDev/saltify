@@ -13,6 +13,7 @@ import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 import org.ntqqrev.saltify.model.CommandError
+import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
 import kotlin.reflect.KClass
 
 /**
@@ -22,7 +23,13 @@ public inline fun <reified T : Event> SaltifyApplication.on(
     scope: CoroutineScope = extensionScope,
     crossinline block: suspend SaltifyApplication.(event: T) -> Unit
 ): Job = scope.launch {
-    eventFlow.filter { it is T }.collect { block(it as T) }
+    eventFlow
+        .filter { it is T }
+        .collect {
+            runCatchingToExceptionFlow {
+                block(it as T)
+            }
+        }
 }
 
 /**

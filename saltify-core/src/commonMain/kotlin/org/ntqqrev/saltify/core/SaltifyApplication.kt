@@ -48,7 +48,8 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
         }
     }
 
-    internal val exceptionHandlerProvider = SaltifyExceptionHandlerProvider()
+    @PublishedApi
+    internal val exceptionHandlerProvider: SaltifyExceptionHandlerProvider = SaltifyExceptionHandlerProvider()
 
     /**
      * 全局异常流。
