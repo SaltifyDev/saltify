@@ -11,6 +11,7 @@ import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.createSaltifyPlugin
 import org.ntqqrev.saltify.extension.parameter
+import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.model.SaltifyComponentType
@@ -54,7 +55,7 @@ class PluginTest {
         }
 
         client.connectEvent()
-        delay(30000L)
+        delay(60000L)
         client.disconnectEvent()
         client.close()
     }
@@ -101,9 +102,30 @@ class PluginTest {
             }
         }
 
+        // error handling test
         command("error") {
             onExecute {
                 error("test exception")
+            }
+        }
+
+        // context propagation test
+        command("shutdown") {
+            onExecute {
+                respond {
+                    text("Are you sure? (yes/no)")
+                }
+
+                val event = awaitNextMessage()
+
+                if (event == null) {
+                    respond { text("Operation cancelled due to timeout") }
+                } else {
+                    val content = event.data.segments.plainText
+                    respond {
+                        text("You just responded \"$content\". However, whatever you say I won't shutdown myself.")
+                    }
+                }
             }
         }
 

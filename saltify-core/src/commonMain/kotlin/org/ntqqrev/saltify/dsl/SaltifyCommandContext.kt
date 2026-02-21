@@ -1,6 +1,9 @@
 package org.ntqqrev.saltify.dsl
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
@@ -14,6 +17,7 @@ import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.milky.SendMessageOutput
 import kotlin.reflect.KClass
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @SaltifyDsl
 public class SaltifyCommandContext internal constructor() {
@@ -115,15 +119,37 @@ public class SaltifyCommandExecutionContext(
      * 响应命令，并在指定延迟后撤回消息。
      */
     @ContextParametersMigrationNeeded
-    public suspend fun respondWithRecall(
+    public suspend inline fun respondWithRecall(
         delay: Duration,
-        block: MutableList<OutgoingSegment>.() -> Unit
+        noinline block: MutableList<OutgoingSegment>.() -> Unit
     ) {
         val output = respond(block)
         delay(delay)
         when (val data = event.data) {
             is IncomingMessage.Group -> client.recallGroupMessage(data.peerId, output.messageSeq)
             else -> client.recallPrivateMessage(data.peerId, output.messageSeq)
+        }
+    }
+
+    /**
+     * 获取由命令触发者发送的下一条消息事件。超时返回 null。
+     */
+    public suspend fun awaitNextMessage(timeout: Duration = 30.seconds): Event.MessageReceive? {
+        val messageFlow = client.eventFlow.filterIsInstance<Event.MessageReceive>()
+
+        return withTimeoutOrNull(timeout) {
+            messageFlow.first { nextEvent ->
+                val nextData = nextEvent.data
+
+                when (val contextData = event.data) {
+                    is IncomingMessage.Group -> {
+                        nextData is IncomingMessage.Group &&
+                            nextData.group.groupId == contextData.group.groupId &&
+                            nextData.senderId == contextData.senderId
+                    }
+                    else -> nextData.senderId == contextData.senderId
+                }
+            }
         }
     }
 }

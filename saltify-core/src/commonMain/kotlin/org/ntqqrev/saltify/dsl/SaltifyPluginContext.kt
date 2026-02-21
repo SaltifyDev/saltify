@@ -89,9 +89,9 @@ public class SaltifyPluginContext internal constructor(
      * 响应事件，并在指定延迟后撤回消息。
      */
     @ContextParametersMigrationNeeded
-    public suspend fun Event.MessageReceive.respondWithRecall(
+    public suspend inline fun Event.MessageReceive.respondWithRecall(
         delay: Duration,
-        block: MutableList<OutgoingSegment>.() -> Unit
+        noinline block: MutableList<OutgoingSegment>.() -> Unit
     ) {
         val output = respond(block)
         delay(delay)
