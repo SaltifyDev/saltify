@@ -64,7 +64,6 @@ class PluginTest {
             println("--- Test plugin started")
             val self = client.getLoginInfo()
             println("Current uin：${self.uin}")
-            error("test exception")
         }
 
         onStop {
@@ -99,6 +98,12 @@ class PluginTest {
                 respond {
                     text("Command run failed: $it")
                 }
+            }
+        }
+
+        command("error") {
+            onExecute {
+                error("test exception")
             }
         }
 
