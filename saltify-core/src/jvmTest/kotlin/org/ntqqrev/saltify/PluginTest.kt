@@ -9,7 +9,7 @@ import org.ntqqrev.milky.milkyJsonModule
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.core.text
-import org.ntqqrev.saltify.dsl.createSaltifyPlugin
+import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.parameter
 import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.model.EventConnectionState
@@ -60,7 +60,7 @@ class PluginTest {
         client.close()
     }
 
-    val testPlugin = createSaltifyPlugin("test") {
+    val testPlugin = SaltifyPlugin("test") {
         onStart {
             println("--- Test plugin started")
             val self = client.getLoginInfo()

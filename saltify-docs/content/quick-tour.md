@@ -115,10 +115,10 @@ client.disconnectEvent()
 
 ## 定义插件
 
-插件是一系列功能的集合，可以通过 `createSaltifyPlugin` 定义一个插件。在其中同样可以使用 `on` 监听事件，也可以使用 `onStart` 和 `onStop` 定义插件的启动和停止逻辑，还可以使用 `command` 定义命令：
+插件是一系列功能的集合，可以通过 `SaltifyPlugin` 定义一个插件。在其中同样可以使用 `on` 监听事件，也可以使用 `onStart` 和 `onStop` 定义插件的启动和停止逻辑，还可以使用 `command` 定义命令：
 
 ```kotlin
-val myPlugin = createSaltifyPlugin("test") {
+val myPlugin = SaltifyPlugin("test") {
     onStart {
         println("Plugin initialized!")
     }

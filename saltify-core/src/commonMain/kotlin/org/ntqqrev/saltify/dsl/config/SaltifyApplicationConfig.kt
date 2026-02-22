@@ -1,6 +1,8 @@
-package org.ntqqrev.saltify.dsl
+package org.ntqqrev.saltify.dsl.config
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
+import org.ntqqrev.saltify.dsl.SaltifyPlugin
+import org.ntqqrev.saltify.dsl.SaltifyPluginContext
 
 @SaltifyDsl
 public class SaltifyApplicationConfig {
@@ -29,9 +31,9 @@ public class SaltifyApplicationConfig {
     }
 
     /**
-     * 定义并安装插件，用法与 [createSaltifyPlugin] 相同。
+     * 定义并安装插件，用法与 [SaltifyPlugin] 相同。
      */
     public fun plugin(name: String = "unspecified", block: SaltifyPluginContext.() -> Unit) {
-        install(createSaltifyPlugin(name, block))
+        install(SaltifyPlugin(name, block))
     }
 }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.milkyJsonModule
-import org.ntqqrev.saltify.dsl.SaltifyApplicationConfig
+import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
 import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.util.coroutine.withRetry

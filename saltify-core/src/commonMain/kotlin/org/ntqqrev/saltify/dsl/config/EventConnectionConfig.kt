@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.dsl
+package org.ntqqrev.saltify.dsl.config
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.model.EventConnectionType

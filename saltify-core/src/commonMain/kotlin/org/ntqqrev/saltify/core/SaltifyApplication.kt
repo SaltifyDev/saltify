@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
 import org.ntqqrev.saltify.annotation.WithApiExtension
-import org.ntqqrev.saltify.dsl.SaltifyApplicationConfig
+import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
 import org.ntqqrev.saltify.exception.ApiCallException
 import org.ntqqrev.saltify.model.EventConnectionState

@@ -108,12 +108,14 @@ public class SaltifyPluginContext internal constructor(
 public class SaltifyPlugin(
     public val name: String,
     internal val setup: SaltifyPluginContext.() -> Unit
-)
-
-/**
- * 创建一个插件。
- */
-public fun createSaltifyPlugin(
-    name: String = "unspecified",
-    block: SaltifyPluginContext.() -> Unit
-): SaltifyPlugin = SaltifyPlugin(name, block)
+) {
+    /**
+     * 创建一个插件。
+     */
+    public companion object {
+        public operator fun invoke(
+            name: String = "unspecified",
+            block: SaltifyPluginContext.() -> Unit
+        ): SaltifyPlugin = SaltifyPlugin(name, block)
+    }
+}
