@@ -32,6 +32,8 @@ public inline fun <reified T : Event> SaltifyApplication.on(
         }
 }
 
+private val spaceRegex = Regex("\\s+")
+
 /**
  * 注册一个命令。
  */
@@ -51,7 +53,7 @@ public fun SaltifyApplication.command(
         if (rawText != "$prefix$name" && !rawText.startsWith("$prefix$name ")) return@on
 
         val content = rawText.removePrefix("$prefix$name").trim()
-        val tokens = if (content.isEmpty()) emptyList() else content.split(Regex("\\s+"))
+        val tokens = if (content.isEmpty()) emptyList() else content.split(spaceRegex)
 
         executeCommand(rootDsl, tokens, this, event)
     }
@@ -74,35 +76,27 @@ private suspend fun executeCommand(
 
     val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
     val errors = mutableListOf<CommandError>()
-    var currentTokens = tokens
+    val currentTokens = tokens.toMutableList()
 
     for (param in dsl.parameters) {
-        val result: ParameterParseResult<Any> = when {
+        argumentMap[param] = when {
             currentTokens.isEmpty() -> ParameterParseResult.MissingParam
             param.isGreedy -> {
                 val value = currentTokens.joinToString(" ")
-                currentTokens = emptyList()
+                currentTokens.clear()
                 ParameterParseResult.Success(value)
             }
-
             else -> {
-                val rawValue = currentTokens[0]
-                currentTokens = currentTokens.drop(1)
-                val converted = convertValue(rawValue, param.type)
-                if (converted != null) {
-                    ParameterParseResult.Success(converted)
-                } else {
-                    ParameterParseResult.InvalidParam(rawValue)
-                }
+                val rawValue = currentTokens.removeFirst()
+                convertValue(rawValue, param.type)?.let { ParameterParseResult.Success(it) }
+                    ?: ParameterParseResult.InvalidParam(rawValue)
             }
-        }
-
-        argumentMap[param] = result
-
-        when (result) {
-            is ParameterParseResult.MissingParam -> errors.add(CommandError.MissingParam(param))
-            is ParameterParseResult.InvalidParam -> errors.add(CommandError.InvalidParam(param, result.rawValue))
-            else -> {}
+        }.also { res ->
+            when (res) {
+                is ParameterParseResult.MissingParam -> errors.add(CommandError.MissingParam(param))
+                is ParameterParseResult.InvalidParam -> errors.add(CommandError.InvalidParam(param, res.rawValue))
+                else -> {}
+            }
         }
     }
 

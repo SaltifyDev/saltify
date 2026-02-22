@@ -121,8 +121,8 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
     }
 
     init {
-        @Suppress("UNCHECKED_CAST")
         config.installedPlugins.forEach { installed ->
+            @Suppress("UNCHECKED_CAST")
             val installed = installed as InstalledPlugin<Any>
             val plugin = installed.plugin
 
