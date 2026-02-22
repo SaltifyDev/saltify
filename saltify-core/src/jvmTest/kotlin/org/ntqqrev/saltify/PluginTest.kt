@@ -97,7 +97,7 @@ class PluginTest {
 
             onFailure {
                 respond {
-                    text("Command run failed: $it")
+                    text("Command run failed: ${it.message}")
                 }
             }
         }
@@ -143,7 +143,7 @@ class PluginTest {
 
                 onFailure {
                     respond {
-                        text("Command run failed: $it")
+                        text("Command run failed: ${it.message}")
                     }
                 }
             }

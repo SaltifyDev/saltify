@@ -106,6 +106,10 @@ private suspend fun executeCommand(
         }
     }
 
+    if (currentTokens.isNotEmpty()) {
+        errors.add(CommandError.TooManyArguments(currentTokens))
+    }
+
     val execution = SaltifyCommandExecutionContext(client, event, argumentMap)
 
     if (errors.isNotEmpty()) {
