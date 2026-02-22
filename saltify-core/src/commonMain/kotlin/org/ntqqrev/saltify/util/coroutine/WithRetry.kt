@@ -19,9 +19,10 @@ internal suspend fun withRetry(
     block: suspend () -> Unit
 ) {
     var attempts = 0
-    while (currentCoroutineContext().isActive) {
+    catchLoop@ while (currentCoroutineContext().isActive) {
         runCatching {
             block()
+            break@catchLoop
         }.onFailure { e ->
             if (!isEnabled) {
                 onFailure(e)
