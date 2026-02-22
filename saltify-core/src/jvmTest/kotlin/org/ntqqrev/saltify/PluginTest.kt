@@ -28,7 +28,9 @@ class PluginTest {
                 autoReconnect = false
             }
 
-            install(testPlugin)
+            install(testPlugin) {
+                response = "Hello!!"
+            }
         }
 
         launch {
@@ -60,7 +62,9 @@ class PluginTest {
         client.close()
     }
 
-    val testPlugin = SaltifyPlugin("test") {
+    class TestConfig(var response: String = "Hello!")
+
+    val testPlugin = SaltifyPlugin("test", ::TestConfig) { config ->
         onStart {
             println("--- Test plugin started")
             val self = client.getLoginInfo()
@@ -82,6 +86,13 @@ class PluginTest {
                     println(milkyJsonModule.encodeToString(data.segments))
                 }
                 else -> {}
+            }
+        }
+
+        // config test
+        command("hello") {
+            onExecute {
+                respond { text(config.response) }
             }
         }
 

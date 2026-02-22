@@ -48,29 +48,6 @@ public class SaltifyPluginContext internal constructor(
 
     /**
      * 注册一个命令。
-     *
-     * ```kotlin
-     * command("order") {
-     *     val id = parameter<Int>("id")
-     *     val note = greedyStringParameter("note")
-     *
-     *     onExecute {
-     *         respond {
-     *             text("Order #${id.value} created\nnote：${note.value}")
-     *         }
-     *     }
-     *
-     *     onGroupExecute {
-     *         // ...
-     *     }
-     *
-     *     onFailure {
-     *         respond {
-     *             text("Command run failed: $it")
-     *         }
-     *     }
-     * }
-     * ```
      */
     public fun command(
         name: String,
@@ -105,17 +82,24 @@ public class SaltifyPluginContext internal constructor(
 /**
  * 一个插件
  */
-public class SaltifyPlugin(
+public class SaltifyPlugin<T : Any>(
     public val name: String,
-    internal val setup: SaltifyPluginContext.() -> Unit
+    @PublishedApi internal val createConfig: () -> T,
+    internal val setup: SaltifyPluginContext.(T) -> Unit
 ) {
     /**
      * 创建一个插件。
      */
     public companion object {
+        public operator fun <T : Any> invoke(
+            name: String,
+            config: () -> T,
+            setup: SaltifyPluginContext.(config: T) -> Unit
+        ): SaltifyPlugin<T> = SaltifyPlugin(name, config, setup)
+
         public operator fun invoke(
             name: String = "unspecified",
-            block: SaltifyPluginContext.() -> Unit
-        ): SaltifyPlugin = SaltifyPlugin(name, block)
+            setup: SaltifyPluginContext.(Unit) -> Unit
+        ): SaltifyPlugin<Unit> = SaltifyPlugin(name, {}, setup)
     }
 }

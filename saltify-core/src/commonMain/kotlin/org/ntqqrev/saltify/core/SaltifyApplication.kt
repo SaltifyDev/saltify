@@ -20,8 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.decodeFromJsonElement
 import org.ntqqrev.milky.*
 import org.ntqqrev.saltify.annotation.WithApiExtension
-import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
+import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
+import org.ntqqrev.saltify.entity.InstalledPlugin
 import org.ntqqrev.saltify.exception.ApiCallException
 import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
@@ -120,7 +121,13 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
     }
 
     init {
-        config.installedPlugins.forEach { plugin ->
+        @Suppress("UNCHECKED_CAST")
+        config.installedPlugins.forEach { installed ->
+            val installed = installed as InstalledPlugin<Any>
+            val plugin = installed.plugin
+
+            val configInstance = plugin.createConfig().apply(installed.configure)
+
             val pluginScope = CoroutineScope(
                 applicationScope.coroutineContext +
                     SupervisorJob(applicationScope.coroutineContext.job) +
@@ -128,7 +135,8 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
             )
 
             val context = SaltifyPluginContext(this, pluginScope)
-            plugin.setup(context)
+
+            plugin.setup(context, configInstance)
             loadedPlugins.add(context)
 
             pluginScope.launch {
