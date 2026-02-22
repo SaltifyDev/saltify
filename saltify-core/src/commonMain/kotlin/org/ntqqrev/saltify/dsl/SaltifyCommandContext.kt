@@ -29,14 +29,14 @@ public class SaltifyCommandContext internal constructor() {
     internal var failureBlock: (suspend SaltifyCommandExecutionContext.(CommandError) -> Unit)? = null
 
     /**
-     * 注册一个子命令。
+     * 注册一个子指令。
      */
     public fun subCommand(name: String, block: SaltifyCommandContext.() -> Unit) {
         subCommands.add(name to SaltifyCommandContext().apply(block))
     }
 
     /**
-     * 定义一个命令参数。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
+     * 定义一个指令参数。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
      */
     public fun <T : Any> parameter(
         type: KClass<T>,
@@ -57,7 +57,7 @@ public class SaltifyCommandContext internal constructor() {
     }
 
     /**
-     * 设置通用的命令执行逻辑。
+     * 设置通用的指令执行逻辑。
      */
     public fun onExecute(block: suspend SaltifyCommandExecutionContext.() -> Unit) {
         executionBlock = block
@@ -78,7 +78,7 @@ public class SaltifyCommandContext internal constructor() {
     }
 
     /**
-     * 当命令**解析**失败时执行的逻辑。
+     * 当指令**解析**失败时执行的逻辑。
      */
     public fun onFailure(block: suspend SaltifyCommandExecutionContext.(CommandError) -> Unit) {
         failureBlock = block
@@ -109,14 +109,14 @@ public class SaltifyCommandExecutionContext(
         get() = capture(this)
 
     /**
-     * 响应命令。
+     * 响应指令。
      */
     public suspend fun respond(
         block: MutableList<OutgoingSegment>.() -> Unit
     ): SendMessageOutput = event.respond(client, block)
 
     /**
-     * 响应命令，并在指定延迟后撤回消息。
+     * 响应指令，并在指定延迟后撤回消息。
      */
     @ContextParametersMigrationNeeded
     public suspend inline fun respondWithRecall(
@@ -132,7 +132,7 @@ public class SaltifyCommandExecutionContext(
     }
 
     /**
-     * 获取由命令触发者发送的下一条消息事件。超时返回 null。
+     * 获取由指令触发者发送的下一条消息事件。超时返回 null。
      */
     public suspend fun awaitNextMessage(timeout: Duration = 30.seconds): Event.MessageReceive? {
         val messageFlow = client.eventFlow.filterIsInstance<Event.MessageReceive>()
@@ -155,7 +155,7 @@ public class SaltifyCommandExecutionContext(
 }
 
 /**
- * 命令参数
+ * 指令参数
  */
 public class SaltifyCommandParamDef<T : Any>(
     public val type: KClass<T>,

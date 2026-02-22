@@ -47,7 +47,7 @@ public class SaltifyPluginContext internal constructor(
     ): Job = client.on(pluginScope, block)
 
     /**
-     * 注册一个命令。
+     * 注册一个指令。
      */
     public fun command(
         name: String,

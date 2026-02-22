@@ -1,20 +1,29 @@
 import { defineConfig } from 'vitepress';
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcDir: 'content',
 
   title: 'Saltify 文档',
   description: 'Documentation of Saltify',
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '主页', link: '/' },
       { text: 'Milky', link: 'https://milky.ntqqrev.org/' },
     ],
 
     sidebar: [
-      { text: '快速上手', link: '/quick-tour' },
+      {
+        text: '快速上手',
+        items: [ { text: 'API 概览', link: '/quick-tour' } ]
+      },
+      {
+        text: '开发指南',
+        items: [
+          { text: '核心配置与异常处理', link: '/guide/application' },
+          { text: '插件开发', link: '/guide/plugin' },
+          { text: '指令系统', link: '/guide/command' }
+        ]
+      }
     ],
 
     socialLinks: [

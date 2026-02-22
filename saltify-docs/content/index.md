@@ -15,5 +15,5 @@ features:
   - title: 跨平台支持
     details: 兼容 Kotlin JVM / Native / JS / WASM 平台，一套代码覆盖更多运行环境
   - title: 丰富功能
-    details: 支持 Milky 协议所有 API / 事件，支持插件化开发、命令路由、事件监听等 DSL
+    details: 支持 Milky 协议所有 API / 事件，支持插件化开发、指令路由、事件监听等 DSL
 ---

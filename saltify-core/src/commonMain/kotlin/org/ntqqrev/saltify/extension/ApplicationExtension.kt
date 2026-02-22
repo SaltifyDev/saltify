@@ -35,7 +35,7 @@ public inline fun <reified T : Event> SaltifyApplication.on(
 private val spaceRegex = Regex("\\s+")
 
 /**
- * 注册一个命令。
+ * 注册一个指令。
  */
 public fun SaltifyApplication.command(
     name: String,

@@ -3,7 +3,7 @@ package org.ntqqrev.saltify.model
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 
 /**
- * 命令解析错误
+ * 指令解析错误
  */
 public sealed class CommandError {
     public abstract val message: String
