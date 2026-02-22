@@ -31,13 +31,13 @@ public class SaltifyApplicationSSE(config: SaltifyApplicationConfig) : SaltifyAp
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
                 block = {
-                    eventConnectionState.emit(
-                        EventConnectionState.Connected(
-                            EventConnectionType.SSE, this@SaltifyApplicationSSE
-                        )
-                    )
-
                     httpClient.sse("$addressBaseNormalized/event") {
+                        eventConnectionState.emit(
+                            EventConnectionState.Connected(
+                                EventConnectionType.SSE, this@SaltifyApplicationSSE
+                            )
+                        )
+
                         incoming.collect { sseEvent ->
                             if (sseEvent.event == "milky_event") {
                                 sseEvent.data?.let { data ->
