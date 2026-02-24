@@ -13,6 +13,7 @@ import org.ntqqrev.saltify.core.recallGroupMessage
 import org.ntqqrev.saltify.core.recallPrivateMessage
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.on
+import org.ntqqrev.saltify.extension.regex
 import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.model.milky.SendMessageOutput
 import kotlin.time.Duration
@@ -45,6 +46,17 @@ public class SaltifyPluginContext internal constructor(
     public inline fun <reified T : Event> on(
         crossinline block: suspend SaltifyApplication.(event: T) -> Unit
     ): Job = client.on(pluginScope, block)
+
+    /**
+     * 注册一个消息正则匹配监听器。
+     */
+    public inline fun regex(
+        regex: String,
+        crossinline block: suspend SaltifyApplication.(
+            event: Event.MessageReceive,
+            matches: Sequence<MatchResult>
+        ) -> Unit
+    ): Job = client.regex(regex, pluginScope, block)
 
     /**
      * 注册一个指令。

@@ -32,6 +32,24 @@ public inline fun <reified T : Event> SaltifyApplication.on(
         }
 }
 
+/**
+ * 注册一个消息正则匹配监听器。
+ */
+public inline fun SaltifyApplication.regex(
+    regex: String,
+    scope: CoroutineScope = extensionScope,
+    crossinline block: suspend SaltifyApplication.(event: Event.MessageReceive, matches: Sequence<MatchResult>) -> Unit
+): Job {
+    val regex = Regex(regex)
+
+    return on<Event.MessageReceive>(scope) { event ->
+        val text = event.data.segments.plainText
+
+        val matches = regex.findAll(text)
+        if (matches.any()) block(event, matches)
+    }
+}
+
 private val spaceRegex = Regex("\\s+")
 
 /**

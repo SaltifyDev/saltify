@@ -89,6 +89,13 @@ class PluginTest {
             }
         }
 
+        // regex test
+        regex("""BV1\w{9}""") { event, matches ->
+            event.respond {
+                text(matches.joinToString { it.value })
+            }
+        }
+
         // config test
         command("hello") {
             onExecute {
