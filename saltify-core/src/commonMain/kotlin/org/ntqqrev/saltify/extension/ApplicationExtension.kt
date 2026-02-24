@@ -26,8 +26,8 @@ public inline fun <reified T : Event> SaltifyApplication.on(
     eventFlow
         .filter { it is T }
         .collect {
-            runCatchingToExceptionFlow {
-                block(it as T)
+            launch {
+                runCatchingToExceptionFlow { block(it as T) }
             }
         }
 }
