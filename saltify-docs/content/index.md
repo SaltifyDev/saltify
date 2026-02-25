@@ -11,9 +11,9 @@ hero:
 
 features:
   - title: 现代化基础设施
-    details: 基于 Ktor Client 与 Kotlinx Serialization 实现，高效稳定
+    details: 基于 Kotlinx 全家桶实现，高效稳定
   - title: 跨平台支持
-    details: 兼容 Kotlin JVM / Native / JS / WASM 平台，一套代码覆盖更多运行环境
+    details: 兼容 Kotlin JVM / Native / JS / Wasm 平台，一套代码覆盖更多运行环境
   - title: 丰富功能
     details: 支持 Milky 协议所有 API / 事件，支持插件化开发、指令路由、事件监听等 DSL
 ---
