@@ -22,10 +22,12 @@ class PluginTest {
     @Test
     fun test(): Unit = runBlocking {
         val client = SaltifyApplication {
-            addressBase = "http://localhost:3000"
-            eventConnection {
-                type = EventConnectionType.WebSocket
-                autoReconnect = false
+            connection {
+                baseUrl = "http://localhost:3000"
+                events {
+                    type = EventConnectionType.WebSocket
+                    autoReconnect = false
+                }
             }
 
             install(testPlugin) {

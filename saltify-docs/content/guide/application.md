@@ -6,13 +6,15 @@
 
 ```kotlin
 val client = SaltifyApplication {
-    addressBase = "http://localhost:3000"
-    accessToken = "your_token" // 选填：访问令牌（不用加 Bearer）
+    connection {
+        baseUrl = "http://localhost:3000"
+        accessToken = "your_token" // 选填：访问令牌（不用加 Bearer）
 
-    // 事件服务连接配置
-    eventConnection {
-        type = EventConnectionType.WebSocket // 可选 WebSocket 或 SSE
-        autoReconnect = true
+        // 事件服务连接配置
+        events {
+            type = EventConnectionType.WebSocket // 可选 WebSocket 或 SSE
+            autoReconnect = true
+        }
     }
 }
 ```

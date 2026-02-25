@@ -22,10 +22,10 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
             val urlString = "$addressBaseNormalized/event".replaceFirst("http", "ws")
 
             withRetry(
-                config.eventConnectionConfig.maxReconnectionAttempts,
-                config.eventConnectionConfig.baseReconnectionInterval,
-                config.eventConnectionConfig.maxReconnectionInterval,
-                config.eventConnectionConfig.autoReconnect,
+                config.connection.event.maxReconnectionAttempts,
+                config.connection.event.baseReconnectionInterval,
+                config.connection.event.maxReconnectionInterval,
+                config.connection.event.autoReconnect,
                 onRetry = { throwable, retryCount ->
                     eventConnectionState.emit(EventConnectionState.Reconnecting(throwable, retryCount))
                 },

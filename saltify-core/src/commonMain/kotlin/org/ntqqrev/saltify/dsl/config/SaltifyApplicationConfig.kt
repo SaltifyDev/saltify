@@ -7,24 +7,14 @@ import org.ntqqrev.saltify.entity.InstalledPlugin
 
 @SaltifyDsl
 public class SaltifyApplicationConfig {
-    /**
-     * 接口根地址，如：`https://localhost:3000`。
-     */
-    public var addressBase: String = ""
-
-    internal var eventConnectionConfig = EventConnectionConfig()
+    internal val connection = ConnectionConfig()
 
     /**
-     * 事件服务配置。
+     * 连接相关设置。
      */
-    public fun eventConnection(block: EventConnectionConfig.() -> Unit) {
-        eventConnectionConfig.block()
+    public fun connection(block: ConnectionConfig.() -> Unit) {
+        connection.block()
     }
-
-    /**
-     * 访问令牌，无需 Bearer。
-     */
-    public var accessToken: String? = null
 
     internal val installedPlugins = mutableListOf<InstalledPlugin<*>>()
 

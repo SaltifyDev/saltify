@@ -23,13 +23,15 @@ dependencies {
 
 ```kotlin
 val client = SaltifyApplication {
-    addressBase = "http://localhost:3000"
-    accessToken = "your_token"
-    
-    // 事件服务相关配置
-    eventConnection {
-        type = EventConnectionType.WebSocket
-        autoReconnect = true
+    connection {
+        baseUrl = "http://localhost:3000"
+        accessToken = "your_token"
+
+        // 事件服务相关配置
+        events {
+            type = EventConnectionType.WebSocket
+            autoReconnect = true
+        }
     }
 }
 ```

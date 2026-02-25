@@ -42,7 +42,7 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
          */
         public operator fun invoke(block: SaltifyApplicationConfig.() -> Unit): SaltifyApplication {
             val config = SaltifyApplicationConfig().apply(block)
-            return when (config.eventConnectionConfig.type) {
+            return when (config.connection.event.type) {
                 EventConnectionType.WebSocket -> SaltifyApplicationWebSocket(config)
                 EventConnectionType.SSE -> SaltifyApplicationSSE(config)
             }
@@ -96,7 +96,7 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
             SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
     )
 
-    protected val addressBaseNormalized: String = config.addressBase.trimEnd('/')
+    protected val addressBaseNormalized: String = config.connection.baseUrl.trimEnd('/')
 
     private val loadedPlugins = mutableListOf<SaltifyPluginContext>()
 
@@ -108,10 +108,10 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
 
         defaultRequest {
             url(addressBaseNormalized)
-            config.accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+            config.connection.accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
         }
 
-        when (config.eventConnectionConfig.type) {
+        when (config.connection.event.type) {
             EventConnectionType.WebSocket -> install(WebSockets.Plugin) {
                 contentConverter = KotlinxWebsocketSerializationConverter(milkyJsonModule)
             }
