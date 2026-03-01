@@ -1,6 +1,6 @@
-# 核心配置与异常处理
+# 核心配置
 
-## 应用实例化与基础配置
+## 初始化 `SaltifyApplication`
 
 可以通过以下方式快速配置一个 Saltify 实例。这里仅展示了核心配置。
 
@@ -36,17 +36,11 @@ suspend fun main() {
 
 另外，应用和插件都有生命周期管理。在程序退出时，务必调用 `close()` 方法释放资源，这会触发所有已加载插件的 `onStop` 钩子并关闭 HTTP 客户端。
 
-## 全局异常处理与事件服务状态
+## 全局异常处理
 
-Saltify 提供了用于监控连接状态和异常的 Flow，一般必须收集以实现自定义逻辑，否则**全部异常都会被无视**。
+Saltify 提供了用于监控未显式捕获的异常的 Flow，一般必须收集以实现自定义逻辑，否则**全部异常都会被无视**。
 
 ```kotlin
-launch {
-    client.eventConnectionStateFlow.collect { state ->
-        println("连接状态变更: $state")
-    }
-}
-
 launch {
     client.exceptionFlow.collect { (context, exception) ->
         val component = context.saltifyComponent!!
@@ -58,6 +52,18 @@ launch {
                         exception.stackTraceToString()
             )
         }
+    }
+}
+```
+
+## 事件服务状态监听
+
+Saltify 还提供了一个 Flow 用于监控事件服务连接状态的变更：
+
+```kotlin
+launch {
+    client.eventConnectionStateFlow.collect { state ->
+        println("连接状态变更: $state")
     }
 }
 ```

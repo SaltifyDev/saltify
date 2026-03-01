@@ -22,7 +22,7 @@ dependencies {
 > [!warning]
 > 本项目仍处于开发阶段，**强烈建议自行构建项目并依赖你的本地构建**，目前本文档将基于最新提交而不是最新发行版。待项目稳定会区分稳定文档与开发文档。
 
-## 配置应用
+## 初始化 `SaltifyApplication`
 
 ```kotlin
 val client = SaltifyApplication {
@@ -39,7 +39,7 @@ val client = SaltifyApplication {
 }
 ```
 
-更多内容请参见 [应用配置](guide/application.md)。请在浏览完本页后**一定仔细阅读**这一页。
+更多内容请参见[核心配置](guide/application.md)。请在浏览完本页后**一定仔细阅读**这一页。
 
 ## 调用 API
 
@@ -54,7 +54,7 @@ client.sendGroupMessage(123456789L) {
 }
 ```
 
-更多 API 请参见项目源码与 IDE 补全。
+更多 API 请参见项目源码与 [Milky 文档](https://milky.ntqqrev.org/)。
 
 ## 定义插件
 
@@ -84,7 +84,7 @@ val client = SaltifyApplication {
 }
 ```
 
-更多内容请参见 [插件开发](guide/plugin.md)。
+更多内容请参见[插件开发](guide/plugin.md)。
 
 ## 定义指令
 
@@ -100,4 +100,4 @@ client.command("say") {
 }
 ```
 
-更多内容请参见 [指令开发](guide/command.md)。
+更多内容请参见[指令系统](guide/command.md)。
