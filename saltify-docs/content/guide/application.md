@@ -16,7 +16,7 @@ val client = SaltifyApplication {
             autoReconnect = true
         }
     }
-}
+}.start()
 ```
 
 事件服务连接不会自动建立，你需要手动调用 `connectEvent()` 才会真正开始监听事件。

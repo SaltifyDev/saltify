@@ -36,7 +36,7 @@ val client = SaltifyApplication {
             autoReconnect = true
         }
     }
-}
+}.start()
 ```
 
 更多内容请参见[核心配置](guide/application.md)。请在浏览完本页后**一定仔细阅读**这一页。
