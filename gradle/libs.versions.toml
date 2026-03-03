@@ -4,6 +4,7 @@ coroutines = "1.10.2"
 serialization = "1.10.0"
 ktor = "3.4.0"
 milky = "1.2.0-RC2"
+logback = "1.5.32"
 
 maven-publish = "0.36.0"
 ksp = "2.3.6"
@@ -26,6 +27,8 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 milky-types = { module = "org.ntqqrev:milky-kt-types", version.ref = "milky" }
 
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

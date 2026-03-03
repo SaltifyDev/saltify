@@ -1,21 +1,15 @@
 package org.ntqqrev.saltify
 
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
-import org.ntqqrev.milky.milkyJsonModule
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.parameter
 import org.ntqqrev.saltify.extension.plainText
-import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
-import org.ntqqrev.saltify.model.SaltifyComponentType
-import org.ntqqrev.saltify.util.coroutine.saltifyComponent
 import kotlin.test.Test
 
 class PluginTest {
@@ -33,30 +27,7 @@ class PluginTest {
             install(testPlugin) {
                 response = "Hello!!"
             }
-        }
-
-        launch {
-            client.exceptionFlow.collect { (context, exception) ->
-                val component = context.saltifyComponent!!
-
-                when (component.type) {
-                    SaltifyComponentType.Application -> throw exception
-                    else -> println(
-                        "Component ${component.name}(${component.type}) occurred an exception: " +
-                            exception.stackTraceToString()
-                    )
-                }
-            }
-        }
-
-        launch {
-            client.eventConnectionStateFlow.collect {
-                when (it) {
-                    is EventConnectionState.Disconnected if it.throwable != null -> throw it.throwable
-                    else -> println("Event connection state changed to: $it")
-                }
-            }
-        }
+        }.start()
 
         client.connectEvent()
         delay(60000L)
@@ -66,29 +37,15 @@ class PluginTest {
 
     class TestConfig(var response: String = "Hello!")
 
-    val testPlugin = SaltifyPlugin("test", ::TestConfig) { config ->
+    val testPlugin = SaltifyPlugin(config = ::TestConfig) { config ->
         onStart {
-            println("--- Test plugin started")
             val self = client.getLoginInfo()
-            println("Current uin：${self.uin}")
+            logger.info("当前登录QQ：${self.uin}")
+            logger.info("测试插件加载成功")
         }
 
         onStop {
-            println("--- Test plugin stopped")
-        }
-
-        on<Event.MessageReceive> {
-            when (val data = it.data) {
-                is IncomingMessage.Group -> {
-                    println("Group message from ${data.senderId} in ${data.group.groupId}:")
-                    println(milkyJsonModule.encodeToString(data.segments))
-                }
-                is IncomingMessage.Friend -> {
-                    println("Private message from ${data.senderId}:")
-                    println(milkyJsonModule.encodeToString(data.segments))
-                }
-                else -> {}
-            }
+            logger.info("测试插件已停止")
         }
 
         // regex test
@@ -101,6 +58,7 @@ class PluginTest {
         // config test
         command("hello") {
             onExecute {
+                logger.info("config: ${config.response}")
                 respond { text(config.response) }
             }
         }

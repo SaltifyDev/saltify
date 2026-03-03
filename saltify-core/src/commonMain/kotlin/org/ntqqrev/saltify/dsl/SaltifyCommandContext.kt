@@ -1,5 +1,7 @@
 package org.ntqqrev.saltify.dsl
 
+import io.ktor.util.logging.KtorSimpleLogger
+import io.ktor.util.logging.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -88,8 +90,11 @@ public class SaltifyCommandContext internal constructor() {
 public class SaltifyCommandExecutionContext(
     public val client: SaltifyApplication,
     public val event: Event.MessageReceive,
+    commandName: String,
     private val argumentMap: Map<SaltifyCommandParamDef<*>, Any?>
 ) {
+    public val logger: Logger = KtorSimpleLogger("Saltify/cmd:$commandName")
+
     /**
      * 获取已解析的参数值。你可能更需要的是 [SaltifyCommandParamDef.value]。
      */

@@ -24,8 +24,8 @@ public class SaltifyApplicationSSE(config: SaltifyApplicationConfig) : SaltifyAp
                 config.connection.event.baseReconnectionInterval,
                 config.connection.event.maxReconnectionInterval,
                 config.connection.event.autoReconnect,
-                onRetry = { throwable, retryCount ->
-                    eventConnectionState.emit(EventConnectionState.Reconnecting(throwable, retryCount))
+                onRetry = { throwable, retryCount, delay ->
+                    eventConnectionState.emit(EventConnectionState.Reconnecting(throwable, retryCount, delay))
                 },
                 onFailure = {
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))

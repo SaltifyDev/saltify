@@ -14,7 +14,7 @@ internal suspend fun withRetry(
     baseDelay: Long,
     maxDelay: Long,
     isEnabled: Boolean,
-    onRetry: suspend (throwable: Throwable, retryCount: Int) -> Unit,
+    onRetry: suspend (throwable: Throwable, retryCount: Int, delay: Long) -> Unit,
     onFailure: suspend (throwable: Throwable) -> Unit,
     block: suspend () -> Unit
 ) {
@@ -40,9 +40,10 @@ internal suspend fun withRetry(
                         return@withRetry
                     }
 
-                    onRetry(e, attempts)
+                    val delay = calculateBackoff(attempts, baseDelay, maxDelay)
 
-                    delay(calculateBackoff(attempts, baseDelay, maxDelay))
+                    onRetry(e, attempts, delay)
+                    delay(delay)
                 }
             }
         }

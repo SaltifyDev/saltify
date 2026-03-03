@@ -1,5 +1,7 @@
 package org.ntqqrev.saltify.dsl
 
+import io.ktor.util.logging.KtorSimpleLogger
+import io.ktor.util.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -20,11 +22,14 @@ import kotlin.time.Duration
 
 @SaltifyDsl
 public class SaltifyPluginContext internal constructor(
+    name: String,
     public val client: SaltifyApplication,
     @PublishedApi internal val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
     internal val onStopHooks = mutableListOf<() -> Unit>()
+
+    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$name")
 
     /**
      * 插件被加载，即 [SaltifyApplication.Companion.invoke] 后执行的逻辑。
@@ -104,14 +109,18 @@ public class SaltifyPlugin<T : Any>(
      */
     public companion object {
         public operator fun <T : Any> invoke(
-            name: String,
+            name: String = generateAnonymousName(),
             config: () -> T,
             setup: SaltifyPluginContext.(config: T) -> Unit
         ): SaltifyPlugin<T> = SaltifyPlugin(name, config, setup)
 
         public operator fun invoke(
-            name: String = "unspecified",
+            name: String = generateAnonymousName(),
             setup: SaltifyPluginContext.(Unit) -> Unit
         ): SaltifyPlugin<Unit> = SaltifyPlugin(name, {}, setup)
     }
 }
+
+@Suppress("MagicNumber")
+private fun generateAnonymousName(): String =
+    "anonymous-${(1..4).map { ('A'..'Z').random() }.joinToString("")}"

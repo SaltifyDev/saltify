@@ -101,3 +101,7 @@ client.command("say") {
 ```
 
 更多内容请参见[指令系统](guide/command.md)。
+
+## 日志输出
+
+请参见[日志配置](guide/logging.md)

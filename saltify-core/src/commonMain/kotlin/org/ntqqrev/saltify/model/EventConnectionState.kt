@@ -11,6 +11,6 @@ public sealed class EventConnectionState {
         val instance: SaltifyApplication
     ) : EventConnectionState()
     public data class Disconnected(val throwable: Throwable?) : EventConnectionState()
-    public data class Reconnecting(val throwable: Throwable, val attempt: Int) : EventConnectionState()
+    public data class Reconnecting(val throwable: Throwable, val attempt: Int, val delay: Long) : EventConnectionState()
     public object Connecting : EventConnectionState()
 }

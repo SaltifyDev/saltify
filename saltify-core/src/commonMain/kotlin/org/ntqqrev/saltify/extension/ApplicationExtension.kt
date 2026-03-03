@@ -15,6 +15,7 @@ import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
 import kotlin.reflect.KClass
+import kotlin.time.Clock
 
 /**
  * 注册一个事件监听器。
@@ -73,7 +74,7 @@ public fun SaltifyApplication.command(
         val content = rawText.removePrefix("$prefix$name").trim()
         val tokens = if (content.isEmpty()) emptyList() else content.split(spaceRegex)
 
-        executeCommand(rootDsl, tokens, this, event)
+        executeCommand(rootDsl, tokens, this, event, name)
     }
 }
 
@@ -81,13 +82,14 @@ private suspend fun executeCommand(
     dsl: SaltifyCommandContext,
     tokens: List<String>,
     client: SaltifyApplication,
-    event: Event.MessageReceive
+    event: Event.MessageReceive,
+    name: String
 ) {
     if (tokens.isNotEmpty()) {
         val subName = tokens[0]
         val subCommand = dsl.subCommands.find { it.first == subName }
         if (subCommand != null) {
-            executeCommand(subCommand.second, tokens.drop(1), client, event)
+            executeCommand(subCommand.second, tokens.drop(1), client, event, name)
             return
         }
     }
@@ -122,17 +124,22 @@ private suspend fun executeCommand(
         errors.add(CommandError.TooManyArguments(currentTokens))
     }
 
-    val execution = SaltifyCommandExecutionContext(client, event, argumentMap)
+    val execution = SaltifyCommandExecutionContext(client, event, name, argumentMap)
 
     if (errors.isNotEmpty()) {
         val handler = dsl.failureBlock ?: return
         return execution.handler(errors.first())
     }
 
+    val startInstant = Clock.System.now()
+    execution.logger.info("${event.data.peerId} 触发了 $name 指令 (seq=${event.data.messageSeq})")
+
     when (event.data) {
         is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
         else -> dsl.privateExecutionBlock ?: dsl.executionBlock
     }?.invoke(execution)
+
+    execution.logger.info("seq=${event.data.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -263,6 +263,7 @@ class ApiExtensionProcessor(
                     """.trimIndent()
                 )
 
+                // TO BE REMOVED
                 // additional ext properties for incoming segments
                 // access properties directly, crossing the ` data ` layer
                 it.appendLine()

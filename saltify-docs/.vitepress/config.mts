@@ -18,7 +18,8 @@ export default defineConfig({
         items: [
           { text: '核心配置', link: '/guide/application' },
           { text: '插件开发', link: '/guide/plugin' },
-          { text: '指令系统', link: '/guide/command' }
+          { text: '指令系统', link: '/guide/command' },
+          { text: '日志配置', link: '/guide/logging' }
         ]
       }
     ],
