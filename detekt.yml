@@ -1,0 +1,5 @@
+buildUponDefaultConfig: true
+
+style:
+  WildcardImport:
+    active: false
