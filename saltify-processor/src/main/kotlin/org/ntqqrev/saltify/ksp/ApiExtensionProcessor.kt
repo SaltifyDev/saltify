@@ -262,29 +262,6 @@ class ApiExtensionProcessor(
                     )
                     """.trimIndent()
                 )
-
-                // TO BE REMOVED
-                // additional ext properties for incoming segments
-                // access properties directly, crossing the ` data ` layer
-                it.appendLine()
-                val incomingSegmentClazz = resolver.getClassDeclarationByName(
-                    resolver.getKSNameFromString("org.ntqqrev.milky.IncomingSegment")
-                )!!
-                incomingSegmentClazz.getSealedSubclasses().forEach { segment ->
-                    val segmentName = segment.simpleName.asString()
-                    val segmentProperties = (
-                        segment.getAllProperties()
-                            .first().type.resolve().declaration
-                            as KSClassDeclaration
-                        )
-                        .getAllProperties()
-                    segmentProperties.forEach { prop ->
-                        val propName = prop.simpleName.asString()
-                        it.appendLine("public val IncomingSegment.$segmentName.$propName: ${prop.type.typeString()}")
-                        it.appendLine("    get() = this.data.$propName")
-                    }
-                    it.appendLine()
-                }
             }
         }
 
