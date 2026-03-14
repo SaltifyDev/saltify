@@ -15,13 +15,13 @@ import org.ntqqrev.saltify.model.milky.SendMessageOutput
 public suspend fun Event.MessageReceive.respond(
     client: SaltifyApplication,
     block: MutableList<OutgoingSegment>.() -> Unit
-): SendMessageOutput = when (val data = this.data) {
+): SendMessageOutput = when (data) {
     is IncomingMessage.Group -> {
-        val output = client.sendGroupMessage(data.peerId, block)
+        val output = client.sendGroupMessage(peerId, block)
         SendMessageOutput(output.messageSeq, output.time)
     }
     else -> {
-        val output = client.sendPrivateMessage(data.peerId, block)
+        val output = client.sendPrivateMessage(peerId, block)
         SendMessageOutput(output.messageSeq, output.time)
     }
 }

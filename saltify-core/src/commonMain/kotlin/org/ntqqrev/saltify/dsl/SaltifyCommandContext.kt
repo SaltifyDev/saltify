@@ -144,15 +144,13 @@ public class SaltifyCommandExecutionContext(
 
         return withTimeoutOrNull(timeout) {
             messageFlow.first { nextEvent ->
-                val nextData = nextEvent.data
-
                 when (val contextData = event.data) {
                     is IncomingMessage.Group -> {
-                        nextData is IncomingMessage.Group &&
-                            nextData.group.groupId == contextData.group.groupId &&
-                            nextData.senderId == contextData.senderId
+                        nextEvent.data is IncomingMessage.Group &&
+                            (nextEvent.data as IncomingMessage.Group).group.groupId == contextData.group.groupId &&
+                            nextEvent.senderId == event.senderId
                     }
-                    else -> nextData.senderId == contextData.senderId
+                    else -> nextEvent.senderId == event.senderId
                 }
             }
         }

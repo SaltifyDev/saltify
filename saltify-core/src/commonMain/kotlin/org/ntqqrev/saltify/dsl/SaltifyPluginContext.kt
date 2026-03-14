@@ -90,8 +90,8 @@ public class SaltifyPluginContext internal constructor(
         val output = respond(block)
         delay(delay)
         when (data) {
-            is IncomingMessage.Group -> client.recallGroupMessage(data.peerId, output.messageSeq)
-            else -> client.recallPrivateMessage(data.peerId, output.messageSeq)
+            is IncomingMessage.Group -> client.recallGroupMessage(peerId, output.messageSeq)
+            else -> client.recallPrivateMessage(peerId, output.messageSeq)
         }
     }
 }

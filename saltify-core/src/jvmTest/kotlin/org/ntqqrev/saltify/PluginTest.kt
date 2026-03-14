@@ -99,7 +99,7 @@ class PluginTest {
                 if (event == null) {
                     respond { text("Operation cancelled due to timeout") }
                 } else {
-                    val content = event.data.segments.plainText
+                    val content = event.segments.plainText
                     respond {
                         text("You just responded \"$content\". However, whatever you say I won't shutdown myself.")
                     }

@@ -53,7 +53,7 @@ val myPlugin = SaltifyPlugin("my-plugin", ::Config) { config ->
     }
 
     on<Event.MessageReceive> {
-        logger.debug("收到消息: ${it.data.segments.plainText}")
+        logger.debug("收到消息: ${it.segments.plainText}")
     }
 
     command("test") {

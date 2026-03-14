@@ -44,7 +44,7 @@ public inline fun SaltifyApplication.regex(
     val regex = Regex(regex)
 
     return on<Event.MessageReceive>(scope) { event ->
-        val text = event.data.segments.plainText
+        val text = event.segments.plainText
 
         val matches = regex.findAll(text)
         if (matches.any()) block(event, matches)
@@ -65,8 +65,8 @@ public fun SaltifyApplication.command(
     val rootDsl = SaltifyCommandContext().apply(builder)
 
     return on<Event.MessageReceive>(scope) { event ->
-        val rawText = event.data.segments.filterIsInstance<IncomingSegment.Text>()
-            .joinToString("") { it.data.text }
+        val rawText = event.segments.filterIsInstance<IncomingSegment.Text>()
+            .joinToString("") { it.text }
             .trim()
 
         if (rawText != "$prefix$name" && !rawText.startsWith("$prefix$name ")) return@on
@@ -132,14 +132,14 @@ private suspend fun executeCommand(
     }
 
     val startInstant = Clock.System.now()
-    execution.logger.info("${event.data.peerId} 触发了 $name 指令 (seq=${event.data.messageSeq})")
+    execution.logger.info("${event.peerId} 触发了 $name 指令 (seq=${event.messageSeq})")
 
     when (event.data) {
         is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
         else -> dsl.privateExecutionBlock ?: dsl.executionBlock
     }?.invoke(execution)
 
-    execution.logger.info("seq=${event.data.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
+    execution.logger.info("seq=${event.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -67,7 +67,7 @@ val myPlugin = SaltifyPlugin("my-plugin") {
     }
 
     on<Event.GroupMemberIncrease> { event ->
-        println("新成员加入: ${event.data.userId}")
+        println("新成员加入: ${event.userId}")
     }
 }
 

@@ -247,10 +247,10 @@ private fun SaltifyApplication.startLoggingListeners() = applicationScope.launch
                     when (val data = it.data) {
                         is IncomingMessage.Group ->
                             logger.debug(
-                                "${data.groupMember.userId}(${data.group.groupId}): ${data.segments.plainText}"
+                                "${data.groupMember.userId}(${data.group.groupId}): ${it.segments.plainText}"
                             )
                         else ->
-                            logger.debug("${data.peerId}: ${data.segments.plainText}")
+                            logger.debug("${it.peerId}: ${it.segments.plainText}")
                     }
                 }
                 else -> {}
