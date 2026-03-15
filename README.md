@@ -1,8 +1,12 @@
-![banner](https://socialify.git.ci/SaltifyDev/saltify/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F208890061%3Fs%3D400%26u%3D49580f4a3a7837cdd8d43a532d0789b2488a2ffb%26v%3D4&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Light)
-
 <div align="center">
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/saltify-core?style=for-the-badge&label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/saltify-core)
+<img src="https://saltify.ntqqrev.org/saltify.png" width="150" style="border-radius: 8px"/>
+
+# Saltify
+
+跨平台、可扩展的 Kotlin QQ Bot 框架 & Milky SDK
+
+✨ *Illustrated by [teriteri_](https://www.mihuashi.com/profiles/221350)* ✨
 
 </div>
 
