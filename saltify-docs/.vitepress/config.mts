@@ -5,7 +5,11 @@ export default defineConfig({
 
   title: 'Saltify 文档',
   description: 'Documentation of Saltify',
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/saltify-150.png' }],
+  ],
   themeConfig: {
+    logo: '/saltify-150.png',
     nav: [
       { text: '主页', link: '/' },
       { text: 'Milky', link: 'https://milky.ntqqrev.org/' },
