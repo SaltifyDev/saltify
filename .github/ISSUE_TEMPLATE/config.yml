@@ -1,5 +1,9 @@
+blank_issues_enabled: true
+
 contact_links:
   - name: QQ
     url: https://qm.qq.com/q/C04kPQzayk
+    about: ""
   - name: Telegram
     url: https://t.me/WeavingStar
+    about: ""
