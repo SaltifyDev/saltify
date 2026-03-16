@@ -10,16 +10,16 @@ public sealed class CommandError {
 
     public data class MissingParam(val parameter: SaltifyCommandParamDef<*>) : CommandError() {
         override val message: String
-            get() = "Missing required parameter: ${parameter.name}"
+            get() = "缺少必要的参数: ${parameter.name}"
     }
 
     public data class InvalidParam(val parameter: SaltifyCommandParamDef<*>, val token: String) : CommandError() {
         override val message: String
-            get() = "Invalid argument provided for parameter ${parameter.name}: \"$token\""
+            get() = "参数 ${parameter.name} 无效: \"$token\""
     }
 
     public data class TooManyArguments(val extraTokens: List<String>) : CommandError() {
         override val message: String
-            get() = "Too many arguments provided: ${extraTokens.joinToString(" ")}"
+            get() = "提供参数过多: ${extraTokens.joinToString(" ")}"
     }
 }
