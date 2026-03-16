@@ -114,7 +114,11 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
 
         defaultRequest {
             url(addressBaseNormalized)
-            config.connection.accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+
+            config.connection.accessToken?.let {
+                // 懒得区分环境了
+                url.parameters.append("access_token", it)
+            }
         }
 
         when (config.connection.event.type) {
