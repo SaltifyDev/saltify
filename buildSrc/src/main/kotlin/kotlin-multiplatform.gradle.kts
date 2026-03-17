@@ -28,9 +28,6 @@ kotlin {
         nodejs()
         d8()
     }
-    wasmWasi {
-        nodejs()
-    }
 
     jvmToolchain(21)
 }
