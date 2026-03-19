@@ -1,16 +1,10 @@
-# 日志配置
+# 日志实现
 
 Saltify 使用 KtorSimpleLogger 输出运行时日志。
 
 ## JVM 平台
 
-在 JVM 平台上，使用 SLF4J 作为日志框架，这里以 Logback 为例：
-
-```kotlin
-dependencies {
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-}
-```
+这里依照快速开始中的日志配置，使用 Logback 框架。
 
 ### 配置日志
 

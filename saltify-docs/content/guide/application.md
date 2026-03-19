@@ -1,8 +1,8 @@
-# 核心配置
+# 应用配置
 
 ## 初始化 `SaltifyApplication`
 
-可以通过以下方式快速配置一个 Saltify 实例。这里仅展示了核心配置。
+可以通过以下方式创建 Saltify 实例。这里仅展示了核心配置。
 
 ```kotlin
 val client = SaltifyApplication {
@@ -16,7 +16,7 @@ val client = SaltifyApplication {
             autoReconnect = true
         }
     }
-}.start()
+}.start() // 不要忘记这里的 start() 调用！
 ```
 
 事件服务连接不会自动建立，你需要手动调用 `connectEvent()` 才会真正开始监听事件。
@@ -38,7 +38,7 @@ suspend fun main() {
 
 ## 全局异常处理
 
-Saltify 提供了用于监控未显式捕获的异常的 Flow，一般必须收集以实现自定义逻辑，否则**全部异常都会被无视**。
+Saltify 提供了用于监控未显式捕获的异常的 Flow，如果选择使用日志功能，报错等信息会自动打印到控制台。你可以通过以下代码实现自定义逻辑：
 
 ```kotlin
 launch {
@@ -56,6 +56,8 @@ launch {
 }
 ```
 
+如上所见，所有 Saltify 创建的协程都有一个名为 `SaltifyComponent` 的上下文，它包含了组件的元信息。例如这里，Application 代表应用实例。
+
 ## 事件服务状态监听
 
 Saltify 还提供了一个 Flow 用于监控事件服务连接状态的变更：
@@ -67,3 +69,5 @@ launch {
     }
 }
 ```
+
+需要注意的是，由连接状态断开引起的异常不会出现在 Application 异常流，而是会在这个流中出现。

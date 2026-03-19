@@ -22,14 +22,14 @@ import kotlin.time.Duration
 
 @SaltifyDsl
 public class SaltifyPluginContext internal constructor(
-    name: String,
+    pluginName: String,
     public val client: SaltifyApplication,
     @PublishedApi internal val pluginScope: CoroutineScope
 ) : CoroutineScope by pluginScope {
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
     internal val onStopHooks = mutableListOf<() -> Unit>()
 
-    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$name")
+    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$pluginName")
 
     /**
      * 插件被加载，即 [SaltifyApplication.Companion.invoke] 后执行的逻辑。

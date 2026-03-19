@@ -16,14 +16,14 @@ export default defineConfig({
     ],
 
     sidebar: [
-      { text: '快速上手', link: '/quick-tour' },
+      { text: '快速开始', link: '/quick-tour' },
       {
-        text: '开发指南',
+        text: 'saltify-core 文档',
         items: [
-          { text: '核心配置', link: '/guide/application' },
+          { text: '应用配置', link: '/guide/application' },
           { text: '插件开发', link: '/guide/plugin' },
-          { text: '指令系统', link: '/guide/command' },
-          { text: '日志配置', link: '/guide/logging' }
+          { text: '指令开发', link: '/guide/command' },
+          { text: '日志实现', link: '/guide/logging' }
         ]
       }
     ],

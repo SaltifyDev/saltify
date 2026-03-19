@@ -1,10 +1,10 @@
-# 指令系统
+# 指令开发
 
 Saltify 提供了一套类型安全的指令构建 DSL，支持参数解析、子指令以及特定上下文的执行逻辑。
 
-## 基础指令与参数解析
+## 定义指令
 
-你可以为指令定义类型安全的参数，并通过 `.value` 快速获取。
+以下是一个简单的指令定义：
 
 ```kotlin
 client.command("order", prefix = "/") {
@@ -14,9 +14,8 @@ client.command("order", prefix = "/") {
     val note = greedyStringParameter("note")
 
     onExecute {
-        respond {
-            text("Order #${id.value} created\nnote：${note.value}")
-        }
+        // some logic...
+        respond("订单 #${id.value} 已创建\nNote：${note.value}")
     }
 
     onFailure { error ->
@@ -32,7 +31,7 @@ onFailure 块是**解析**失败的处理，注意这里不是异常，而是指
 默认情况下，如果不定义这个块，会忽视所有解析错误，并对指令不做回复。
 
 > [!tip]
-> 与 `on` 一样，command 在插件初始化块中也是可以使用的，并且不用手动传 client。
+> 与 `on` 一样，command 在插件初始化块中也是可以，并且推荐使用的。不需要传 `client`。
 
 ## 上下文隔离
 
@@ -41,11 +40,11 @@ onFailure 块是**解析**失败的处理，注意这里不是异常，而是指
 ```kotlin
 client.command("info") {
     onGroupExecute {
-        respond { text("这是群聊专用的信息！") }
+        respond("这是群聊专用的信息！")
     }
     
     onPrivateExecute {
-        respond { text("这是私聊专用的信息！") }
+        respond("这是私聊专用的信息！")
     }
     
     onExecute {
@@ -57,6 +56,34 @@ client.command("info") {
 > [!tip]
 > `onGroupExecute` 和 `onPrivateExecute` 的优先级**高于** `onExecute`。如果群聊触发了指令且你定义了 `onGroupExecute`，那么 `onExecute` 中的兜底逻辑将**不会**被执行。
 
+## 子指令
+
+通过 `subCommand` 函数，可以方便地定义一个任意嵌套层级的指令树：
+
+```kotlin
+command("math") {
+    // /math add <num1> <num2>
+    subCommand("add") {
+        val a = parameter<Int>("a")
+        val b = parameter<Int>("b")
+
+        onExecute {
+            val result = a.value + b.value
+            respond("$result")
+        }
+    }
+
+    // /math power <base>
+    subCommand("power") {
+        val base = parameter<Int>("base")
+        onExecute {
+            val value = base.value
+            respond("$value 的平方是 ${value * value}")
+        }
+    }
+}
+```
+
 ## 上下文交互
 
 在指令执行上下文中，你可以挂起当前协程，等待该用户的下一条回复。
@@ -64,15 +91,15 @@ client.command("info") {
 ```kotlin
 client.command("shutdown") {
     onExecute {
-        respond { text("真的要关机吗？") }
+        respond("真的要关机吗？")
         
         // 等待该用户在同一上下文中发送的下一条消息（默认 30 秒超时）
         val replyEvent = awaitNextMessage(timeout = 30.seconds)
         
         if (replyEvent == null) {
-            respond { text("等待超时") }
+            respond("等待超时")
         } else {
-            respond { text("你回复了我，但这不重要，无论如何，我都不想关掉我自己！") }
+            respond("你回复了我，但这不重要，无论如何，我都不想关掉我自己！")
         }
     }
 }

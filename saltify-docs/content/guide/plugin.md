@@ -4,7 +4,7 @@
 
 ## 定义插件
 
-你可以预先定义一个 `SaltifyPlugin`，或者在应用配置时直接使用 `plugin {}` 块。
+可以预先定义一个 `SaltifyPlugin`：
 
 ```kotlin
 class MyPluginConfig(
@@ -14,14 +14,13 @@ class MyPluginConfig(
 
 val myPlugin = SaltifyPlugin("my-awesome-plugin", ::MyPluginConfig) { config ->
     // 插件加载完成后的初始化逻辑
-    // 这里的 `name` 就是 "my-awesome-plugin"
     onStart {
-        println("[$name] 插件已启动！")
+        println("插件已启动！")
     }
 
     // 应用关闭时的清理逻辑
     onStop {
-        println("[$name] 插件已停止！")
+        println("插件已停止！")
     }
 
     // 监听特定事件
@@ -38,16 +37,20 @@ val myPlugin = SaltifyPlugin("my-awesome-plugin", ::MyPluginConfig) { config ->
 }
 ```
 
+> [!tip]
+> 所有 `respond` 函数都有一个为纯文本情况提供的简写形式。如上例，完全可以写成 `event.respond(config.reply)`。
+
+
 ## 安装插件
 
 ```kotlin
 val client = SaltifyApplication {
-    // 安装插件
+    // 1. 安装外部插件
     install(myPlugin) {
         reply = "Hello!!"
     }
     
-    // 或者直接内联定义
+    // 2. 或者直接内联定义
     plugin("another-plugin") {
         onStart { /* ... */ }
     }
