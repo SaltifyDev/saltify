@@ -37,7 +37,8 @@ val myPlugin = SaltifyPlugin("my-awesome-plugin", ::MyPluginConfig) { config ->
 }
 ```
 
-> [!tip]
+> [!TIP]
+> 
 > 所有 `respond` 函数都有一个为纯文本情况提供的简写形式。如上例，完全可以写成 `event.respond(config.reply)`。
 
 

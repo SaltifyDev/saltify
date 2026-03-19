@@ -1,20 +1,35 @@
 {
   "name": "@saltify/docs",
-  "private": true,
   "version": "1.0.0",
-  "description": "",
+  "description": "Saltify Documentation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview"
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "postbuild": "pagefind --site .next/server/app --output-path out/_pagefind"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.30.1",
+  "dependencies": {
+    "@theguild/remark-mermaid": "^0.3.0",
+    "next": "^16.1.6",
+    "nextra": "^4.6.1",
+    "nextra-theme-docs": "^4.6.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
   "devDependencies": {
-    "vitepress": "2.0.0-alpha.16"
+    "@eslint/eslintrc": "^3.3.3",
+    "@next/eslint-plugin-next": "^16.1.6",
+    "@types/node": "^25.2.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint-config-next": "16.1.6",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "pagefind": "^1.4.0",
+    "typescript": "5.9.3"
   }
 }

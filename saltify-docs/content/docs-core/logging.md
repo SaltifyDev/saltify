@@ -61,5 +61,6 @@ val myPlugin = SaltifyPlugin("my-plugin", ::Config) { config ->
 
 此时 logger 的 name 分别为: `Saltify/plugin:$pluginName` 与 `Saltify/cmd:$commandName`。
 
-> [!tip]
+> [!TIP]
+> 
 > 对于匿名插件，Saltify 会生成 `Saltify/plugin:anonymous-XXXX` 作为 logger name。

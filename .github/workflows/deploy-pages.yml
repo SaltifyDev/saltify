@@ -45,14 +45,14 @@ jobs:
       - name: Setup pages
         uses: actions/configure-pages@v5
 
-      - name: Build docs
+      - name: Build docs with Next.js
         working-directory: saltify-docs
         run: pnpm build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: saltify-docs/.vitepress/dist
+          path: saltify-docs/out
 
   deploy:
     needs: build

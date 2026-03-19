@@ -30,7 +30,8 @@ onFailure 块是**解析**失败的处理，注意这里不是异常，而是指
 
 默认情况下，如果不定义这个块，会忽视所有解析错误，并对指令不做回复。
 
-> [!tip]
+> [!TIP]
+> 
 > 与 `on` 一样，command 在插件初始化块中也是可以，并且推荐使用的。不需要传 `client`。
 
 ## 上下文隔离
@@ -53,7 +54,8 @@ client.command("info") {
 }
 ```
 
-> [!tip]
+> [!NOTE]
+> 
 > `onGroupExecute` 和 `onPrivateExecute` 的优先级**高于** `onExecute`。如果群聊触发了指令且你定义了 `onGroupExecute`，那么 `onExecute` 中的兜底逻辑将**不会**被执行。
 
 ## 子指令
