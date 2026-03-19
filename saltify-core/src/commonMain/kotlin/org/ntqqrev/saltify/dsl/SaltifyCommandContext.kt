@@ -1,7 +1,6 @@
 package org.ntqqrev.saltify.dsl
 
-import io.ktor.util.logging.KtorSimpleLogger
-import io.ktor.util.logging.Logger
+import io.ktor.util.logging.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first

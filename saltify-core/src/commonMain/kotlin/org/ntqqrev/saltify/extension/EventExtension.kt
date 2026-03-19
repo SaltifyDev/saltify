@@ -6,6 +6,7 @@ import org.ntqqrev.milky.OutgoingSegment
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.sendGroupMessage
 import org.ntqqrev.saltify.core.sendPrivateMessage
+import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
 import org.ntqqrev.saltify.model.milky.SendMessageOutput
 
@@ -25,3 +26,11 @@ public suspend fun Event.MessageReceive.respond(
         SendMessageOutput(output.messageSeq, output.time)
     }
 }
+
+/**
+ * 响应事件。这是用于返回纯文本的简写。鉴于 Context Parameter 尚未完善，这里需要手动传 client。
+ */
+public suspend inline fun Event.MessageReceive.respond(
+    client: SaltifyApplication,
+    text: String
+): SendMessageOutput = respond(client) { text(text) }

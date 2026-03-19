@@ -5,10 +5,10 @@ import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
-import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.parameter
 import org.ntqqrev.saltify.extension.plainText
+import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.model.EventConnectionType
 import kotlin.test.Test
 
@@ -50,16 +50,14 @@ class PluginTest {
 
         // regex test
         regex("""BV1\w{9}""") { event, matches ->
-            event.respond {
-                text(matches.joinToString { it.value })
-            }
+            event.respond(matches.joinToString { it.value })
         }
 
         // config test
         command("hello") {
             onExecute {
                 logger.info("config: ${config.response}")
-                respond { text(config.response) }
+                respond(config.response)
             }
         }
 
@@ -68,15 +66,11 @@ class PluginTest {
             val content = greedyStringParameter("content", "words to repeat")
 
             onExecute {
-                respond {
-                    text(content.value)
-                }
+                respond(content.value)
             }
 
             onFailure {
-                respond {
-                    text("Command run failed: ${it.message}")
-                }
+                respond("Command run failed: ${it.message}")
             }
         }
 
@@ -90,19 +84,15 @@ class PluginTest {
         // context propagation test
         command("shutdown") {
             onExecute {
-                respond {
-                    text("Are you sure? (yes/no)")
-                }
+                respond("Are you sure? (yes/no)")
 
                 val event = awaitNextMessage()
 
                 if (event == null) {
-                    respond { text("Operation cancelled due to timeout") }
+                    respond("Operation cancelled due to timeout")
                 } else {
                     val content = event.segments.plainText
-                    respond {
-                        text("You just responded \"$content\". However, whatever you say I won't shutdown myself.")
-                    }
+                    respond("You just responded \"$content\". However, whatever you say I won't shutdown myself.")
                 }
             }
         }
@@ -116,13 +106,11 @@ class PluginTest {
 
                 onExecute {
                     val result = a.value + b.value
-                    respond { text("$result") }
+                    respond("$result")
                 }
 
                 onFailure {
-                    respond {
-                        text("Command run failed: ${it.message}")
-                    }
+                    respond("Command run failed: ${it.message}")
                 }
             }
 
@@ -131,7 +119,7 @@ class PluginTest {
                 val base = parameter<Int>("base")
                 onExecute {
                     val value = base.value
-                    respond { text("The power of $value is ${value * value}") }
+                    respond("The power of $value is ${value * value}")
                 }
             }
         }
@@ -140,19 +128,15 @@ class PluginTest {
         command("whereami") {
             onGroupExecute {
                 val data = event.data as IncomingMessage.Group
-                respond {
-                    text("In group：${data.group.groupName} (${data.group.groupId})")
-                }
+                respond("In group：${data.group.groupName} (${data.group.groupId})")
             }
 
             onPrivateExecute {
-                respond {
-                    text("In private chat")
-                }
+                respond("In private chat")
             }
 
             onExecute {
-                respond { text("unknown") }
+                respond("Unknown chat environment")
             }
         }
 
@@ -163,9 +147,7 @@ class PluginTest {
             val note = greedyStringParameter("note")
 
             onExecute {
-                respond {
-                    text("Order #${id.value} created\nnote：${note.value}")
-                }
+                respond("Order #${id.value} created\nnote：${note.value}")
             }
         }
     }

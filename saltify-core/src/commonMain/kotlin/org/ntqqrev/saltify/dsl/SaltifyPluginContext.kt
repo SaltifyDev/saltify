@@ -1,7 +1,6 @@
 package org.ntqqrev.saltify.dsl
 
-import io.ktor.util.logging.KtorSimpleLogger
-import io.ktor.util.logging.Logger
+import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -13,6 +12,7 @@ import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.recallGroupMessage
 import org.ntqqrev.saltify.core.recallPrivateMessage
+import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.regex
@@ -78,6 +78,14 @@ public class SaltifyPluginContext internal constructor(
     public suspend fun Event.MessageReceive.respond(
         block: MutableList<OutgoingSegment>.() -> Unit
     ): SendMessageOutput = respond(client, block)
+
+    /**
+     * 响应事件。这是用于返回纯文本的简写。
+     */
+    @ContextParametersMigrationNeeded
+    public suspend fun Event.MessageReceive.respond(
+        text: String
+    ): SendMessageOutput = respond { text(text) }
 
     /**
      * 响应事件，并在指定延迟后撤回消息。
