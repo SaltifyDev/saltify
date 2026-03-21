@@ -12,3 +12,14 @@ const outputPath = path.join(__dirname, '../app/version.ts');
 const output = `export const SALTIFY_VERSION = '${version}';`;
 
 fs.writeFileSync(outputPath, output, 'utf8');
+
+// 替换 content/index.md 中的版本号
+const indexPath = path.join(__dirname, '../content/index.md');
+let indexContent = fs.readFileSync(indexPath, 'utf8');
+
+indexContent = indexContent.replace(
+  /"org\.ntqqrev:saltify-core:[^"]+"/g,
+  `"org.ntqqrev:saltify-core:${version}"`
+);
+
+fs.writeFileSync(indexPath, indexContent, 'utf8');
