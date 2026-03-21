@@ -4,8 +4,9 @@
   "description": "Saltify Documentation",
   "main": "index.js",
   "scripts": {
-    "dev": "next",
-    "build": "next build",
+    "extract-version": "node scripts/extract-version.js",
+    "dev": "pnpm extract-version && next",
+    "build": "pnpm extract-version && next build",
     "start": "next start",
     "postbuild": "pagefind --site .next/server/app --output-path out/_pagefind"
   },

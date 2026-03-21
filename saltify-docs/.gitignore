@@ -5,3 +5,6 @@ out/
 
 # Dependencies
 node_modules/
+
+# Auto-generated version file
+app/version.ts

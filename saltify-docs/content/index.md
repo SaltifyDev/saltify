@@ -10,7 +10,7 @@ Saltify 是一个跨平台、可扩展的 Kotlin QQ Bot 框架 & Milky SDK。
 
 ## 开始之前
 
-### 添加 `saltify-core` 依赖
+### 添加 Saltify 依赖
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.ntqqrev/saltify-core?label=Maven%20Central&logo=maven)](https://central.sonatype.com/artifact/org.ntqqrev/saltify-core)
 
@@ -18,6 +18,7 @@ Saltify 是一个跨平台、可扩展的 Kotlin QQ Bot 框架 & Milky SDK。
 
 ```kotlin
 dependencies {
+    // 核心模块
     implementation("org.ntqqrev:saltify-core:$saltifyVersion")
 
     // 你可以选择为 Ktor client 使用不同的引擎而不是 cio，这里只是一个推荐。

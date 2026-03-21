@@ -4,6 +4,9 @@ import 'nextra-theme-docs/style.css';
 import './styles.css';
 import { Head, Search } from 'nextra/components';
 import { Metadata } from 'next';
+import React from "react";
+import Image from 'next/image';
+import { SALTIFY_VERSION } from './version';
 
 export const metadata: Metadata = {
   title: 'Saltify 文档',
@@ -19,8 +22,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       navbar={
         <Navbar
           logo={
-            <div style={{ fontSize: '1.15rem' }}>
-              <b>Saltify</b> 文档
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Image src="/saltify-150.png" alt="Saltify Logo" width={40} height={40} style={{ borderRadius: '8px' }} />
+              <div style={{ marginLeft: '0.75rem' }} />
+              <div style={{ fontSize: '1.15rem' }}>
+                <b>Saltify</b> Docs
+                <div style={{ fontSize: '0.75rem' }}>
+                  <code>v{SALTIFY_VERSION}</code>
+                </div>
+              </div>
             </div>
           }
           projectLink={'https://github.com/SaltifyDev/saltify'}

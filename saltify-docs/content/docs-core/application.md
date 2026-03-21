@@ -8,7 +8,7 @@
 val client = SaltifyApplication {
     connection {
         baseUrl = "http://localhost:3000"
-        accessToken = "your_token" // 选填：访问令牌（不用加 Bearer）
+        accessToken = "your_token" // 访问令牌
 
         // 事件服务连接配置
         events {
@@ -16,14 +16,14 @@ val client = SaltifyApplication {
             autoReconnect = true
         }
     }
-}.start() // 不要忘记这里的 start() 调用！
+}.start()
 ```
 
 事件服务连接不会自动建立，你需要手动调用 `connectEvent()` 才会真正开始监听事件。
 
 ```kotlin
 suspend fun main() {
-    val client = SaltifyApplication { /* ... */ }
+    val client = SaltifyApplication { /* ... */ }.start()
 
     client.connectEvent() 
     

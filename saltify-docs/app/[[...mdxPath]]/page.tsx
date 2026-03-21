@@ -2,7 +2,9 @@ import { generateStaticParamsFor, importPage } from 'nextra/pages';
 import { useMDXComponents as getMDXComponents } from '../../mdx-components';
 import { Metadata } from 'next';
 
-export const generateStaticParams = generateStaticParamsFor('mdxPath');
+export const generateStaticParams = async () => {
+  return generateStaticParamsFor('mdxPath')();
+};
 
 type Props = {
   params: Promise<{ slug: string; mdxPath: string[] }>;
