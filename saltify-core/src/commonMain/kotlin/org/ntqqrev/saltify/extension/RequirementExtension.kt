@@ -7,7 +7,7 @@ import org.ntqqrev.saltify.model.PermissionLevel
 
 public fun SaltifyCommandRequirementContext.user(vararg targetId: Long): CommandRequirement =
     CommandRequirement {
-        context.event.data.senderId in targetId
+        context.event.senderId in targetId
     }
 
 public fun SaltifyCommandRequirementContext.group(vararg targetId: Long): CommandRequirement =

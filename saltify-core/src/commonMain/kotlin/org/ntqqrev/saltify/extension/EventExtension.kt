@@ -45,8 +45,8 @@ public val Event.MessageReceive.senderPermissionLevel: PermissionLevel
         in SaltifyBotConfig.superUsers -> PermissionLevel.SuperUser
         in SaltifyBotConfig.restrictedUsers -> PermissionLevel.Restricted
         else -> when ((data as? IncomingMessage.Group)?.groupMember?.role) {
-            "owner" -> PermissionLevel.Owner
-            "admin" -> PermissionLevel.Admin
+            "owner" -> PermissionLevel.GroupOwner
+            "admin" -> PermissionLevel.GroupAdmin
             else -> PermissionLevel.Everyone
         }
     }

@@ -19,12 +19,12 @@ public open class PermissionLevel(
     /**
      * 群管理
      */
-    public object Admin : PermissionLevel(100)
+    public object GroupAdmin : PermissionLevel(100)
 
     /**
      * 群主
      */
-    public object Owner : PermissionLevel(200)
+    public object GroupOwner : PermissionLevel(200)
 
     /**
      * 超级用户

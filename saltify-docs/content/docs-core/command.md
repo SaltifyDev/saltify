@@ -130,7 +130,7 @@ client.command("stop") {
 ```kotlin
 fun SaltifyCommandRequirementContext.user(vararg targetId: Long) =
     CommandRequirement {
-        context.event.data.senderId in targetId
+        context.event.senderId in targetId
     }
 ```
 
