@@ -18,10 +18,15 @@ class PluginTest {
         val client = SaltifyApplication {
             connection {
                 baseUrl = "http://localhost:3000"
+
                 events {
                     type = EventConnectionType.WebSocket
                     autoReconnect = false
                 }
+            }
+
+            bot {
+                superUsers = mutableListOf(3650502250, 3521766148)
             }
 
             install(testPlugin) {

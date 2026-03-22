@@ -16,6 +16,11 @@ val client = SaltifyApplication {
             autoReconnect = true
         }
     }
+
+    // 在定义时调用与直接修改全局单例 SaltifyBotConfig 无异
+    bot {
+        superUsers = mutableListOf(3650502250, 3521766148)
+    }
 }.start()
 ```
 

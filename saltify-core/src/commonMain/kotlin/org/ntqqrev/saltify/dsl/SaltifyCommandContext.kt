@@ -13,8 +13,10 @@ import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.recallGroupMessage
 import org.ntqqrev.saltify.core.recallPrivateMessage
+import org.ntqqrev.saltify.entity.SaltifyCommandRequirementContext
 import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.model.CommandError
+import org.ntqqrev.saltify.model.CommandRequirement
 import org.ntqqrev.saltify.model.milky.SendMessageOutput
 import kotlin.reflect.KClass
 import kotlin.time.Duration
@@ -28,12 +30,20 @@ public class SaltifyCommandContext internal constructor() {
     internal var groupExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
     internal var failureBlock: (suspend SaltifyCommandExecutionContext.(CommandError) -> Unit)? = null
+    internal var requirementBlock: (SaltifyCommandRequirementContext.() -> CommandRequirement)? = null
 
     /**
      * 注册一个子指令。
      */
     public fun subCommand(name: String, block: SaltifyCommandContext.() -> Unit) {
         subCommands.add(name to SaltifyCommandContext().apply(block))
+    }
+
+    /**
+     * 定义指令执行要求。若不满足，静默返回。
+     */
+    public fun require(block: SaltifyCommandRequirementContext.() -> CommandRequirement) {
+        this.requirementBlock = block
     }
 
     /**

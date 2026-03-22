@@ -13,6 +13,7 @@ import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.recallGroupMessage
 import org.ntqqrev.saltify.core.recallPrivateMessage
 import org.ntqqrev.saltify.core.text
+import org.ntqqrev.saltify.entity.SaltifyBotConfig
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.regex
@@ -68,7 +69,7 @@ public class SaltifyPluginContext internal constructor(
      */
     public fun command(
         name: String,
-        prefix: String = "/",
+        prefix: String = SaltifyBotConfig.commandPrefix,
         block: SaltifyCommandContext.() -> Unit
     ): Job = client.command(name, prefix, pluginScope, block)
 

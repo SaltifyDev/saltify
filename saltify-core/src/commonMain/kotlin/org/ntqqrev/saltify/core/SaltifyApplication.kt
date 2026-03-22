@@ -34,7 +34,7 @@ import kotlin.time.Clock
  * 一个 Saltify 应用实例
  */
 @WithApiExtension
-public sealed class SaltifyApplication(protected val config: SaltifyApplicationConfig) : AutoCloseable {
+public sealed class SaltifyApplication(internal val config: SaltifyApplicationConfig) : AutoCloseable {
     public companion object {
         /**
          * 创建一个 Saltify 应用实例。
@@ -201,6 +201,8 @@ public sealed class SaltifyApplication(protected val config: SaltifyApplicationC
         loggingListenerJob.cancel()
         httpClient.close()
         applicationScope.cancel()
+
+        logger.info("Saltify 已关闭")
     }
 }
 

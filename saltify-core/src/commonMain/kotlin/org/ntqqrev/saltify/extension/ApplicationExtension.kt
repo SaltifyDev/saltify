@@ -12,6 +12,8 @@ import org.ntqqrev.saltify.dsl.ParameterParseResult
 import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
+import org.ntqqrev.saltify.entity.SaltifyBotConfig
+import org.ntqqrev.saltify.entity.SaltifyCommandRequirementContext
 import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
 import kotlin.reflect.KClass
@@ -58,7 +60,7 @@ private val spaceRegex = Regex("\\s+")
  */
 public fun SaltifyApplication.command(
     name: String,
-    prefix: String = "/",
+    prefix: String = SaltifyBotConfig.commandPrefix,
     scope: CoroutineScope = extensionScope,
     builder: SaltifyCommandContext.() -> Unit
 ): Job {
@@ -126,9 +128,9 @@ private suspend fun executeCommand(
 
     val execution = SaltifyCommandExecutionContext(client, event, name, argumentMap)
 
-    if (errors.isNotEmpty()) {
-        val handler = dsl.failureBlock ?: return
-        return execution.handler(errors.first())
+    dsl.requirementBlock?.let { block ->
+        val requirement = SaltifyCommandRequirementContext(execution).block()
+        if (!requirement.satisfies()) return
     }
 
     val startInstant = Clock.System.now()

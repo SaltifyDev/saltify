@@ -95,7 +95,7 @@ client.command("shutdown") {
     onExecute {
         respond("真的要关机吗？")
         
-        // 等待该用户在同一上下文中发送的下一条消息（默认 30 秒超时）
+        // 等待该用户在同一上下文中发送的下一条消息
         val replyEvent = awaitNextMessage(timeout = 30.seconds)
         
         if (replyEvent == null) {
@@ -105,4 +105,31 @@ client.command("shutdown") {
         }
     }
 }
+```
+
+## Requirements
+
+Requirements 是一个用于指令鉴权的语法，妥当使用可以减少很多 onExecute 块内的判断条件。
+
+```kotlin
+client.command("stop") {
+    require { user(3650502250, 3521766148) }
+    
+    onExecute {
+        @OptIn(DelicateCoroutinesApi::class)
+        GlobalScope.launch {
+            client.disconnectEvent()
+            client.close()
+        }
+    }
+}
+```
+
+相信效果是什么不需要解释，自定义这么一个 requirement 函数也很简单：
+
+```kotlin
+fun SaltifyCommandRequirementContext.user(vararg targetId: Long) =
+    CommandRequirement {
+        context.event.data.senderId in targetId
+    }
 ```
