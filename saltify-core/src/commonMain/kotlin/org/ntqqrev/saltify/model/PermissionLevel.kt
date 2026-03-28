@@ -17,16 +17,6 @@ public open class PermissionLevel(
     public object Everyone : PermissionLevel(0)
 
     /**
-     * 群管理
-     */
-    public object GroupAdmin : PermissionLevel(100)
-
-    /**
-     * 群主
-     */
-    public object GroupOwner : PermissionLevel(200)
-
-    /**
      * 超级用户
      */
     public object SuperUser : PermissionLevel(Int.MAX_VALUE)

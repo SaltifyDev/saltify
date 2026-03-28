@@ -17,5 +17,20 @@ public fun SaltifyCommandRequirementContext.group(vararg targetId: Long): Comman
 
 public fun SaltifyCommandRequirementContext.perm(targetLevel: PermissionLevel): CommandRequirement =
     CommandRequirement {
-        context.event.senderPermissionLevel >= targetLevel
+        permissionLevelOf(context.event.senderId) >= targetLevel
     }
+
+public val SaltifyCommandRequirementContext.isGroupAdmin: CommandRequirement
+    get() = CommandRequirement {
+        val data = context.event.data as? IncomingMessage.Group
+        data?.groupMember?.role == "admin"
+    }
+
+public val SaltifyCommandRequirementContext.isGroupOwner: CommandRequirement
+    get() = CommandRequirement {
+        val data = context.event.data as? IncomingMessage.Group
+        data?.groupMember?.role == "owner"
+    }
+
+public val SaltifyCommandRequirementContext.isGroupAdminOrOwner: CommandRequirement
+    get() = isGroupAdmin or isGroupOwner

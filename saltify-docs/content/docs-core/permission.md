@@ -4,8 +4,6 @@ Saltify 提供了内置的一套简易权限管理方案。默认支持如下几
 
 - **Restricted** – 受限制 (Int.MIN_VALUE)
 - **Everyone** – 所有人 (0)
-- **GroupAdmin** – 群管理员 (100)
-- **GroupOwner** – 群主 (200)
 - **SuperUser** – 最高权限 (Int.MAX_VALUE)
 
 可以这样使用权限 API:
@@ -21,10 +19,10 @@ client.command("stop") {
 }
 
 client.on<Event.MessageReceive> { event ->
-    if (event.senderPermissionLevel >= PermissionLevel.GroupAdmin) {
+    if (permissionLevelOf(event.senderId) >= PermissionLevel.SuperUser) {
         TODO()
     }
 }
 ```
 
-需要注意的是，requirements 判定失败是默认返回的，所以上例1所示适用范围可能较窄。
+需要注意的是，requirements 判定失败是静默返回的，所以上例1所示适用情况可能较少。

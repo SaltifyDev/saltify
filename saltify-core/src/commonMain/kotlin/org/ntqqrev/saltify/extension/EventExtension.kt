@@ -8,8 +8,6 @@ import org.ntqqrev.saltify.core.sendGroupMessage
 import org.ntqqrev.saltify.core.sendPrivateMessage
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
-import org.ntqqrev.saltify.entity.SaltifyBotConfig
-import org.ntqqrev.saltify.model.PermissionLevel
 import org.ntqqrev.saltify.model.milky.SendMessageOutput
 
 /**
@@ -36,17 +34,3 @@ public suspend inline fun Event.MessageReceive.respond(
     client: SaltifyApplication,
     text: String
 ): SendMessageOutput = respond(client) { text(text) }
-
-/**
- * 获取发送者的权限等级。
- */
-public val Event.MessageReceive.senderPermissionLevel: PermissionLevel
-    get() = when (senderId) {
-        in SaltifyBotConfig.superUsers -> PermissionLevel.SuperUser
-        in SaltifyBotConfig.restrictedUsers -> PermissionLevel.Restricted
-        else -> when ((data as? IncomingMessage.Group)?.groupMember?.role) {
-            "owner" -> PermissionLevel.GroupOwner
-            "admin" -> PermissionLevel.GroupAdmin
-            else -> PermissionLevel.Everyone
-        }
-    }
