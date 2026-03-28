@@ -32,5 +32,5 @@ public suspend fun Event.MessageReceive.respond(
  */
 public suspend inline fun Event.MessageReceive.respond(
     client: SaltifyApplication,
-    text: String
-): SendMessageOutput = respond(client) { text(text) }
+    text: Any?
+): SendMessageOutput = respond(client) { text(text.toString()) }

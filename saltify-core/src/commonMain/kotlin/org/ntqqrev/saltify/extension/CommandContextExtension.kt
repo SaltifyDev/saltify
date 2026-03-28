@@ -18,5 +18,5 @@ public inline fun <reified T : Any> SaltifyCommandContext.parameter(
  * 响应事件。这是用于返回纯文本的简写。
  */
 public suspend inline fun SaltifyCommandExecutionContext.respond(
-    text: String
-): SendMessageOutput = respond { text(text) }
+    text: Any?
+): SendMessageOutput = respond { text(text.toString()) }

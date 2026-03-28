@@ -41,8 +41,7 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
                         )
 
                         while (isActive) {
-                            val event = receiveDeserialized<Event>()
-                            events.emit(event)
+                            events.emit(receiveDeserialized<Event>())
                         }
                     }
                 }

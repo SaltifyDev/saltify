@@ -25,4 +25,4 @@ client.on<Event.MessageReceive> { event ->
 }
 ```
 
-需要注意的是，requirements 判定失败是静默返回的，所以上例1所示适用情况可能较少。
+需要注意的是，requirements 判定失败时会静默返回，因此上述第一种用法的适用场景可能相对有限。

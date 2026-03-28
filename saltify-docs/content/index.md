@@ -19,7 +19,7 @@ dependencies {
     // 核心模块
     implementation("org.ntqqrev:saltify-core:1.2.0-RC2.1")
 
-    // 你可以选择为 Ktor client 使用不同的引擎而不是 cio，这里只是一个推荐。
+    // 你可以选择为 Ktor client 使用不同的引擎，此处仅作推荐。
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
     // 日志相关实现。同样，可以选择你所需要的平台日志实现。

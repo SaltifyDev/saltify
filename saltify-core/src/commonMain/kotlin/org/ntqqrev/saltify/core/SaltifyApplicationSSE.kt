@@ -41,8 +41,7 @@ public class SaltifyApplicationSSE(config: SaltifyApplicationConfig) : SaltifyAp
                         incoming.collect { sseEvent ->
                             if (sseEvent.event == "milky_event") {
                                 sseEvent.data?.let { data ->
-                                    val event = milkyJsonModule.decodeFromString<Event>(data)
-                                    events.emit(event)
+                                    events.emit(milkyJsonModule.decodeFromString<Event>(data))
                                 }
                             }
                         }

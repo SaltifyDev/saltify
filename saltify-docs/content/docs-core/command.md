@@ -26,7 +26,7 @@ client.command("order", prefix = "/") {
 
 onFailure 块是**解析**失败的处理，注意这里不是异常，而是指令参数类型不匹配、过多参数、参数缺失等预期内错误。
 
-这里的 error 是一个 `Typed error`，说的简单点，密封类。你可以用 when 判断到底是什么问题，并加以处理。
+这里的 error 是一个 `Typed error`，简单来说就是密封类。你可以用 when 判断具体是什么问题，并加以处理。
 
 默认情况下，如果不定义这个块，会忽视所有解析错误，并对指令不做回复。
 
@@ -71,7 +71,7 @@ command("math") {
 
         onExecute {
             val result = a.value + b.value
-            respond("$result")
+            respond(result)
         }
     }
 
@@ -109,7 +109,7 @@ client.command("shutdown") {
 
 ## Requirements
 
-Requirements 是一个用于指令鉴权的语法，妥当使用可以减少很多 onExecute 块内的判断条件。
+Requirements 是用于指令鉴权的语法，合理使用可以减少很多 onExecute 块内的判断逻辑。
 
 ```kotlin
 client.command("stop") {
@@ -125,7 +125,7 @@ client.command("stop") {
 }
 ```
 
-相信效果是什么不需要解释，自定义这么一个 requirement 函数也很简单：
+效果不言自明，自定义这样的 requirement 函数也很简单：
 
 ```kotlin
 fun SaltifyCommandRequirementContext.user(vararg targetId: Long) =

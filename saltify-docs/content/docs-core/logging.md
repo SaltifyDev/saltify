@@ -4,7 +4,7 @@ Saltify 使用 KtorSimpleLogger 输出运行时日志。
 
 ## JVM 平台
 
-这里依照快速开始中的日志配置，使用 Logback 框架。
+以快速开始中的日志配置为例，这里使用 Logback 框架。
 
 ### 配置日志
 

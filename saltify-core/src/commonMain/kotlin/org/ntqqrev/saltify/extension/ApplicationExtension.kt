@@ -46,7 +46,8 @@ public inline fun SaltifyApplication.regex(
     val regex = Regex(regex)
 
     return on<Event.MessageReceive>(scope) { event ->
-        val text = event.segments.plainText
+        val text = event.segments.filterIsInstance<IncomingSegment.Text>()
+            .joinToString("") { it.text }
 
         val matches = regex.findAll(text)
         if (matches.any()) block(event, matches)
@@ -71,12 +72,10 @@ public fun SaltifyApplication.command(
             .joinToString("") { it.text }
             .trim()
 
-        if (rawText != "$prefix$name" && !rawText.startsWith("$prefix$name ")) return@on
+        val tokens = if (rawText.isEmpty()) emptyList() else rawText.split(spaceRegex)
+        if (tokens.isEmpty() || tokens[0] != "$prefix$name") return@on
 
-        val content = rawText.removePrefix("$prefix$name").trim()
-        val tokens = if (content.isEmpty()) emptyList() else content.split(spaceRegex)
-
-        executeCommand(rootDsl, tokens, this, event, name)
+        executeCommand(rootDsl, tokens.drop(1), this, event, name)
     }
 }
 
@@ -87,21 +86,28 @@ private suspend fun executeCommand(
     event: Event.MessageReceive,
     name: String
 ) {
+    val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
+    val execution = SaltifyCommandExecutionContext(client, event, name, argumentMap)
+
+    dsl.requirementBlock?.let { block ->
+        val requirement = SaltifyCommandRequirementContext(execution).block()
+        if (!requirement.satisfies()) return
+    }
+
     if (tokens.isNotEmpty()) {
         val subName = tokens[0]
         val subCommand = dsl.subCommands.find { it.first == subName }
         if (subCommand != null) {
-            executeCommand(subCommand.second, tokens.drop(1), client, event, name)
+            executeCommand(subCommand.second, tokens.drop(1), client, event, "$name $subName")
             return
         }
     }
 
-    val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
     val errors = mutableListOf<CommandError>()
     val currentTokens = tokens.toMutableList()
 
     for (param in dsl.parameters) {
-        argumentMap[param] = when {
+        val result = when {
             currentTokens.isEmpty() -> ParameterParseResult.MissingParam
             param.isGreedy -> {
                 val value = currentTokens.joinToString(" ")
@@ -113,24 +119,18 @@ private suspend fun executeCommand(
                 convertValue(rawValue, param.type)?.let { ParameterParseResult.Success(it) }
                     ?: ParameterParseResult.InvalidParam(rawValue)
             }
-        }.also { res ->
-            when (res) {
-                is ParameterParseResult.MissingParam -> errors.add(CommandError.MissingParam(param))
-                is ParameterParseResult.InvalidParam -> errors.add(CommandError.InvalidParam(param, res.rawValue))
-                else -> {}
-            }
         }
+
+        argumentMap[param] = result
+        if (result is ParameterParseResult.MissingParam) errors.add(CommandError.MissingParam(param))
+        if (result is ParameterParseResult.InvalidParam) errors.add(CommandError.InvalidParam(param, result.rawValue))
     }
 
-    if (currentTokens.isNotEmpty()) {
-        errors.add(CommandError.TooManyArguments(currentTokens))
-    }
+    if (currentTokens.isNotEmpty()) errors.add(CommandError.TooManyArguments(currentTokens))
 
-    val execution = SaltifyCommandExecutionContext(client, event, name, argumentMap)
-
-    dsl.requirementBlock?.let { block ->
-        val requirement = SaltifyCommandRequirementContext(execution).block()
-        if (!requirement.satisfies()) return
+    if (errors.isNotEmpty()) {
+        dsl.failureBlock?.invoke(execution, errors.first())
+        return
     }
 
     val startInstant = Clock.System.now()

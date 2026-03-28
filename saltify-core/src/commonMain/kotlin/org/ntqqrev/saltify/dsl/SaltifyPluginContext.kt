@@ -85,8 +85,8 @@ public class SaltifyPluginContext internal constructor(
      */
     @ContextParametersMigrationNeeded
     public suspend fun Event.MessageReceive.respond(
-        text: String
-    ): SendMessageOutput = respond { text(text) }
+        text: Any?
+    ): SendMessageOutput = respond { text(text.toString()) }
 
     /**
      * 响应事件，并在指定延迟后撤回消息。
