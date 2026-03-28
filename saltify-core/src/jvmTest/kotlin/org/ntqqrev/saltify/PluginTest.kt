@@ -3,6 +3,8 @@ package org.ntqqrev.saltify
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.ntqqrev.milky.IncomingMessage
+import org.ntqqrev.saltify.builtin.plugin.commandHelp
+import org.ntqqrev.saltify.builtin.plugin.defaultLogging
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
@@ -32,6 +34,9 @@ class PluginTest {
             install(testPlugin) {
                 response = "Hello!!"
             }
+
+            install(commandHelp)
+            install(defaultLogging)
         }.start()
 
         client.connectEvent()

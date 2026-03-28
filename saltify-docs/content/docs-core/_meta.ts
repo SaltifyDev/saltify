@@ -6,4 +6,5 @@ export default {
   command: '指令开发',
   permission: '权限管理',
   logging: '日志实现',
+  'builtin-plugins': '内置插件',
 } satisfies MetaRecord;

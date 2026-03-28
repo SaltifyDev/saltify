@@ -19,14 +19,13 @@ import org.ntqqrev.saltify.annotation.WithApiExtension
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
 import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
 import org.ntqqrev.saltify.entity.InstalledPlugin
+import org.ntqqrev.saltify.entity.RegisteredCommandInfo
 import org.ntqqrev.saltify.exception.ApiCallException
-import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
 import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
-import org.ntqqrev.saltify.util.coroutine.saltifyComponent
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
@@ -101,6 +100,8 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
 
     private val loadedPlugins = mutableListOf<SaltifyPluginContext>()
 
+    internal val commandRegistry: MutableList<RegisteredCommandInfo> = mutableListOf()
+
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
@@ -125,13 +126,9 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
         }
     }
 
-    private lateinit var loggingListenerJob: Job
-
     public suspend fun start(): SaltifyApplication {
         logger.info("Saltify 正在启动...")
         val startInstant = Clock.System.now()
-
-        loggingListenerJob = startLoggingListeners()
 
         // 插件初始化
         config.installedPlugins.map { installed ->
@@ -198,64 +195,9 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
         loadedPlugins.forEach {
             it.onStopHooks.forEach { block -> block() }
         }
-        loggingListenerJob.cancel()
         httpClient.close()
         applicationScope.cancel()
 
         logger.info("Saltify 已关闭")
-    }
-}
-
-private fun SaltifyApplication.startLoggingListeners() = applicationScope.launch {
-    // 事件服务状态日志
-    applicationScope.launch {
-        eventConnectionStateFlow.collect {
-            when (it) {
-                is EventConnectionState.Connected ->
-                    logger.info("事件服务已连接, 使用协议：${it.type.name}")
-                is EventConnectionState.Disconnected -> {
-                    val error = it.throwable
-                    if (error != null && error !is CancellationException) logger.error("事件服务已断开", error)
-                }
-                is EventConnectionState.Connecting ->
-                    logger.info("事件服务正在连接...")
-                is EventConnectionState.Reconnecting ->
-                    logger.warn("事件服务断开, 将在 ${it.delay}ms 后尝试重连... (重试次数: ${it.attempt})", it.throwable)
-            }
-        }
-    }
-
-    // 错误日志
-    applicationScope.launch {
-        exceptionFlow.collect {
-            val component = it.first.saltifyComponent!!
-            when (component.type) {
-                SaltifyComponentType.Application ->
-                    logger.error("Saltify 根组件异常", it.second)
-                SaltifyComponentType.Plugin ->
-                    logger.error("Saltify 插件 ${component.name} 异常", it.second)
-                SaltifyComponentType.Extension ->
-                    logger.error("Saltify 基础扩展组件异常", it.second)
-            }
-        }
-    }
-
-    // 事件日志
-    applicationScope.launch {
-        eventFlow.collect {
-            when (it) {
-                is Event.MessageReceive -> {
-                    when (val data = it.data) {
-                        is IncomingMessage.Group ->
-                            logger.debug(
-                                "${data.groupMember.userId}(${data.group.groupId}): ${it.segments.plainText}"
-                            )
-                        else ->
-                            logger.debug("${it.peerId}: ${it.segments.plainText}")
-                    }
-                }
-                else -> {}
-            }
-        }
     }
 }

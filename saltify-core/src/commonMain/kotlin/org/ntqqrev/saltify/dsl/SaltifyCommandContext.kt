@@ -27,6 +27,11 @@ public class SaltifyCommandContext internal constructor() {
     internal val subCommands = mutableListOf<Pair<String, SaltifyCommandContext>>()
     internal val parameters = mutableListOf<SaltifyCommandParamDef<*>>()
     internal var executionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
+
+    /**
+     * 指令的描述信息。
+     */
+    public var description: String = ""
     internal var groupExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
     internal var failureBlock: (suspend SaltifyCommandExecutionContext.(CommandError) -> Unit)? = null

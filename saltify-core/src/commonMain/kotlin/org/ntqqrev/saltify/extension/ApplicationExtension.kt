@@ -12,10 +12,14 @@ import org.ntqqrev.saltify.dsl.ParameterParseResult
 import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
+import org.ntqqrev.saltify.entity.RegisteredCommandInfo
+import org.ntqqrev.saltify.entity.RegisteredSubCommandInfo
 import org.ntqqrev.saltify.entity.SaltifyBotConfig
 import org.ntqqrev.saltify.entity.SaltifyCommandRequirementContext
 import org.ntqqrev.saltify.model.CommandError
+import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
+import org.ntqqrev.saltify.util.coroutine.saltifyComponent
 import kotlin.reflect.KClass
 import kotlin.time.Clock
 
@@ -66,6 +70,21 @@ public fun SaltifyApplication.command(
     builder: SaltifyCommandContext.() -> Unit
 ): Job {
     val rootDsl = SaltifyCommandContext().apply(builder)
+
+    val component = scope.coroutineContext.saltifyComponent
+    val pluginName = if (component?.type == SaltifyComponentType.Plugin) component.name else null
+    commandRegistry.add(
+        RegisteredCommandInfo(
+            name = name,
+            prefix = prefix,
+            description = rootDsl.description,
+            parameters = rootDsl.parameters.toList(),
+            subCommands = rootDsl.subCommands.map { (subName, subCtx) ->
+                subCtx.toSubCommandInfo(subName)
+            },
+            pluginName = pluginName
+        )
+    )
 
     return on<Event.MessageReceive>(scope) { event ->
         val rawText = event.segments.filterIsInstance<IncomingSegment.Text>()
@@ -143,6 +162,14 @@ private suspend fun executeCommand(
 
     execution.logger.info("seq=${event.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
 }
+
+private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubCommandInfo =
+    RegisteredSubCommandInfo(
+        name = name,
+        description = description,
+        parameters = parameters.toList(),
+        subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommandInfo(subName) }
+    )
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> convertValue(value: String, type: KClass<T>): T? {
