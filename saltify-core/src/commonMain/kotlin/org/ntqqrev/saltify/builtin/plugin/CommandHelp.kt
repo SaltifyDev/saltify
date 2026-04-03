@@ -6,6 +6,7 @@ import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.entity.RegisteredCommandInfo
 import org.ntqqrev.saltify.entity.RegisteredSubCommandInfo
+import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.respond
 
 /**

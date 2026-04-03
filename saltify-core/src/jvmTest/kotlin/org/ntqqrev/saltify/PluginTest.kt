@@ -8,11 +8,15 @@ import org.ntqqrev.saltify.builtin.plugin.defaultLogging
 import org.ntqqrev.saltify.core.SaltifyApplication
 import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
+import org.ntqqrev.saltify.extension.awaitNextMessage
+import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.parameter
 import org.ntqqrev.saltify.extension.plainText
+import org.ntqqrev.saltify.extension.regex
 import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.model.EventConnectionType
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class PluginTest {
     @Test
@@ -40,7 +44,7 @@ class PluginTest {
         }.start()
 
         client.connectEvent()
-        delay(60000L)
+        delay(60000.milliseconds)
         client.disconnectEvent()
         client.close()
     }
@@ -59,8 +63,8 @@ class PluginTest {
         }
 
         // regex test
-        regex("""BV1\w{9}""") { event, matches ->
-            event.respond(matches.joinToString { it.value })
+        regex("""BV1\w{9}""") { matches ->
+            respond(matches.joinToString { it.value })
         }
 
         // config test

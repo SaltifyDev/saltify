@@ -1,41 +1,26 @@
 package org.ntqqrev.saltify.dsl
 
 import io.ktor.util.logging.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.IncomingMessage
-import org.ntqqrev.milky.OutgoingSegment
-import org.ntqqrev.saltify.annotation.ContextParametersMigrationNeeded
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.core.recallGroupMessage
-import org.ntqqrev.saltify.core.recallPrivateMessage
-import org.ntqqrev.saltify.entity.SaltifyCommandRequirementContext
-import org.ntqqrev.saltify.extension.respond
+import org.ntqqrev.saltify.entity.CommandRequirementContext
+import org.ntqqrev.saltify.context.EventExecutionContext
 import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.CommandRequirement
-import org.ntqqrev.saltify.model.milky.SendMessageOutput
 import kotlin.reflect.KClass
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 @SaltifyDsl
 public class SaltifyCommandContext internal constructor() {
     internal val subCommands = mutableListOf<Pair<String, SaltifyCommandContext>>()
     internal val parameters = mutableListOf<SaltifyCommandParamDef<*>>()
-    internal var executionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
-
-    /**
-     * 指令的描述信息。
-     */
     public var description: String = ""
-    internal var groupExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
-    internal var privateExecutionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
-    internal var failureBlock: (suspend SaltifyCommandExecutionContext.(CommandError) -> Unit)? = null
-    internal var requirementBlock: (SaltifyCommandRequirementContext.() -> CommandRequirement)? = null
+
+    internal var executionBlock: (suspend CommandExecutionContext.() -> Unit)? = null
+    internal var groupExecutionBlock: (suspend CommandExecutionContext.() -> Unit)? = null
+    internal var privateExecutionBlock: (suspend CommandExecutionContext.() -> Unit)? = null
+    internal var failureBlock: (suspend CommandExecutionContext.(CommandError) -> Unit)? = null
+    internal var requirementBlock: (CommandRequirementContext.() -> CommandRequirement)? = null
 
     /**
      * 注册一个子指令。
@@ -47,128 +32,69 @@ public class SaltifyCommandContext internal constructor() {
     /**
      * 定义指令执行要求。若不满足，静默返回。
      */
-    public fun require(block: SaltifyCommandRequirementContext.() -> CommandRequirement) {
+    public fun require(block: CommandRequirementContext.() -> CommandRequirement) {
         this.requirementBlock = block
     }
 
     /**
-     * 定义一个指令参数。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
+     * 定义一个指令参数。请搭配 [CommandExecutionContext.value] 使用。
      */
     public fun <T : Any> parameter(
         type: KClass<T>,
         name: String,
         description: String = ""
-    ): SaltifyCommandParamDef<T> {
-        return SaltifyCommandParamDef(type, name, description).also { parameters.add(it) }
-    }
+    ): SaltifyCommandParamDef<T> =
+        SaltifyCommandParamDef(type, name, description).also { parameters.add(it) }
 
     /**
-     * 定义一个贪婪字符串参数。该参数会捕获剩余的**所有**文本内容。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
+     * 定义一个贪婪字符串参数。该参数会捕获剩余的**所有**文本内容。请搭配 [CommandExecutionContext.value] 使用。
      */
     public fun greedyStringParameter(
         name: String,
         description: String = ""
-    ): SaltifyCommandParamDef<String> {
-        return SaltifyCommandParamDef(String::class, name, description, isGreedy = true).also { parameters.add(it) }
-    }
+    ): SaltifyCommandParamDef<String> =
+        SaltifyCommandParamDef(String::class, name, description, isGreedy = true).also { parameters.add(it) }
 
     /**
      * 设置通用的指令执行逻辑。
      */
-    public fun onExecute(block: suspend SaltifyCommandExecutionContext.() -> Unit) {
+    public fun onExecute(block: suspend CommandExecutionContext.() -> Unit) {
         executionBlock = block
     }
 
     /**
      * 设置仅在群聊中触发的执行逻辑。优先级高于 [onExecute]，定义后在群聊不会使用 [onExecute]。
      */
-    public fun onGroupExecute(block: suspend SaltifyCommandExecutionContext.() -> Unit) {
+    public fun onGroupExecute(block: suspend CommandExecutionContext.() -> Unit) {
         groupExecutionBlock = block
     }
 
     /**
-     * 设置仅在私聊中触发的执行逻辑。优先级高于 [onExecute]，定义后在群聊不会使用 [onExecute]。
+     * 设置仅在私聊中触发的执行逻辑。优先级高于 [onExecute]，定义后在私聊不会使用 [onExecute]。
      */
-    public fun onPrivateExecute(block: suspend SaltifyCommandExecutionContext.() -> Unit) {
+    public fun onPrivateExecute(block: suspend CommandExecutionContext.() -> Unit) {
         privateExecutionBlock = block
     }
 
     /**
      * 当指令**解析**失败时执行的逻辑。
      */
-    public fun onFailure(block: suspend SaltifyCommandExecutionContext.(CommandError) -> Unit) {
+    public fun onFailure(block: suspend CommandExecutionContext.(CommandError) -> Unit) {
         failureBlock = block
     }
 }
 
-public class SaltifyCommandExecutionContext(
-    public val client: SaltifyApplication,
-    public val event: Event.MessageReceive,
+public class CommandExecutionContext(
+    public override val event: Event.MessageReceive,
+    public override val client: SaltifyApplication,
     commandName: String,
     private val argumentMap: Map<SaltifyCommandParamDef<*>, Any?>
-) {
+) : EventExecutionContext<Event.MessageReceive>(event, client) {
     public val logger: Logger = KtorSimpleLogger("Saltify/cmd:$commandName")
 
-    /**
-     * 获取已解析的参数值。你可能更需要的是 [SaltifyCommandParamDef.value]。
-     */
-    @Suppress("UNCHECKED_CAST")
-    public fun <T : Any> capture(capturer: SaltifyCommandParamDef<T>): T {
-        val result = argumentMap[capturer]
-        return (result as? ParameterParseResult.Success<T>)?.value
-            ?: error("Parameter ${capturer.name} accessed without validation")
-    }
-
-    /**
-     * 获取已解析的参数值。这是 [capture] 的简写形式。
-     */
-    @ContextParametersMigrationNeeded
     @Suppress("UNCHECKED_CAST")
     public val <T : Any> SaltifyCommandParamDef<T>.value: T
-        get() = capture(this)
-
-    /**
-     * 响应指令。
-     */
-    public suspend fun respond(
-        block: MutableList<OutgoingSegment>.() -> Unit
-    ): SendMessageOutput = event.respond(client, block)
-
-    /**
-     * 响应指令，并在指定延迟后撤回消息。
-     */
-    @ContextParametersMigrationNeeded
-    public suspend inline fun respondWithRecall(
-        delay: Duration,
-        noinline block: MutableList<OutgoingSegment>.() -> Unit
-    ) {
-        val output = respond(block)
-        delay(delay)
-        when (val data = event.data) {
-            is IncomingMessage.Group -> client.recallGroupMessage(data.peerId, output.messageSeq)
-            else -> client.recallPrivateMessage(data.peerId, output.messageSeq)
-        }
-    }
-
-    /**
-     * 获取由指令触发者发送的下一条消息事件。超时返回 null。
-     */
-    public suspend fun awaitNextMessage(timeout: Duration = 30.seconds): Event.MessageReceive? {
-        val messageFlow = client.eventFlow.filterIsInstance<Event.MessageReceive>()
-
-        return withTimeoutOrNull(timeout) {
-            messageFlow.first { nextEvent ->
-                when (val contextData = event.data) {
-                    is IncomingMessage.Group -> {
-                        nextEvent.data is IncomingMessage.Group &&
-                            (nextEvent.data as IncomingMessage.Group).group.groupId == contextData.group.groupId &&
-                            nextEvent.senderId == event.senderId
-                    }
-                    else -> nextEvent.senderId == event.senderId
-                }
-            }
-        }
-    }
+        get() = (argumentMap[this] as? ParameterParseResult.Success<T>)?.value!!
 }
 
 /**
