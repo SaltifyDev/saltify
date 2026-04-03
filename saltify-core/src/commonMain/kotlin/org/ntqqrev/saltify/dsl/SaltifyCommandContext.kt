@@ -4,8 +4,8 @@ import io.ktor.util.logging.*
 import org.ntqqrev.milky.Event
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.entity.CommandRequirementContext
-import org.ntqqrev.saltify.context.EventExecutionContext
+import org.ntqqrev.saltify.entity.CommandRequirementMatch
+import org.ntqqrev.saltify.entity.env.EventEnvironment
 import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.CommandRequirement
 import kotlin.reflect.KClass
@@ -20,7 +20,7 @@ public class SaltifyCommandContext internal constructor() {
     internal var groupExecutionBlock: (suspend CommandExecutionContext.() -> Unit)? = null
     internal var privateExecutionBlock: (suspend CommandExecutionContext.() -> Unit)? = null
     internal var failureBlock: (suspend CommandExecutionContext.(CommandError) -> Unit)? = null
-    internal var requirementBlock: (CommandRequirementContext.() -> CommandRequirement)? = null
+    internal var requirementBlock: (CommandRequirementMatch.() -> CommandRequirement)? = null
 
     /**
      * 注册一个子指令。
@@ -32,7 +32,7 @@ public class SaltifyCommandContext internal constructor() {
     /**
      * 定义指令执行要求。若不满足，静默返回。
      */
-    public fun require(block: CommandRequirementContext.() -> CommandRequirement) {
+    public fun require(block: CommandRequirementMatch.() -> CommandRequirement) {
         this.requirementBlock = block
     }
 
@@ -89,7 +89,7 @@ public class CommandExecutionContext(
     public override val client: SaltifyApplication,
     commandName: String,
     private val argumentMap: Map<SaltifyCommandParamDef<*>, Any?>
-) : EventExecutionContext<Event.MessageReceive>(event, client) {
+) : EventEnvironment<Event.MessageReceive>(event, client) {
     public val logger: Logger = KtorSimpleLogger("Saltify/cmd:$commandName")
 
     @Suppress("UNCHECKED_CAST")

@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
-import org.ntqqrev.saltify.context.event
+import org.ntqqrev.saltify.entity.env.event
 import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.model.EventConnectionState

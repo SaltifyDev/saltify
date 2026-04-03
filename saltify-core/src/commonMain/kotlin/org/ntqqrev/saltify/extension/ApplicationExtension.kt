@@ -12,14 +12,14 @@ import org.ntqqrev.saltify.dsl.ParameterParseResult
 import org.ntqqrev.saltify.dsl.SaltifyCommandContext
 import org.ntqqrev.saltify.dsl.CommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
-import org.ntqqrev.saltify.entity.RegisteredCommandInfo
-import org.ntqqrev.saltify.entity.RegisteredSubCommandInfo
+import org.ntqqrev.saltify.entity.RegisteredCommand
+import org.ntqqrev.saltify.entity.RegisteredSubCommand
 import org.ntqqrev.saltify.entity.SaltifyBotConfig
-import org.ntqqrev.saltify.entity.CommandRequirementContext
-import org.ntqqrev.saltify.context.ApplicationExecutionContext
-import org.ntqqrev.saltify.context.EventExecutionContext
-import org.ntqqrev.saltify.context.client
-import org.ntqqrev.saltify.context.event
+import org.ntqqrev.saltify.entity.CommandRequirementMatch
+import org.ntqqrev.saltify.entity.env.ApplicationEnvironment
+import org.ntqqrev.saltify.entity.env.EventEnvironment
+import org.ntqqrev.saltify.entity.env.client
+import org.ntqqrev.saltify.entity.env.event
 import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
@@ -30,17 +30,17 @@ import kotlin.time.Clock
 /**
  * 注册一个事件监听器。
  */
-context(_: ApplicationExecutionContext)
+context(_: ApplicationEnvironment)
 public inline fun <reified T : Event> on(
     scope: CoroutineScope = client.extensionScope,
-    crossinline block: suspend context(EventExecutionContext<T>) () -> Unit
+    crossinline block: suspend context(EventEnvironment<T>) () -> Unit
 ): Job = scope.launch {
     client.eventFlow
         .filterIsInstance<T>()
         .collect {
             launch {
                 runCatchingToExceptionFlow {
-                    context(EventExecutionContext(it, client)) { block() }
+                    context(EventEnvironment(it, client)) { block() }
                 }
             }
         }
@@ -49,11 +49,11 @@ public inline fun <reified T : Event> on(
 /**
  * 注册一个消息正则匹配监听器。
  */
-context(_: ApplicationExecutionContext)
+context(_: ApplicationEnvironment)
 public inline fun regex(
     regex: String,
     scope: CoroutineScope = client.extensionScope,
-    crossinline block: suspend context(EventExecutionContext<Event.MessageReceive>) (matches: Sequence<MatchResult>) -> Unit
+    crossinline block: suspend context(EventEnvironment<Event.MessageReceive>) (matches: Sequence<MatchResult>) -> Unit
 ): Job {
     val regex = Regex(regex)
 
@@ -71,7 +71,7 @@ private val spaceRegex = Regex("\\s+")
 /**
  * 注册一个指令。
  */
-context(_: ApplicationExecutionContext)
+context(_: ApplicationEnvironment)
 public fun command(
     name: String,
     prefix: String = SaltifyBotConfig.commandPrefix,
@@ -83,7 +83,7 @@ public fun command(
     val component = scope.coroutineContext.saltifyComponent
     val pluginName = if (component?.type == SaltifyComponentType.Plugin) component.name else null
     client.commandRegistry.add(
-        RegisteredCommandInfo(
+        RegisteredCommand(
             name = name,
             prefix = prefix,
             description = rootDsl.description,
@@ -118,7 +118,7 @@ private suspend fun executeCommand(
     val execution = CommandExecutionContext(event, client, name, argumentMap)
 
     dsl.requirementBlock?.let { block ->
-        val requirement = CommandRequirementContext(execution).block()
+        val requirement = CommandRequirementMatch(execution).block()
         if (!requirement.satisfies()) return
     }
 
@@ -172,8 +172,8 @@ private suspend fun executeCommand(
     execution.logger.info("seq=${event.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
 }
 
-private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubCommandInfo =
-    RegisteredSubCommandInfo(
+private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubCommand =
+    RegisteredSubCommand(
         name = name,
         description = description,
         parameters = parameters.toList(),

@@ -4,14 +4,14 @@ import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.context.ApplicationExecutionContext
+import org.ntqqrev.saltify.entity.env.ApplicationEnvironment
 
 @SaltifyDsl
 public class SaltifyPluginContext internal constructor(
     pluginName: String,
     public override val client: SaltifyApplication,
     @PublishedApi internal val pluginScope: CoroutineScope
-) : CoroutineScope by pluginScope, ApplicationExecutionContext(client) {
+) : CoroutineScope by pluginScope, ApplicationEnvironment(client) {
     public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$pluginName")
 
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
