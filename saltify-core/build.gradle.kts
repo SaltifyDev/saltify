@@ -16,7 +16,7 @@ dependencies {
 kotlin {
     sourceSets {
         commonMain {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            kotlin.srcDir("./build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
