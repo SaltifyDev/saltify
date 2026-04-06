@@ -4,8 +4,9 @@ import org.ntqqrev.saltify.core.forward
 import org.ntqqrev.saltify.core.node
 import org.ntqqrev.saltify.core.text
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
-import org.ntqqrev.saltify.entity.RegisteredCommandInfo
-import org.ntqqrev.saltify.entity.RegisteredSubCommandInfo
+import org.ntqqrev.saltify.entity.RegisteredCommand
+import org.ntqqrev.saltify.entity.RegisteredSubCommand
+import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.respond
 
 /**
@@ -49,7 +50,7 @@ public val commandHelp: SaltifyPlugin<Unit> = SaltifyPlugin("command-help") {
 
 private fun buildCommandGroupText(
     pluginName: String?,
-    commands: List<RegisteredCommandInfo>
+    commands: List<RegisteredCommand>
 ): String = buildString {
     if (pluginName != null) {
         appendLine("插件 $pluginName: ")
@@ -81,7 +82,7 @@ private fun buildCommandGroupText(
 }.trimEnd()
 
 private fun StringBuilder.appendSubCommand(
-    sub: RegisteredSubCommandInfo,
+    sub: RegisteredSubCommand,
     parentPath: String,
     depth: Int
 ) {

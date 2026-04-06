@@ -3,3 +3,6 @@ buildUponDefaultConfig: true
 style:
   WildcardImport:
     active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 150

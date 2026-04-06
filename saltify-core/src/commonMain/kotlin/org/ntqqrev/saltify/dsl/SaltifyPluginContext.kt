@@ -2,35 +2,20 @@ package org.ntqqrev.saltify.dsl
 
 import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.IncomingMessage
-import org.ntqqrev.milky.OutgoingSegment
-import org.ntqqrev.saltify.annotation.ContextParametersMigrationNeeded
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.core.recallGroupMessage
-import org.ntqqrev.saltify.core.recallPrivateMessage
-import org.ntqqrev.saltify.core.text
-import org.ntqqrev.saltify.entity.SaltifyBotConfig
-import org.ntqqrev.saltify.extension.command
-import org.ntqqrev.saltify.extension.on
-import org.ntqqrev.saltify.extension.regex
-import org.ntqqrev.saltify.extension.respond
-import org.ntqqrev.saltify.model.milky.SendMessageOutput
-import kotlin.time.Duration
+import org.ntqqrev.saltify.entity.env.ApplicationEnvironment
 
 @SaltifyDsl
 public class SaltifyPluginContext internal constructor(
     pluginName: String,
-    public val client: SaltifyApplication,
+    public override val client: SaltifyApplication,
     @PublishedApi internal val pluginScope: CoroutineScope
-) : CoroutineScope by pluginScope {
+) : CoroutineScope by pluginScope, ApplicationEnvironment(client) {
+    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$pluginName")
+
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
     internal val onStopHooks = mutableListOf<() -> Unit>()
-
-    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$pluginName")
 
     /**
      * 插件被加载，即 [SaltifyApplication.Companion.invoke] 后执行的逻辑。
@@ -44,64 +29,6 @@ public class SaltifyPluginContext internal constructor(
      */
     public fun onStop(block: () -> Unit) {
         onStopHooks.add(block)
-    }
-
-    /**
-     * 注册一个事件监听器。
-     */
-    public inline fun <reified T : Event> on(
-        crossinline block: suspend SaltifyApplication.(event: T) -> Unit
-    ): Job = client.on(pluginScope, block)
-
-    /**
-     * 注册一个消息正则匹配监听器。
-     */
-    public inline fun regex(
-        regex: String,
-        crossinline block: suspend SaltifyApplication.(
-            event: Event.MessageReceive,
-            matches: Sequence<MatchResult>
-        ) -> Unit
-    ): Job = client.regex(regex, pluginScope, block)
-
-    /**
-     * 注册一个指令。
-     */
-    public fun command(
-        name: String,
-        prefix: String = SaltifyBotConfig.commandPrefix,
-        block: SaltifyCommandContext.() -> Unit
-    ): Job = client.command(name, prefix, pluginScope, block)
-
-    /**
-     * 响应事件。
-     */
-    public suspend fun Event.MessageReceive.respond(
-        block: MutableList<OutgoingSegment>.() -> Unit
-    ): SendMessageOutput = respond(client, block)
-
-    /**
-     * 响应事件。这是用于返回纯文本的简写。
-     */
-    @ContextParametersMigrationNeeded
-    public suspend fun Event.MessageReceive.respond(
-        text: Any?
-    ): SendMessageOutput = respond { text(text.toString()) }
-
-    /**
-     * 响应事件，并在指定延迟后撤回消息。
-     */
-    @ContextParametersMigrationNeeded
-    public suspend inline fun Event.MessageReceive.respondWithRecall(
-        delay: Duration,
-        noinline block: MutableList<OutgoingSegment>.() -> Unit
-    ) {
-        val output = respond(block)
-        delay(delay)
-        when (data) {
-            is IncomingMessage.Group -> client.recallGroupMessage(peerId, output.messageSeq)
-            else -> client.recallPrivateMessage(peerId, output.messageSeq)
-        }
     }
 }
 

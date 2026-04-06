@@ -19,7 +19,7 @@ import org.ntqqrev.saltify.annotation.WithApiExtension
 import org.ntqqrev.saltify.dsl.SaltifyPluginContext
 import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
 import org.ntqqrev.saltify.entity.InstalledPlugin
-import org.ntqqrev.saltify.entity.RegisteredCommandInfo
+import org.ntqqrev.saltify.entity.RegisteredCommand
 import org.ntqqrev.saltify.exception.ApiCallException
 import org.ntqqrev.saltify.model.EventConnectionState
 import org.ntqqrev.saltify.model.EventConnectionType
@@ -100,7 +100,7 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
 
     private val loadedPlugins = mutableListOf<SaltifyPluginContext>()
 
-    internal val commandRegistry: MutableList<RegisteredCommandInfo> = mutableListOf()
+    internal val commandRegistry: MutableList<RegisteredCommand> = mutableListOf()
 
     @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
