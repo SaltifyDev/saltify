@@ -19,8 +19,6 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
         eventConnectionState.emit(EventConnectionState.Connecting)
 
         connectionJob = applicationScope.launch {
-            val urlString = "$addressBaseNormalized/event".replaceFirst("http", "ws")
-
             withRetry(
                 config.connection.event.maxReconnectionAttempts,
                 config.connection.event.baseReconnectionInterval,
@@ -33,7 +31,12 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
                 block = {
-                    httpClient.webSocket(urlString) {
+                    httpClient.webSocket(
+                        "$addressBaseNormalized/event".replaceFirst("http", "ws"),
+                        request = {
+                            accessToken?.let { url.parameters.append("access_token", it) }
+                        }
+                    ) {
                         eventConnectionState.emit(
                             EventConnectionState.Connected(
                                 EventConnectionType.WebSocket, this@SaltifyApplicationWebSocket

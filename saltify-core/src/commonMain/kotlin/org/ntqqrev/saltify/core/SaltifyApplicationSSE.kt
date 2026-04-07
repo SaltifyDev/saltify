@@ -31,7 +31,12 @@ public class SaltifyApplicationSSE(config: SaltifyApplicationConfig) : SaltifyAp
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
                 block = {
-                    httpClient.sse("$addressBaseNormalized/event") {
+                    httpClient.sse(
+                        "$addressBaseNormalized/event",
+                        request = {
+                            accessToken?.let { url.parameters.append("access_token", it) }
+                        }
+                    ) {
                         eventConnectionState.emit(
                             EventConnectionState.Connected(
                                 EventConnectionType.SSE, this@SaltifyApplicationSSE

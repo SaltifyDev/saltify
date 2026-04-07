@@ -13,6 +13,7 @@ import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.model.EventConnectionType
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class PluginTest {
     @Test
@@ -40,7 +41,7 @@ class PluginTest {
         }.start()
 
         client.connectEvent()
-        delay(60000L)
+        delay(60000.milliseconds)
         client.disconnectEvent()
         client.close()
     }

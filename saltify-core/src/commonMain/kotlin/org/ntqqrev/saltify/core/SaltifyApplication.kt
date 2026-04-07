@@ -103,6 +103,9 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
     internal val commandRegistry: MutableList<RegisteredCommandInfo> = mutableListOf()
 
     @PublishedApi
+    internal val accessToken: String? = config.connection.accessToken
+
+    @PublishedApi
     internal val httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(milkyJsonModule)
@@ -110,11 +113,6 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
 
         defaultRequest {
             url(addressBaseNormalized)
-
-            config.connection.accessToken?.let {
-                // 懒得区分环境了
-                url.parameters.append("access_token", it)
-            }
         }
 
         when (config.connection.event.type) {
@@ -168,6 +166,7 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
         val response: ApiGeneralResponse = httpClient.post("/api${endpoint.path}") {
             contentType(ContentType.Application.Json)
             setBody(param)
+            accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
         }.body()
 
         if (response.retcode != 0) throw ApiCallException(response.retcode, response.message ?: "Unknown error")
