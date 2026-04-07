@@ -30,13 +30,15 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
                 onFailure = {
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
-                block = {
+                block = { resetAttempts ->
                     httpClient.webSocket(
                         "$addressBaseNormalized/event".replaceFirst("http", "ws"),
                         request = {
                             accessToken?.let { url.parameters.append("access_token", it) }
                         }
                     ) {
+                        resetAttempts()
+
                         eventConnectionState.emit(
                             EventConnectionState.Connected(
                                 EventConnectionType.WebSocket, this@SaltifyApplicationWebSocket

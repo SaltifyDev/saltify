@@ -30,13 +30,15 @@ public class SaltifyApplicationSSE(config: SaltifyApplicationConfig) : SaltifyAp
                 onFailure = {
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
-                block = {
+                block = { resetAttempts ->
                     httpClient.sse(
                         "$addressBaseNormalized/event",
                         request = {
                             accessToken?.let { url.parameters.append("access_token", it) }
                         }
                     ) {
+                        resetAttempts()
+
                         eventConnectionState.emit(
                             EventConnectionState.Connected(
                                 EventConnectionType.SSE, this@SaltifyApplicationSSE
