@@ -7,6 +7,7 @@ on:
     paths:
       - "saltify-docs/**"
       - ".github/workflows/deploy-pages.yml"
+      - "build.gradle.kts"
   workflow_dispatch:
 
 permissions:

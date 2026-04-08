@@ -10,7 +10,8 @@ import org.ntqqrev.saltify.core.getLoginInfo
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.awaitNextMessage
 import org.ntqqrev.saltify.extension.command
-import org.ntqqrev.saltify.extension.parameter
+import org.ntqqrev.saltify.extension.greedyString
+import org.ntqqrev.saltify.extension.int
 import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.extension.regex
 import org.ntqqrev.saltify.extension.respond
@@ -77,7 +78,7 @@ class PluginTest {
 
         // greedy test
         command("say") {
-            val content = greedyStringParameter("content", "words to repeat")
+            val content = parameter.greedyString("content", "words to repeat")
 
             onExecute {
                 respond(content.value)
@@ -115,8 +116,8 @@ class PluginTest {
         command("math") {
             // /math add <num1> <num2>
             subCommand("add") {
-                val a = parameter<Int>("a")
-                val b = parameter<Int>("b")
+                val a = parameter.int("a")
+                val b = parameter.int("b")
 
                 onExecute {
                     val result = a.value + b.value
@@ -130,7 +131,7 @@ class PluginTest {
 
             // /math power <base>
             subCommand("power") {
-                val base = parameter<Int>("base")
+                val base = parameter.int("base")
                 onExecute {
                     val value = base.value
                     respond("The power of $value is ${value * value}")
@@ -157,8 +158,8 @@ class PluginTest {
         // comprehensive parameters test
         // /order <id> <note>
         command("order") {
-            val id = parameter<Int>("id")
-            val note = greedyStringParameter("note")
+            val id = parameter.int("id")
+            val note = parameter.greedyString("note")
 
             onExecute {
                 respond("Order #${id.value} created\nnote：${note.value}")

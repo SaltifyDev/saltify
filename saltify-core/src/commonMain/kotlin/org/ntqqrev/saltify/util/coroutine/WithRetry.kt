@@ -4,9 +4,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.log2
 import kotlin.math.min
-import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("LongParameterList")
 internal suspend fun withRetry(
@@ -16,12 +15,15 @@ internal suspend fun withRetry(
     isEnabled: Boolean,
     onRetry: suspend (throwable: Throwable, retryCount: Int, delay: Long) -> Unit,
     onFailure: suspend (throwable: Throwable) -> Unit,
-    block: suspend () -> Unit
+    block: suspend (resetAttempts: () -> Unit) -> Unit
 ) {
     var attempts = 0
     catchLoop@ while (currentCoroutineContext().isActive) {
         runCatching {
-            block()
+            block {
+                @Suppress("AssignedValueIsNeverRead")
+                attempts = 0
+            }
             break@catchLoop
         }.onFailure { e ->
             if (!isEnabled) {
@@ -34,16 +36,14 @@ internal suspend fun withRetry(
                 else -> {
                     attempts++
 
-                    @Suppress("EmptyRange")
                     if (maxAttempts in 0..<attempts) {
                         onFailure(e)
                         return@withRetry
                     }
 
                     val delay = calculateBackoff(attempts, baseDelay, maxDelay)
-
                     onRetry(e, attempts, delay)
-                    delay(delay)
+                    delay(delay.milliseconds)
                 }
             }
         }
@@ -55,8 +55,8 @@ private fun calculateBackoff(
     baseDelay: Long = 1000,
     maxDelay: Long = 30000
 ): Long {
-    val maxSafeAttempt = log2(maxDelay.toDouble() / baseDelay).toInt()
-    val expDelay = baseDelay * 2.0.pow(min(attempt, maxSafeAttempt)).toLong()
+    val shift = min(attempt, 30)
+    val expDelay = baseDelay * (1L shl shift)
 
     return expDelay.coerceAtMost(maxDelay)
 }

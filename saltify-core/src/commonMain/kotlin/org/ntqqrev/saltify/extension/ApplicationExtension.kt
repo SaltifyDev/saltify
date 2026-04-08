@@ -24,7 +24,6 @@ import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
 import org.ntqqrev.saltify.util.coroutine.saltifyComponent
-import kotlin.reflect.KClass
 import kotlin.time.Clock
 
 /**
@@ -89,7 +88,7 @@ public fun command(
             description = rootDsl.description,
             parameters = rootDsl.parameters.toList(),
             subCommands = rootDsl.subCommands.map { (subName, subCtx) ->
-                subCtx.toSubCommandInfo(subName)
+                subCtx.toSubCommand(subName)
             },
             pluginName = pluginName
         )
@@ -115,7 +114,7 @@ private suspend fun executeCommand(
     name: String
 ) {
     val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
-    val execution = CommandExecutionContext(event, client, name, argumentMap)
+    val execution = CommandExecutionContext(client, event, name, argumentMap)
 
     dsl.requirementBlock?.let { block ->
         val requirement = CommandRequirementMatch(execution).block()
@@ -144,7 +143,7 @@ private suspend fun executeCommand(
             }
             else -> {
                 val rawValue = currentTokens.removeFirst()
-                convertValue(rawValue, param.type)?.let { ParameterParseResult.Success(it) }
+                param.transform(rawValue)?.let { ParameterParseResult.Success(it) }
                     ?: ParameterParseResult.InvalidParam(rawValue)
             }
         }
@@ -172,22 +171,10 @@ private suspend fun executeCommand(
     execution.logger.info("seq=${event.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
 }
 
-private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubCommand =
+private fun SaltifyCommandContext.toSubCommand(name: String): RegisteredSubCommand =
     RegisteredSubCommand(
         name = name,
         description = description,
         parameters = parameters.toList(),
-        subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommandInfo(subName) }
+        subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommand(subName) }
     )
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any> convertValue(value: String, type: KClass<T>): T? {
-    return when (type) {
-        String::class -> value as T
-        Int::class -> value.toIntOrNull() as? T
-        Long::class -> value.toLongOrNull() as? T
-        Boolean::class -> value.toBooleanStrictOrNull() as? T
-        Double::class -> value.toDoubleOrNull() as? T
-        else -> null
-    }
-}

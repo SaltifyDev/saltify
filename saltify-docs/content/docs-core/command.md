@@ -11,9 +11,9 @@ client.command("order", prefix = "/") {
     description = "创建一个订单"
 
     // 定义一个 Int 类型的参数
-    val id = parameter<Int>("id")
+    val id = parameter.int("id")
     // 定义一个贪婪字符串参数，即将之后所有内容视为一个参数
-    val note = greedyStringParameter("note")
+    val note = parameter.greedyString("note")
 
     onExecute {
         // some logic...
@@ -68,8 +68,8 @@ client.command("info") {
 command("math") {
     // /math add <num1> <num2>
     subCommand("add") {
-        val a = parameter<Int>("a")
-        val b = parameter<Int>("b")
+        val a = parameter.int("a")
+        val b = parameter.int("b")
 
         onExecute {
             val result = a.value + b.value
@@ -79,7 +79,7 @@ command("math") {
 
     // /math power <base>
     subCommand("power") {
-        val base = parameter<Int>("base")
+        val base = parameter.int("base")
         onExecute {
             val value = base.value
             respond("$value 的平方是 ${value * value}")
