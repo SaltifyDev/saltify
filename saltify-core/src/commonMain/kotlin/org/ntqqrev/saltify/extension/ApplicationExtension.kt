@@ -2,7 +2,7 @@ package org.ntqqrev.saltify.extension
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
@@ -20,7 +20,6 @@ import org.ntqqrev.saltify.model.CommandError
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
 import org.ntqqrev.saltify.util.coroutine.saltifyComponent
-import kotlin.reflect.KClass
 import kotlin.time.Clock
 
 /**
@@ -31,10 +30,10 @@ public inline fun <reified T : Event> SaltifyApplication.on(
     crossinline block: suspend SaltifyApplication.(event: T) -> Unit
 ): Job = scope.launch {
     eventFlow
-        .filter { it is T }
+        .filterIsInstance<T>()
         .collect {
             launch {
-                runCatchingToExceptionFlow { block(it as T) }
+                runCatchingToExceptionFlow { block(it) }
             }
         }
 }
@@ -135,7 +134,7 @@ private suspend fun executeCommand(
             }
             else -> {
                 val rawValue = currentTokens.removeFirst()
-                convertValue(rawValue, param.type)?.let { ParameterParseResult.Success(it) }
+                param.transform(rawValue)?.let { ParameterParseResult.Success(it) }
                     ?: ParameterParseResult.InvalidParam(rawValue)
             }
         }
@@ -170,15 +169,3 @@ private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubC
         parameters = parameters.toList(),
         subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommandInfo(subName) }
     )
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any> convertValue(value: String, type: KClass<T>): T? {
-    return when (type) {
-        String::class -> value as T
-        Int::class -> value.toIntOrNull() as? T
-        Long::class -> value.toLongOrNull() as? T
-        Boolean::class -> value.toBooleanStrictOrNull() as? T
-        Double::class -> value.toDoubleOrNull() as? T
-        else -> null
-    }
-}

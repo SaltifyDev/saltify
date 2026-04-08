@@ -24,8 +24,10 @@ import kotlin.time.Duration.Companion.seconds
 
 @SaltifyDsl
 public class SaltifyCommandContext internal constructor() {
+    public val parameter: SaltifyParameterBuilder = SaltifyParameterBuilder(this)
+    @PublishedApi
+    internal val parameters: MutableList<SaltifyCommandParamDef<*>> = mutableListOf()
     internal val subCommands = mutableListOf<Pair<String, SaltifyCommandContext>>()
-    internal val parameters = mutableListOf<SaltifyCommandParamDef<*>>()
     internal var executionBlock: (suspend SaltifyCommandExecutionContext.() -> Unit)? = null
 
     /**
@@ -49,27 +51,6 @@ public class SaltifyCommandContext internal constructor() {
      */
     public fun require(block: SaltifyCommandRequirementContext.() -> CommandRequirement) {
         this.requirementBlock = block
-    }
-
-    /**
-     * 定义一个指令参数。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
-     */
-    public fun <T : Any> parameter(
-        type: KClass<T>,
-        name: String,
-        description: String = ""
-    ): SaltifyCommandParamDef<T> {
-        return SaltifyCommandParamDef(type, name, description).also { parameters.add(it) }
-    }
-
-    /**
-     * 定义一个贪婪字符串参数。该参数会捕获剩余的**所有**文本内容。请搭配 [SaltifyCommandExecutionContext.capture] 使用。
-     */
-    public fun greedyStringParameter(
-        name: String,
-        description: String = ""
-    ): SaltifyCommandParamDef<String> {
-        return SaltifyCommandParamDef(String::class, name, description, isGreedy = true).also { parameters.add(it) }
     }
 
     /**
@@ -101,6 +82,23 @@ public class SaltifyCommandContext internal constructor() {
     }
 }
 
+public class SaltifyParameterBuilder(@PublishedApi internal val context: SaltifyCommandContext) {
+    /**
+     * 定义一个指令参数。请搭配 [SaltifyCommandExecutionContext.value] 使用。
+     *
+     * @param isGreedy 是否是贪婪参数，即是否包含后面的所有剩余文本。
+     * @param transform 将原始文本转化为目标类型的函数。
+     */
+    public inline fun <reified T : Any> from(
+        name: String,
+        description: String,
+        isGreedy: Boolean = false,
+        noinline transform: (String) -> T?
+    ): SaltifyCommandParamDef<T> = SaltifyCommandParamDef(transform, T::class, name, description, isGreedy).also {
+            context.parameters.add(it)
+        }
+}
+
 public class SaltifyCommandExecutionContext(
     public val client: SaltifyApplication,
     public val event: Event.MessageReceive,
@@ -110,22 +108,11 @@ public class SaltifyCommandExecutionContext(
     public val logger: Logger = KtorSimpleLogger("Saltify/cmd:$commandName")
 
     /**
-     * 获取已解析的参数值。你可能更需要的是 [SaltifyCommandParamDef.value]。
+     * 获取已解析的参数值。
      */
-    @Suppress("UNCHECKED_CAST")
-    public fun <T : Any> capture(capturer: SaltifyCommandParamDef<T>): T {
-        val result = argumentMap[capturer]
-        return (result as? ParameterParseResult.Success<T>)?.value
-            ?: error("Parameter ${capturer.name} accessed without validation")
-    }
-
-    /**
-     * 获取已解析的参数值。这是 [capture] 的简写形式。
-     */
-    @ContextParametersMigrationNeeded
     @Suppress("UNCHECKED_CAST")
     public val <T : Any> SaltifyCommandParamDef<T>.value: T
-        get() = capture(this)
+        get() = (argumentMap[this] as? ParameterParseResult.Success<T>)?.value!!
 
     /**
      * 响应指令。
@@ -175,6 +162,7 @@ public class SaltifyCommandExecutionContext(
  * 指令参数
  */
 public class SaltifyCommandParamDef<T : Any>(
+    internal val transform: (String) -> T?,
     public val type: KClass<T>,
     public val name: String,
     public val description: String = "",
