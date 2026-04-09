@@ -93,13 +93,22 @@ public fun SaltifyApplication.command(
         val tokens = if (rawText.isEmpty()) emptyList() else rawText.split(spaceRegex)
         if (tokens.isEmpty() || tokens[0] != "$prefix$name") return@on
 
-        executeCommand(rootDsl, tokens.drop(1), this, event, name)
+        executeCommand(
+            rootDsl,
+            tokens.drop(1),
+            rawText.removePrefix("$prefix$name").removePrefix(" "),
+            this,
+            event,
+            name
+        )
     }
 }
 
+@Suppress("LongParameterList")
 private suspend fun executeCommand(
     dsl: SaltifyCommandContext,
     tokens: List<String>,
+    rawParameters: String,
     client: SaltifyApplication,
     event: Event.MessageReceive,
     name: String
@@ -116,7 +125,13 @@ private suspend fun executeCommand(
         val subName = tokens[0]
         val subCommand = dsl.subCommands.find { it.first == subName }
         if (subCommand != null) {
-            executeCommand(subCommand.second, tokens.drop(1), client, event, "$name $subName")
+            executeCommand(
+                subCommand.second, tokens.drop(1),
+                rawParameters.removePrefix(subCommand.first).removePrefix(" "),
+                client,
+                event,
+                "$name $subName"
+            )
             return
         }
     }
@@ -128,9 +143,8 @@ private suspend fun executeCommand(
         val result = when {
             currentTokens.isEmpty() -> ParameterParseResult.MissingParam
             param.isGreedy -> {
-                val value = currentTokens.joinToString(" ")
                 currentTokens.clear()
-                ParameterParseResult.Success(value)
+                ParameterParseResult.Success(rawParameters)
             }
             else -> {
                 val rawValue = currentTokens.removeFirst()
