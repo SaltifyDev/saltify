@@ -14,6 +14,11 @@ public class ConnectionConfig {
      */
     public var accessToken: String? = null
 
+    /**
+     * 发送 API 请求时的超时时间。
+     */
+    public var apiRequestTimeout: Long = 100000
+
     internal var event = EventConnectionConfig()
 
     /**

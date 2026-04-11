@@ -8,7 +8,8 @@ import org.ntqqrev.saltify.entity.InstalledPlugin
 
 @SaltifyDsl
 public class SaltifyApplicationConfig {
-    internal val connection = ConnectionConfig()
+    @PublishedApi
+    internal val connection: ConnectionConfig = ConnectionConfig()
 
     /**
      * Bot 实例相关设置。

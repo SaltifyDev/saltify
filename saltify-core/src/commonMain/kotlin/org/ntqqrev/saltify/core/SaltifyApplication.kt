@@ -33,7 +33,7 @@ import kotlin.time.Clock
  * 一个 Saltify 应用实例
  */
 @WithApiExtension
-public sealed class SaltifyApplication(internal val config: SaltifyApplicationConfig) : AutoCloseable {
+public sealed class SaltifyApplication(@PublishedApi internal val config: SaltifyApplicationConfig) : AutoCloseable {
     public companion object {
         /**
          * 创建一个 Saltify 应用实例。
@@ -167,6 +167,10 @@ public sealed class SaltifyApplication(internal val config: SaltifyApplicationCo
             contentType(ContentType.Application.Json)
             setBody(param)
             accessToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+
+            timeout {
+                requestTimeoutMillis = config.connection.apiRequestTimeout
+            }
         }.body()
 
         if (response.retcode != 0) throw ApiCallException(response.retcode, response.message ?: "Unknown error")
