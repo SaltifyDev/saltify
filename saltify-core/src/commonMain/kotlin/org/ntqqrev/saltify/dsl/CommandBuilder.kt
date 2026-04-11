@@ -1,11 +1,11 @@
 package org.ntqqrev.saltify.dsl
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
-import org.ntqqrev.saltify.runtime.command.CommandRequirementMatch
-import org.ntqqrev.saltify.runtime.command.CommandParameter
-import org.ntqqrev.saltify.runtime.context.CommandExecutionContext
 import org.ntqqrev.saltify.model.command.CommandError
 import org.ntqqrev.saltify.model.command.CommandRequirement
+import org.ntqqrev.saltify.runtime.command.CommandParameter
+import org.ntqqrev.saltify.runtime.command.CommandRequirementMatch
+import org.ntqqrev.saltify.runtime.context.CommandExecutionContext
 
 @SaltifyDsl
 public class CommandBuilder internal constructor() {

@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify.internal.app
 
-import io.ktor.client.plugins.sse.sse
+import io.ktor.client.plugins.sse.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
@@ -8,9 +8,9 @@ import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.milkyJsonModule
 import org.ntqqrev.saltify.SaltifyApplication
 import org.ntqqrev.saltify.dsl.config.ApplicationConfig
+import org.ntqqrev.saltify.internal.util.withRetry
 import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.model.event.EventConnectionType
-import org.ntqqrev.saltify.internal.util.withRetry
 
 internal class SaltifyApplicationSSE(config: ApplicationConfig) : SaltifyApplication(config) {
     private var connectionJob: Job? = null

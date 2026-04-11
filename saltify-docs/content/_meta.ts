@@ -1,4 +1,4 @@
-import type { MetaRecord } from 'nextra';
+import type {MetaRecord} from 'nextra';
 
 export default {
   index: '快速开始',

@@ -7,8 +7,8 @@ import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.plainText
-import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.model.SaltifyComponentType
+import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.runtime.saltifyComponent
 
 /**

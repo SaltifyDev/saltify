@@ -2,8 +2,8 @@ package org.ntqqrev.saltify.dsl
 
 import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
-import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.SaltifyApplication
+import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.runtime.context.ApplicationContext
 
 @SaltifyDsl

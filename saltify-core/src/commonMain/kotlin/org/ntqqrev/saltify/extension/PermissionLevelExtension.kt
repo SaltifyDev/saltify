@@ -1,7 +1,7 @@
 package org.ntqqrev.saltify.extension
 
-import org.ntqqrev.saltify.runtime.context.ApplicationContext
 import org.ntqqrev.saltify.model.PermissionLevel
+import org.ntqqrev.saltify.runtime.context.ApplicationContext
 
 /**
  * 获取用户的权限等级。

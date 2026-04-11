@@ -1,8 +1,8 @@
 package org.ntqqrev.saltify.extension
 
-import org.ntqqrev.saltify.runtime.context.CommandExecutionContext
 import org.ntqqrev.saltify.dsl.SaltifyParameterBuilder
 import org.ntqqrev.saltify.runtime.command.CommandParameter
+import org.ntqqrev.saltify.runtime.context.CommandExecutionContext
 
 /**
  * 定义一个指令参数。请搭配 [CommandExecutionContext.value] 使用。

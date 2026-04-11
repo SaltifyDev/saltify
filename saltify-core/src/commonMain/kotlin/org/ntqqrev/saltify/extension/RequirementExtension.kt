@@ -2,9 +2,9 @@ package org.ntqqrev.saltify.extension
 
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.IncomingSegment
-import org.ntqqrev.saltify.runtime.command.CommandRequirementMatch
-import org.ntqqrev.saltify.model.command.CommandRequirement
 import org.ntqqrev.saltify.model.PermissionLevel
+import org.ntqqrev.saltify.model.command.CommandRequirement
+import org.ntqqrev.saltify.runtime.command.CommandRequirementMatch
 
 public fun CommandRequirementMatch.user(vararg targetId: Long): CommandRequirement =
     CommandRequirement {

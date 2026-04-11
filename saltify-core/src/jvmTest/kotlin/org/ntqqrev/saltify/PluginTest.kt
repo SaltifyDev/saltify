@@ -6,13 +6,7 @@ import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.builtin.plugin.commandHelp
 import org.ntqqrev.saltify.builtin.plugin.defaultLogging
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
-import org.ntqqrev.saltify.extension.awaitNextMessage
-import org.ntqqrev.saltify.extension.command
-import org.ntqqrev.saltify.extension.greedyString
-import org.ntqqrev.saltify.extension.int
-import org.ntqqrev.saltify.extension.plainText
-import org.ntqqrev.saltify.extension.regex
-import org.ntqqrev.saltify.extension.respond
+import org.ntqqrev.saltify.extension.*
 import org.ntqqrev.saltify.model.event.EventConnectionType
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds

@@ -1,4 +1,4 @@
-import type { MetaRecord } from 'nextra';
+import type {MetaRecord} from 'nextra';
 
 export default {
   application: '应用配置',

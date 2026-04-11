@@ -1,12 +1,12 @@
 package org.ntqqrev.saltify.builtin.plugin
 
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
-import org.ntqqrev.saltify.runtime.command.RegisteredCommand
-import org.ntqqrev.saltify.runtime.command.RegisteredSubCommand
 import org.ntqqrev.saltify.extension.command
 import org.ntqqrev.saltify.extension.respond
 import org.ntqqrev.saltify.forward
 import org.ntqqrev.saltify.node
+import org.ntqqrev.saltify.runtime.command.RegisteredCommand
+import org.ntqqrev.saltify.runtime.command.RegisteredSubCommand
 import org.ntqqrev.saltify.text
 
 /**

@@ -1,12 +1,12 @@
-import { Footer, LastUpdated, Layout, Navbar } from 'nextra-theme-docs';
-import { getPageMap } from 'nextra/page-map';
+import {Footer, LastUpdated, Layout, Navbar} from 'nextra-theme-docs';
+import {getPageMap} from 'nextra/page-map';
 import 'nextra-theme-docs/style.css';
 import './styles.css';
-import { Head, Search } from 'nextra/components';
-import { Metadata } from 'next';
+import {Head, Search} from 'nextra/components';
+import {Metadata} from 'next';
 import React from "react";
 import Image from 'next/image';
-import { SALTIFY_VERSION } from './version';
+import {SALTIFY_VERSION} from './version';
 
 export const metadata: Metadata = {
   title: 'Saltify 文档',

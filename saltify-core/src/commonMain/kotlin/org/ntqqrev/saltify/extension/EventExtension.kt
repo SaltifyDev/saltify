@@ -7,13 +7,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.OutgoingSegment
+import org.ntqqrev.saltify.*
 import org.ntqqrev.saltify.runtime.context.EventContext
 import org.ntqqrev.saltify.runtime.milky.SendMessageOutput
-import org.ntqqrev.saltify.recallGroupMessage
-import org.ntqqrev.saltify.recallPrivateMessage
-import org.ntqqrev.saltify.sendGroupMessage
-import org.ntqqrev.saltify.sendPrivateMessage
-import org.ntqqrev.saltify.text
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 

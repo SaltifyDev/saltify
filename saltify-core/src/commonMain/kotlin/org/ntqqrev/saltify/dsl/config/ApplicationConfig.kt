@@ -1,8 +1,8 @@
 package org.ntqqrev.saltify.dsl.config
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
-import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.dsl.PluginBuilder
+import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.internal.util.InstalledPlugin
 
 @SaltifyDsl
