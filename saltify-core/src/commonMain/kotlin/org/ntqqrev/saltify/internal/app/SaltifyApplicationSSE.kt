@@ -1,17 +1,18 @@
-package org.ntqqrev.saltify.core
+package org.ntqqrev.saltify.internal.app
 
-import io.ktor.client.plugins.websocket.*
+import io.ktor.client.plugins.sse.sse
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
-import org.ntqqrev.saltify.model.EventConnectionState
-import org.ntqqrev.saltify.model.EventConnectionType
-import org.ntqqrev.saltify.util.coroutine.withRetry
+import org.ntqqrev.milky.milkyJsonModule
+import org.ntqqrev.saltify.SaltifyApplication
+import org.ntqqrev.saltify.dsl.config.ApplicationConfig
+import org.ntqqrev.saltify.model.event.EventConnectionState
+import org.ntqqrev.saltify.model.event.EventConnectionType
+import org.ntqqrev.saltify.internal.util.withRetry
 
-public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : SaltifyApplication(config) {
+internal class SaltifyApplicationSSE(config: ApplicationConfig) : SaltifyApplication(config) {
     private var connectionJob: Job? = null
 
     override suspend fun connectEvent() {
@@ -31,8 +32,8 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
                     eventConnectionState.emit(EventConnectionState.Disconnected(it))
                 },
                 block = { resetAttempts ->
-                    httpClient.webSocket(
-                        "$addressBaseNormalized/event".replaceFirst("http", "ws"),
+                    httpClient.sse(
+                        "$addressBaseNormalized/event",
                         request = {
                             accessToken?.let { url.parameters.append("access_token", it) }
                         }
@@ -41,12 +42,16 @@ public class SaltifyApplicationWebSocket(config: SaltifyApplicationConfig) : Sal
 
                         eventConnectionState.emit(
                             EventConnectionState.Connected(
-                                EventConnectionType.WebSocket, this@SaltifyApplicationWebSocket
+                                EventConnectionType.SSE, this@SaltifyApplicationSSE
                             )
                         )
 
-                        while (isActive) {
-                            events.emit(receiveDeserialized<Event>())
+                        incoming.collect { sseEvent ->
+                            if (sseEvent.event == "milky_event") {
+                                sseEvent.data?.let { data ->
+                                    events.emit(milkyJsonModule.decodeFromString<Event>(data))
+                                }
+                            }
                         }
                     }
                 }

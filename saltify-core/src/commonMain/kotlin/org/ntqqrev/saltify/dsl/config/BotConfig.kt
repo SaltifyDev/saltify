@@ -1,9 +1,9 @@
-package org.ntqqrev.saltify.entity
+package org.ntqqrev.saltify.dsl.config
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 
 @SaltifyDsl
-public object SaltifyBotConfig {
+public class BotConfig {
     /**
      * 默认指令前缀。
      */
@@ -12,10 +12,10 @@ public object SaltifyBotConfig {
     /**
      * 最高权限用户列表。
      */
-    public var superUsers: MutableList<Long> = mutableListOf()
+    public var superUsers: MutableSet<Long> = mutableSetOf()
 
     /**
      * 受限用户列表。
      */
-    public var restrictedUsers: MutableList<Long> = mutableListOf()
+    public var restrictedUsers: MutableSet<Long> = mutableSetOf()
 }

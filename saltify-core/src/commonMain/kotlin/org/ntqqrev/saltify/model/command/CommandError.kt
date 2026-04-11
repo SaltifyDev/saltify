@@ -1,6 +1,6 @@
-package org.ntqqrev.saltify.model
+package org.ntqqrev.saltify.model.command
 
-import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
+import org.ntqqrev.saltify.runtime.command.CommandParameter
 
 /**
  * 指令解析错误
@@ -8,12 +8,12 @@ import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
 public sealed class CommandError {
     public abstract val message: String
 
-    public data class MissingParam(val parameter: SaltifyCommandParamDef<*>) : CommandError() {
+    public data class MissingParam(val parameter: CommandParameter<*>) : CommandError() {
         override val message: String
             get() = "缺少必要的参数: ${parameter.name}"
     }
 
-    public data class InvalidParam(val parameter: SaltifyCommandParamDef<*>, val token: String) : CommandError() {
+    public data class InvalidParam(val parameter: CommandParameter<*>, val token: String) : CommandError() {
         override val message: String
             get() = "参数 ${parameter.name} 无效: \"$token\""
     }

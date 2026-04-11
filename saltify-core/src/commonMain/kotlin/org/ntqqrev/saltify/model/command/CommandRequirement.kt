@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.model
+package org.ntqqrev.saltify.model.command
 
 public fun interface CommandRequirement {
     public fun satisfies(): Boolean

@@ -1,6 +1,8 @@
 package org.ntqqrev.saltify.model
 
-@Suppress("MagicNumber")
+/**
+ * 权限等级
+ */
 public open class PermissionLevel(
     public val weight: Int,
 ) : Comparable<PermissionLevel> {

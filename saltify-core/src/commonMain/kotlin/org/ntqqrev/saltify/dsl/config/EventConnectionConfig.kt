@@ -1,9 +1,8 @@
 package org.ntqqrev.saltify.dsl.config
 
 import org.ntqqrev.saltify.annotation.SaltifyDsl
-import org.ntqqrev.saltify.model.EventConnectionType
+import org.ntqqrev.saltify.model.event.EventConnectionType
 
-@Suppress("MagicNumber")
 @SaltifyDsl
 public class EventConnectionConfig {
     /**

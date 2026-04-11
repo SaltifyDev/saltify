@@ -1,39 +1,41 @@
 package org.ntqqrev.saltify.extension
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
-import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.milky.IncomingSegment
-import org.ntqqrev.saltify.core.SaltifyApplication
-import org.ntqqrev.saltify.dsl.ParameterParseResult
-import org.ntqqrev.saltify.dsl.SaltifyCommandContext
-import org.ntqqrev.saltify.dsl.SaltifyCommandExecutionContext
-import org.ntqqrev.saltify.dsl.SaltifyCommandParamDef
-import org.ntqqrev.saltify.entity.RegisteredCommandInfo
-import org.ntqqrev.saltify.entity.RegisteredSubCommandInfo
-import org.ntqqrev.saltify.entity.SaltifyBotConfig
-import org.ntqqrev.saltify.entity.SaltifyCommandRequirementContext
-import org.ntqqrev.saltify.model.CommandError
+import org.ntqqrev.saltify.dsl.CommandBuilder
+import org.ntqqrev.saltify.internal.engine.CommandEngine
+import org.ntqqrev.saltify.runtime.command.RegisteredCommand
+import org.ntqqrev.saltify.runtime.command.RegisteredSubCommand
+import org.ntqqrev.saltify.runtime.context.ApplicationContext
+import org.ntqqrev.saltify.runtime.context.EventContext
 import org.ntqqrev.saltify.model.SaltifyComponentType
-import org.ntqqrev.saltify.util.coroutine.runCatchingToExceptionFlow
-import org.ntqqrev.saltify.util.coroutine.saltifyComponent
-import kotlin.time.Clock
+import org.ntqqrev.saltify.runtime.saltifyComponent
 
 /**
  * 注册一个事件监听器。
  */
-public inline fun <reified T : Event> SaltifyApplication.on(
-    scope: CoroutineScope = extensionScope,
-    crossinline block: suspend SaltifyApplication.(event: T) -> Unit
-): Job = scope.launch {
-    eventFlow
+public inline fun <reified T : Event> ApplicationContext.on(
+    crossinline block: suspend EventContext<T>.() -> Unit
+): Job = (this as? CoroutineScope ?: client.extensionScope).launch {
+    client.eventFlow
         .filterIsInstance<T>()
         .collect {
             launch {
-                runCatchingToExceptionFlow { block(it) }
+                runCatching {
+                    EventContext(it, client).block()
+                }.onFailure { throwable ->
+                    if (throwable is CancellationException) throw throwable
+
+                    client.exceptionHandlerProvider.exceptionFlow.tryEmit(
+                        currentCoroutineContext() to throwable
+                    )
+                }
             }
         }
 }
@@ -41,19 +43,18 @@ public inline fun <reified T : Event> SaltifyApplication.on(
 /**
  * 注册一个消息正则匹配监听器。
  */
-public inline fun SaltifyApplication.regex(
+public inline fun ApplicationContext.regex(
     regex: String,
-    scope: CoroutineScope = extensionScope,
-    crossinline block: suspend SaltifyApplication.(event: Event.MessageReceive, matches: Sequence<MatchResult>) -> Unit
+    crossinline block: suspend EventContext<Event.MessageReceive>.(matches: Sequence<MatchResult>) -> Unit
 ): Job {
     val regex = Regex(regex)
 
-    return on<Event.MessageReceive>(scope) { event ->
+    return on<Event.MessageReceive> {
         val text = event.segments.filterIsInstance<IncomingSegment.Text>()
             .joinToString("") { it.text }
 
         val matches = regex.findAll(text)
-        if (matches.any()) block(event, matches)
+        if (matches.any()) block(matches)
     }
 }
 
@@ -62,30 +63,31 @@ private val spaceRegex = Regex("\\s+")
 /**
  * 注册一个指令。
  */
-public fun SaltifyApplication.command(
+public fun ApplicationContext.command(
     name: String,
-    prefix: String = SaltifyBotConfig.commandPrefix,
-    scope: CoroutineScope = extensionScope,
-    builder: SaltifyCommandContext.() -> Unit
+    prefix: String = client.config.bot.commandPrefix,
+    builder: CommandBuilder.() -> Unit
 ): Job {
-    val rootDsl = SaltifyCommandContext().apply(builder)
+    val scope = this as? CoroutineScope ?: client.extensionScope
+    val rootDsl = CommandBuilder().apply(builder)
 
-    val component = scope.coroutineContext.saltifyComponent
-    val pluginName = if (component?.type == SaltifyComponentType.Plugin) component.name else null
-    commandRegistry.add(
-        RegisteredCommandInfo(
+    val component = scope.coroutineContext.saltifyComponent!!
+    val pluginName = if (component.type == SaltifyComponentType.Plugin) component.name else null
+
+    client.commandRegistry.add(
+        RegisteredCommand(
             name = name,
             prefix = prefix,
             description = rootDsl.description,
             parameters = rootDsl.parameters.toList(),
             subCommands = rootDsl.subCommands.map { (subName, subCtx) ->
-                subCtx.toSubCommandInfo(subName)
+                subCtx.toSubCommand(subName)
             },
             pluginName = pluginName
         )
     )
 
-    return on<Event.MessageReceive>(scope) { event ->
+    return on<Event.MessageReceive> {
         val rawText = event.segments.filterIsInstance<IncomingSegment.Text>()
             .joinToString("") { it.text }
             .trim()
@@ -93,93 +95,21 @@ public fun SaltifyApplication.command(
         val tokens = if (rawText.isEmpty()) emptyList() else rawText.split(spaceRegex)
         if (tokens.isEmpty() || tokens[0] != "$prefix$name") return@on
 
-        executeCommand(
+        CommandEngine.execute(
             rootDsl,
             tokens.drop(1),
             rawText.removePrefix("$prefix$name").removePrefix(" "),
-            this,
+            client,
             event,
             name
         )
     }
 }
 
-@Suppress("LongParameterList")
-private suspend fun executeCommand(
-    dsl: SaltifyCommandContext,
-    tokens: List<String>,
-    rawParameters: String,
-    client: SaltifyApplication,
-    event: Event.MessageReceive,
-    name: String
-) {
-    val argumentMap = mutableMapOf<SaltifyCommandParamDef<*>, ParameterParseResult<Any>>()
-    val execution = SaltifyCommandExecutionContext(client, event, name, argumentMap)
-
-    dsl.requirementBlock?.let { block ->
-        val requirement = SaltifyCommandRequirementContext(execution).block()
-        if (!requirement.satisfies()) return
-    }
-
-    if (tokens.isNotEmpty()) {
-        val subName = tokens[0]
-        val subCommand = dsl.subCommands.find { it.first == subName }
-        if (subCommand != null) {
-            executeCommand(
-                subCommand.second, tokens.drop(1),
-                rawParameters.removePrefix(subCommand.first).removePrefix(" "),
-                client,
-                event,
-                "$name $subName"
-            )
-            return
-        }
-    }
-
-    val errors = mutableListOf<CommandError>()
-    val currentTokens = tokens.toMutableList()
-
-    for (param in dsl.parameters) {
-        val result = when {
-            currentTokens.isEmpty() -> ParameterParseResult.MissingParam
-            param.isGreedy -> {
-                currentTokens.clear()
-                ParameterParseResult.Success(rawParameters)
-            }
-            else -> {
-                val rawValue = currentTokens.removeFirst()
-                param.transform(rawValue)?.let { ParameterParseResult.Success(it) }
-                    ?: ParameterParseResult.InvalidParam(rawValue)
-            }
-        }
-
-        argumentMap[param] = result
-        if (result is ParameterParseResult.MissingParam) errors.add(CommandError.MissingParam(param))
-        if (result is ParameterParseResult.InvalidParam) errors.add(CommandError.InvalidParam(param, result.rawValue))
-    }
-
-    if (currentTokens.isNotEmpty()) errors.add(CommandError.TooManyArguments(currentTokens))
-
-    if (errors.isNotEmpty()) {
-        dsl.failureBlock?.invoke(execution, errors.first())
-        return
-    }
-
-    val startInstant = Clock.System.now()
-    execution.logger.info("${event.peerId} 触发了 $name 指令 (seq=${event.messageSeq})")
-
-    when (event.data) {
-        is IncomingMessage.Group -> dsl.groupExecutionBlock ?: dsl.executionBlock
-        else -> dsl.privateExecutionBlock ?: dsl.executionBlock
-    }?.invoke(execution)
-
-    execution.logger.info("seq=${event.messageSeq} 处理完成, 用时 ${Clock.System.now() - startInstant}")
-}
-
-private fun SaltifyCommandContext.toSubCommandInfo(name: String): RegisteredSubCommandInfo =
-    RegisteredSubCommandInfo(
+private fun CommandBuilder.toSubCommand(name: String): RegisteredSubCommand =
+    RegisteredSubCommand(
         name = name,
         description = description,
         parameters = parameters.toList(),
-        subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommandInfo(subName) }
+        subCommands = subCommands.map { (subName, subCtx) -> subCtx.toSubCommand(subName) }
     )

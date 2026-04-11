@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.util.coroutine
+package org.ntqqrev.saltify.internal.util
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay

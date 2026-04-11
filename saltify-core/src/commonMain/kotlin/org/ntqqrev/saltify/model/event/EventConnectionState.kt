@@ -1,6 +1,6 @@
-package org.ntqqrev.saltify.model
+package org.ntqqrev.saltify.model.event
 
-import org.ntqqrev.saltify.core.SaltifyApplication
+import org.ntqqrev.saltify.SaltifyApplication
 
 /**
  * Saltify 应用的事件服务连接状态

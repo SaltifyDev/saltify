@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.util.coroutine
+package org.ntqqrev.saltify.runtime
 
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import kotlin.coroutines.AbstractCoroutineContextElement

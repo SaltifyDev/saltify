@@ -63,7 +63,7 @@ client.command("info") {
 通过 `subCommand` 函数，可以方便地定义一个任意嵌套层级的指令树：
 
 ```kotlin
-command("math") {
+client.command("math") {
     // /math add <num1> <num2>
     subCommand("add") {
         val a = parameter.int("a")
@@ -128,7 +128,7 @@ client.command("stop") {
 效果不言自明，自定义这样的 requirement 函数也很简单：
 
 ```kotlin
-fun SaltifyCommandRequirementContext.user(vararg targetId: Long) =
+fun CommandRequirementMatch.user(vararg targetId: Long) =
     CommandRequirement {
         context.event.senderId in targetId
     }

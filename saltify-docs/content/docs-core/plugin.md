@@ -24,13 +24,13 @@ val myPlugin = SaltifyPlugin("my-awesome-plugin", ::MyPluginConfig) { config ->
     }
 
     // 监听特定事件
-    on<Event.GroupMemberIncrease> { event ->
-        event.respond { text(config.reply) }
+    on<Event.GroupMemberIncrease> {
+        respond { text(config.reply) }
     }
 
     // 监听以正则表达式匹配的消息
-    regex("""BV1\w{9}""") { event, matches ->
-        event.respond {
+    regex("""BV1\w{9}""") { matches ->
+        respond {
             text(matches.joinToString { it.value })
         }
     }

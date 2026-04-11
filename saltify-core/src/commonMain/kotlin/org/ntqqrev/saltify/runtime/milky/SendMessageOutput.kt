@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.model.milky
+package org.ntqqrev.saltify.runtime.milky
 
 import kotlinx.serialization.Serializable
 

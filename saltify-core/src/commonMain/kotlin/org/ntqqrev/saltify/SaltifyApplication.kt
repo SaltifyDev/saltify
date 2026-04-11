@@ -1,31 +1,52 @@
-package org.ntqqrev.saltify.core
+package org.ntqqrev.saltify
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.sse.*
-import io.ktor.client.plugins.websocket.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.logging.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.sse.SSE
+import io.ktor.client.plugins.timeout
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.logging.KtorSimpleLogger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.job
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.decodeFromJsonElement
-import org.ntqqrev.milky.*
+import org.ntqqrev.milky.ApiEmptyStruct
+import org.ntqqrev.milky.ApiEndpoint
+import org.ntqqrev.milky.ApiGeneralResponse
+import org.ntqqrev.milky.Event
+import org.ntqqrev.milky.milkyJsonModule
 import org.ntqqrev.saltify.annotation.WithApiExtension
-import org.ntqqrev.saltify.dsl.SaltifyPluginContext
-import org.ntqqrev.saltify.dsl.config.SaltifyApplicationConfig
-import org.ntqqrev.saltify.entity.InstalledPlugin
-import org.ntqqrev.saltify.entity.RegisteredCommandInfo
+import org.ntqqrev.saltify.dsl.PluginBuilder
+import org.ntqqrev.saltify.dsl.config.ApplicationConfig
+import org.ntqqrev.saltify.internal.util.InstalledPlugin
+import org.ntqqrev.saltify.runtime.SaltifyComponent
+import org.ntqqrev.saltify.internal.util.ExceptionHandlerProvider
+import org.ntqqrev.saltify.runtime.command.RegisteredCommand
 import org.ntqqrev.saltify.exception.ApiCallException
-import org.ntqqrev.saltify.model.EventConnectionState
-import org.ntqqrev.saltify.model.EventConnectionType
+import org.ntqqrev.saltify.internal.app.SaltifyApplicationSSE
+import org.ntqqrev.saltify.internal.app.SaltifyApplicationWebSocket
 import org.ntqqrev.saltify.model.SaltifyComponentType
-import org.ntqqrev.saltify.util.coroutine.SaltifyComponent
-import org.ntqqrev.saltify.util.coroutine.SaltifyExceptionHandlerProvider
+import org.ntqqrev.saltify.model.event.EventConnectionState
+import org.ntqqrev.saltify.model.event.EventConnectionType
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
@@ -33,13 +54,15 @@ import kotlin.time.Clock
  * 一个 Saltify 应用实例
  */
 @WithApiExtension
-public sealed class SaltifyApplication(@PublishedApi internal val config: SaltifyApplicationConfig) : AutoCloseable {
+public abstract class SaltifyApplication internal constructor(
+    @PublishedApi internal val config: ApplicationConfig
+) : AutoCloseable {
     public companion object {
         /**
          * 创建一个 Saltify 应用实例。
          */
-        public operator fun invoke(block: SaltifyApplicationConfig.() -> Unit): SaltifyApplication {
-            val config = SaltifyApplicationConfig().apply(block)
+        public operator fun invoke(block: ApplicationConfig.() -> Unit): SaltifyApplication {
+            val config = ApplicationConfig().apply(block)
             return when (config.connection.event.type) {
                 EventConnectionType.WebSocket -> SaltifyApplicationWebSocket(config)
                 EventConnectionType.SSE -> SaltifyApplicationSSE(config)
@@ -50,12 +73,12 @@ public sealed class SaltifyApplication(@PublishedApi internal val config: Saltif
     internal val logger = KtorSimpleLogger("Saltify/main")
 
     @PublishedApi
-    internal val exceptionHandlerProvider: SaltifyExceptionHandlerProvider = SaltifyExceptionHandlerProvider()
+    internal val exceptionHandlerProvider: ExceptionHandlerProvider = ExceptionHandlerProvider()
 
     /**
      * 全局异常流。
      *
-     * 可以通过 [SaltifyComponent] 判断异常抛出位置。
+     * 可以通过 [org.ntqqrev.saltify.runtime.SaltifyComponent] 判断异常抛出位置。
      *
      * ```kotlin
      * client.exceptionFlow.collect { (context, exception) ->
@@ -77,7 +100,7 @@ public sealed class SaltifyApplication(@PublishedApi internal val config: Saltif
 
     internal val applicationScope: CoroutineScope = CoroutineScope(
         SaltifyComponent(SaltifyComponentType.Application, "SaltifyApplication") +
-            exceptionHandlerProvider.handler
+                exceptionHandlerProvider.handler
     )
 
     protected val events: MutableSharedFlow<Event> = MutableSharedFlow(extraBufferCapacity = 64)
@@ -92,15 +115,15 @@ public sealed class SaltifyApplication(@PublishedApi internal val config: Saltif
     @PublishedApi
     internal val extensionScope: CoroutineScope = CoroutineScope(
         applicationScope.coroutineContext +
-            SupervisorJob(applicationScope.coroutineContext.job) +
-            SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
+                SupervisorJob(applicationScope.coroutineContext.job) +
+                SaltifyComponent(SaltifyComponentType.Extension, "SaltifyExtension")
     )
 
     protected val addressBaseNormalized: String = config.connection.baseUrl.trimEnd('/')
 
-    private val loadedPlugins = mutableListOf<SaltifyPluginContext>()
+    private val loadedPlugins = mutableListOf<PluginBuilder>()
 
-    internal val commandRegistry: MutableList<RegisteredCommandInfo> = mutableListOf()
+    internal val commandRegistry: MutableList<RegisteredCommand> = mutableListOf()
 
     @PublishedApi
     internal val accessToken: String? = config.connection.accessToken
@@ -138,11 +161,11 @@ public sealed class SaltifyApplication(@PublishedApi internal val config: Saltif
 
             val pluginScope = CoroutineScope(
                 applicationScope.coroutineContext +
-                    SupervisorJob(applicationScope.coroutineContext.job) +
-                    SaltifyComponent(SaltifyComponentType.Plugin, plugin.name)
+                        SupervisorJob(applicationScope.coroutineContext.job) +
+                        SaltifyComponent(SaltifyComponentType.Plugin, plugin.name)
             )
 
-            val context = SaltifyPluginContext(plugin.name, this, pluginScope)
+            val context = PluginBuilder(this, pluginScope, plugin.name)
 
             plugin.setup(context, configInstance)
             loadedPlugins.add(context)

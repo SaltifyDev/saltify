@@ -5,10 +5,11 @@ import kotlinx.coroutines.launch
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
+import org.ntqqrev.saltify.extension.on
 import org.ntqqrev.saltify.extension.plainText
-import org.ntqqrev.saltify.model.EventConnectionState
+import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.model.SaltifyComponentType
-import org.ntqqrev.saltify.util.coroutine.saltifyComponent
+import org.ntqqrev.saltify.runtime.saltifyComponent
 
 /**
  * Saltify 内置日志插件。
@@ -54,7 +55,7 @@ public val defaultLogging: SaltifyPlugin<Unit> = SaltifyPlugin("default-logging"
     }
 
     // 收到消息日志
-    on<Event.MessageReceive> { event ->
+    on<Event.MessageReceive> {
         when (val data = event.data) {
             is IncomingMessage.Group ->
                 logger.debug(
