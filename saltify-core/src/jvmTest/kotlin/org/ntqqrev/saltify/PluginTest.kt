@@ -16,8 +16,7 @@ class PluginTest {
     fun test(): Unit = runBlocking {
         val client = SaltifyApplication {
             connection {
-                baseUrl = "http://***REMOVED***"
-                accessToken = "***REMOVED***"
+                baseUrl = "http://localhost:3010"
 
                 events {
                     type = EventConnectionType.WebSocket
@@ -157,6 +156,16 @@ class PluginTest {
 
             onExecute {
                 respond("Order #${id.value} created\nnote：${note.value}")
+            }
+        }
+
+        // rich text param test
+        command("rich") {
+            val mention = parameter.mention("mention")
+            val image = parameter.image("image")
+
+            onExecute {
+                respond("You mentioned ${mention.value.name}, and sent an image: ${image.value.tempUrl}")
             }
         }
     }

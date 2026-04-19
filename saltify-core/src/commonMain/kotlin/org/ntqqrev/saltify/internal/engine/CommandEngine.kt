@@ -4,6 +4,7 @@ package org.ntqqrev.saltify.internal.engine
 
 import org.ntqqrev.milky.Event
 import org.ntqqrev.milky.IncomingMessage
+import org.ntqqrev.milky.IncomingSegment
 import org.ntqqrev.saltify.SaltifyApplication
 import org.ntqqrev.saltify.dsl.CommandBuilder
 import org.ntqqrev.saltify.model.command.CommandError
@@ -16,8 +17,7 @@ import kotlin.time.Clock
 internal object CommandEngine {
     suspend fun execute(
         dsl: CommandBuilder,
-        tokens: List<String>,
-        rawParameters: String,
+        segments: List<IncomingSegment>,
         client: SaltifyApplication,
         event: Event.MessageReceive,
         name: String
@@ -26,21 +26,20 @@ internal object CommandEngine {
         val execution = CommandExecutionContext(client, event, argumentMap, name)
 
         if (!checkRequirements(dsl, execution)) return
-        if (tokens.isNotEmpty()) {
-            val subName = tokens[0]
+        if (segments.isNotEmpty()) {
+            val subName = (segments[0] as? IncomingSegment.Text)?.text
             val subCommand = dsl.subCommands.find { it.first == subName }
 
             if (subCommand != null) return execute(
-                dsl = subCommand.second,
-                tokens = tokens.drop(1),
-                rawParameters = rawParameters.removePrefix(subCommand.first).removePrefix(" "),
-                client = client,
-                event = event,
-                name = "$name $subName"
+                subCommand.second,
+                segments.drop(1),
+                client,
+                event,
+                "$name $subName"
             )
         }
 
-        val error = parseParameters(dsl, tokens, rawParameters, argumentMap)
+        val error = parseParameters(dsl, segments, argumentMap)
         if (error != null) {
             dsl.failureBlock?.invoke(execution, error)
             return
@@ -60,25 +59,28 @@ internal object CommandEngine {
      */
     private fun parseParameters(
         dsl: CommandBuilder,
-        tokens: List<String>,
-        rawParameters: String,
+        segments: List<IncomingSegment>,
         argumentMap: MutableMap<CommandParameter<*>, ParameterParseResult<Any>>
     ): CommandError? {
-        val currentTokens = tokens.toMutableList()
-        var currentRaw = rawParameters
+        val currentTokens = segments.toMutableList()
 
         for (param in dsl.parameters) {
             val result: ParameterParseResult<Any> = when {
                 currentTokens.isEmpty() -> ParameterParseResult.MissingParam
                 param.isGreedy -> {
-                    val greedyValue = currentRaw
+                    val greedyValue = currentTokens.joinToString(" ") { segment ->
+                        if (segment is IncomingSegment.Text) {
+                            segment.text
+                        } else {
+                            segment.toString()
+                        }
+                    }
+
                     currentTokens.clear()
-                    currentRaw = ""
                     ParameterParseResult.Success(greedyValue)
                 }
                 else -> {
                     val rawValue = currentTokens.removeFirst()
-                    currentRaw = currentRaw.trimStart().removePrefix(rawValue).removePrefix(" ")
 
                     param.transform(rawValue)?.let { ParameterParseResult.Success(it) }
                         ?: ParameterParseResult.InvalidParam(rawValue)

@@ -5,3 +5,5 @@ style:
     active: false
   MagicNumber:
     active: false
+  MaxLineLength:
+    maxLineLength: 150

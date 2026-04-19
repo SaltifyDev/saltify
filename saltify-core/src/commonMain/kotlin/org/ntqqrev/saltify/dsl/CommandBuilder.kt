@@ -1,5 +1,6 @@
 package org.ntqqrev.saltify.dsl
 
+import org.ntqqrev.milky.IncomingSegment
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.model.command.CommandError
 import org.ntqqrev.saltify.model.command.CommandRequirement
@@ -73,15 +74,19 @@ public class SaltifyParameterBuilder(@PublishedApi internal val context: Command
     /**
      * 定义一个指令参数。请搭配 [CommandExecutionContext.value] 使用。
      *
-     * @param isGreedy 是否是贪婪参数，即是否包含后面的所有剩余文本。
-     * @param transform 将原始文本转化为目标类型的函数。
+     * @param isGreedy 是否是贪婪参数，即是否包含后面的所有剩余内容。
+     * @param transform 将原始内容转化为目标类型的函数。
      */
     public inline fun <reified T : Any> from(
         name: String,
         description: String,
         isGreedy: Boolean = false,
-        noinline transform: (String) -> T?
-    ): CommandParameter<T> = CommandParameter(transform, T::class, name, description, isGreedy).also {
-            context.parameters.add(it)
-        }
+        noinline transform: (IncomingSegment) -> T?
+    ): CommandParameter<T> = CommandParameter(
+        transform,
+        T::class,
+        name,
+        description,
+        isGreedy
+    ).also { context.parameters.add(it) }
 }

@@ -54,7 +54,7 @@ public inline fun ApplicationContext.regex(
     }
 }
 
-private val spaceRegex = Regex("\\s+")
+private val spaceOrWordRegex = Regex("([^ ]+| +)")
 
 /**
  * 注册一个指令。
@@ -72,29 +72,42 @@ public fun ApplicationContext.command(
 
     client.commandRegistry.add(
         RegisteredCommand(
-            name = name,
-            prefix = prefix,
-            description = rootDsl.description,
-            parameters = rootDsl.parameters.toList(),
-            subCommands = rootDsl.subCommands.map { (subName, subCtx) ->
+            name,
+            prefix,
+            rootDsl.description,
+            rootDsl.parameters.toList(),
+            rootDsl.subCommands.map { (subName, subCtx) ->
                 subCtx.toSubCommand(subName)
             },
-            pluginName = pluginName
+            pluginName
         )
     )
 
     return on<Event.MessageReceive> {
-        val rawText = event.segments.filterIsInstance<IncomingSegment.Text>()
-            .joinToString("") { it.text }
-            .trim()
+        val segments = event.segments.flatMap { segment ->
+            if (segment is IncomingSegment.Text) {
+                spaceOrWordRegex.findAll(segment.text)
+                    .mapNotNull { match ->
+                        val str = match.value
 
-        val tokens = if (rawText.isEmpty()) emptyList() else rawText.split(spaceRegex)
-        if (tokens.isEmpty() || tokens[0] != "$prefix$name") return@on
+                        val processedStr = if (str.startsWith(" ")) str.drop(1) else str
+                        if (processedStr.isNotEmpty()) {
+                            IncomingSegment.Text(IncomingSegment.Text.Data(processedStr))
+                        } else {
+                            null
+                        }
+                    }.toList()
+            } else {
+                listOf(segment)
+            }
+        }
+        val leadingText = (segments[0] as? IncomingSegment.Text)?.text ?: return@on
+
+        if (!leadingText.startsWith("$prefix$name")) return@on
 
         CommandEngine.execute(
             rootDsl,
-            tokens.drop(1),
-            rawText.removePrefix("$prefix$name").removePrefix(" "),
+            segments.drop(1),
             client,
             event,
             name
