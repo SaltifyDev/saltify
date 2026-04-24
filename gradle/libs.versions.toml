@@ -7,7 +7,7 @@ milky = "1.2.0"
 logback = "1.5.32"
 
 maven-publish = "0.36.0"
-ksp = "2.3.6"
+ksp = "2.3.7"
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
