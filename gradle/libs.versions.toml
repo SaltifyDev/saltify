@@ -3,7 +3,6 @@ kotlin = "2.3.21"
 coroutines = "1.11.0"
 serialization = "1.11.0"
 ktor = "3.5.0"
-milky = "1.2.0"
 logback = "1.5.33"
 
 maven-publish = "0.36.0"
@@ -23,8 +22,6 @@ ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.re
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
-
-milky-types = { module = "org.ntqqrev:milky-kt-types", version.ref = "milky" }
 
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 

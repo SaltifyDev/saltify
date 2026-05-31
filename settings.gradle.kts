@@ -13,5 +13,6 @@ rootProject.name = "saltify"
 
 include(
     ":saltify-core",
-    ":saltify-processor"
+    ":saltify-processor",
+    ":saltify-types"
 )

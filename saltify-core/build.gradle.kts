@@ -25,7 +25,7 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.serialization.json)
                 api(libs.kotlinx.coroutines.core)
-                api(libs.milky.types)
+                api(project(":saltify-types"))
             }
         }
 
