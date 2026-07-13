@@ -1,3 +1,4 @@
+import buildsrc.convention.MilkyTypesGenTask
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -13,9 +14,16 @@ dependencies {
     add("kspCommonMainMetadata", project(":saltify-processor"))
 }
 
+val generateMilkyTypes = tasks.register<MilkyTypesGenTask>("generateMilkyTypes") {
+    description = "Fetch milky types"
+    outputDir = layout.buildDirectory.dir("./generated/source/milky/commonMain/kotlin")
+    version = "1.2.2"
+}
+
 kotlin {
     sourceSets {
         commonMain {
+            kotlin.srcDir(generateMilkyTypes.map { it.outputDir })
             kotlin.srcDir("./build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(libs.ktor.client.core)
@@ -25,7 +33,6 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.serialization.json)
                 api(libs.kotlinx.coroutines.core)
-                api(project(":saltify-types"))
             }
         }
 
@@ -39,7 +46,7 @@ kotlin {
         }
     }
 
-    explicitApi()
+    explicitApiWarning()
 }
 
 tasks.withType<KotlinCompile> {
