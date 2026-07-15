@@ -1,2 +1,2 @@
 group = "org.ntqqrev"
-version = "1.2.2"
+version = "1.2.2.1"
