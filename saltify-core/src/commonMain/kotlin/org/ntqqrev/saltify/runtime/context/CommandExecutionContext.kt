@@ -1,10 +1,12 @@
 package org.ntqqrev.saltify.runtime.context
 
-import io.ktor.util.logging.*
 import org.ntqqrev.milky.Event
 import org.ntqqrev.saltify.SaltifyApplication
 import org.ntqqrev.saltify.model.command.ParameterParseResult
 import org.ntqqrev.saltify.runtime.command.CommandParameter
+import org.ntqqrev.saltify.util.logger.ILoggerTaggable
+import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger
+import org.ntqqrev.saltify.util.logger.withTag
 
 public open class CommandExecutionContext(
     public override val client: SaltifyApplication,
@@ -12,7 +14,7 @@ public open class CommandExecutionContext(
     private val argumentMap: Map<CommandParameter<*>, Any?>,
     commandName: String,
 ) : EventContext<Event.MessageReceive>(event, client) {
-    public val logger: Logger = KtorSimpleLogger("Saltify/cmd:$commandName")
+    public val logger: ILoggerTaggable = SaltifyApplicationLogger.withTag("Saltify/cmd:$commandName")
 
     /**
      * 获取已解析的参数值。

@@ -10,7 +10,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.logging.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -28,6 +27,10 @@ import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.model.event.EventConnectionType
 import org.ntqqrev.saltify.runtime.SaltifyComponent
 import org.ntqqrev.saltify.runtime.command.RegisteredCommand
+import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger
+import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger.DefaultLoggerWriter
+import org.ntqqrev.saltify.util.logger.info
+import org.ntqqrev.saltify.util.logger.withTag
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 
@@ -51,7 +54,7 @@ public abstract class SaltifyApplication internal constructor(
         }
     }
 
-    internal val logger = KtorSimpleLogger("Saltify/main")
+    internal val logger = SaltifyApplicationLogger.withTag("Saltify/main")
 
     @PublishedApi
     internal val exceptionHandlerProvider: ExceptionHandlerProvider = ExceptionHandlerProvider()

@@ -10,6 +10,10 @@ import org.ntqqrev.saltify.extension.plainText
 import org.ntqqrev.saltify.model.SaltifyComponentType
 import org.ntqqrev.saltify.model.event.EventConnectionState
 import org.ntqqrev.saltify.runtime.saltifyComponent
+import org.ntqqrev.saltify.util.logger.debug
+import org.ntqqrev.saltify.util.logger.error
+import org.ntqqrev.saltify.util.logger.info
+import org.ntqqrev.saltify.util.logger.warn
 
 /**
  * Saltify 内置日志插件。

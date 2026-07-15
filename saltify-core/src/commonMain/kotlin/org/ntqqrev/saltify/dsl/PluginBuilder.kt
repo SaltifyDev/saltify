@@ -1,10 +1,13 @@
 package org.ntqqrev.saltify.dsl
 
-import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
 import org.ntqqrev.saltify.SaltifyApplication
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.runtime.context.ApplicationContext
+import org.ntqqrev.saltify.util.logger.ILogger
+import org.ntqqrev.saltify.util.logger.ILoggerTaggable
+import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger
+import org.ntqqrev.saltify.util.logger.withTag
 
 @SaltifyDsl
 public class PluginBuilder internal constructor(
@@ -15,7 +18,7 @@ public class PluginBuilder internal constructor(
     internal val onStartHooks = mutableListOf<suspend () -> Unit>()
     internal val onStopHooks = mutableListOf<() -> Unit>()
 
-    public val logger: Logger = KtorSimpleLogger("Saltify/plugin:$pluginName")
+    public val logger: ILoggerTaggable = SaltifyApplicationLogger.withTag("Saltify/plugin:$pluginName")
 
     /**
      * 插件被加载，即 [SaltifyApplication.Companion.invoke] 后执行的逻辑。
