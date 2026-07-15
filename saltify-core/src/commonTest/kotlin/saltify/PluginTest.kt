@@ -1,7 +1,9 @@
 package org.ntqqrev.saltify
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.ntqqrev.milky.IncomingMessage
 import org.ntqqrev.saltify.builtin.plugin.commandHelp
 import org.ntqqrev.saltify.builtin.plugin.defaultLogging
@@ -9,11 +11,12 @@ import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.*
 import org.ntqqrev.saltify.model.event.EventConnectionType
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 class PluginTest {
     @Test
-    fun test(): Unit = runBlocking {
+    fun test() = runTest(timeout = Duration.INFINITE) {
         val client = SaltifyApplication {
             connection {
                 baseUrl = "http://localhost:3010"
@@ -37,7 +40,7 @@ class PluginTest {
         }.start()
 
         client.connectEvent()
-        delay(60000.milliseconds)
+        withContext(Dispatchers.Default) { delay(1.hours) }
         client.disconnectEvent()
         client.close()
     }
