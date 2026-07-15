@@ -31,6 +31,8 @@ public fun ILoggerTaggable.error(message: String, throwable: Throwable? = null):
 
 public fun ILogger.withTag(name: String): ILoggerTaggable = object : ILoggerTaggable {
     override val tag: String = name
+
+    // 委托的 super 函数
     override fun log(level: LogLevel, tag: String, message: String, throwable: Throwable?) {
         this@withTag.log(level, tag, message, throwable)
     }
