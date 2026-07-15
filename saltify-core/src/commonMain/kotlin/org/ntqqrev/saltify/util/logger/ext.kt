@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package org.ntqqrev.saltify.util.logger
 
 public fun ILogger.verbose(tag: String, message: String, throwable: Throwable? = null): Unit = log(LogLevel.TRACE, tag, message, throwable)

@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import org.ntqqrev.saltify.SaltifyApplication
 import org.ntqqrev.saltify.annotation.SaltifyDsl
 import org.ntqqrev.saltify.runtime.context.ApplicationContext
-import org.ntqqrev.saltify.util.logger.ILogger
 import org.ntqqrev.saltify.util.logger.ILoggerTaggable
 import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger
 import org.ntqqrev.saltify.util.logger.withTag

@@ -1,6 +1,6 @@
 package org.ntqqrev.saltify.util.logger
 
-import org.ntqqrev.saltify.util.logger.internal.SaltifyApplicationLoggerWriterRedirectToKtorLogger
+import org.ntqqrev.saltify.internal.util.SaltifyApplicationLoggerWriterRedirectToKtorLogger
 
 /**
  * 核心日志接口。所有日志操作最终都通过此接口输出。
@@ -37,7 +37,7 @@ public fun interface ILoggerWriter : ILogger
  *
  * 通过注册 [ILoggerWriter] 将日志分发到多个输出端。
  *
- * 例如：通过 [ILogger.i(tag,message,throwable)] 和 [ILoggerTaggable.i(message,throwable)] 输出日志
+ * 例如：通过 [ILogger.info] 和 [ILoggerTaggable.info] 输出日志
  */
 public object SaltifyApplicationLogger : ILogger {
     private val writers = mutableSetOf<ILoggerWriter>()

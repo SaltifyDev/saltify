@@ -1,4 +1,4 @@
-package org.ntqqrev.saltify.util.logger.internal
+package org.ntqqrev.saltify.internal.util
 
 import io.ktor.util.logging.*
 import org.ntqqrev.saltify.util.logger.ILoggerWriter
