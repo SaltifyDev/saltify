@@ -41,7 +41,7 @@ public fun interface ILoggerWriter : ILogger
  */
 public object SaltifyApplicationLogger : ILogger {
     private val writers = mutableSetOf<ILoggerWriter>()
-    public val DefaultLoggerWriter: ILoggerWriter = SaltifyApplicationLoggerWriterRedirectToKtorLogger("Saltify/main")
+    public val DefaultLoggerWriter: ILoggerWriter = SaltifyApplicationLoggerWriterRedirectToKtorLogger("")
     init {
         register(DefaultLoggerWriter)
     }

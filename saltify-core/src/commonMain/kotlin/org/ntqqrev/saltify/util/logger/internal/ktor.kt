@@ -16,6 +16,7 @@ import org.ntqqrev.saltify.util.logger.LogLevel.*
 internal fun SaltifyApplicationLoggerWriterRedirectToKtorLogger(name: String): ILoggerWriter = object : ILoggerWriter {
     private val delegate = KtorSimpleLogger(name)
     override fun log(level: LogLevel, tag: String, message: String, throwable: Throwable?) {
+        val message = "($tag): $message"
         when (level) {
             TRACE -> if (throwable == null) delegate.trace(message) else delegate.trace(message, throwable)
             DEBUG -> if (throwable == null) delegate.debug(message) else delegate.debug(message, throwable)

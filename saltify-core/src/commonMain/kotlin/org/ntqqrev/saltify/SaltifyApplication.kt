@@ -28,7 +28,6 @@ import org.ntqqrev.saltify.model.event.EventConnectionType
 import org.ntqqrev.saltify.runtime.SaltifyComponent
 import org.ntqqrev.saltify.runtime.command.RegisteredCommand
 import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger
-import org.ntqqrev.saltify.util.logger.SaltifyApplicationLogger.DefaultLoggerWriter
 import org.ntqqrev.saltify.util.logger.info
 import org.ntqqrev.saltify.util.logger.withTag
 import kotlin.coroutines.CoroutineContext
