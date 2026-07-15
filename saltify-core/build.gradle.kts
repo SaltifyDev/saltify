@@ -31,10 +31,11 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            api(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.cio)
         }
 
         jvmTest.dependencies {
-            implementation(libs.ktor.client.cio)
             implementation(libs.logback.classic)
         }
     }

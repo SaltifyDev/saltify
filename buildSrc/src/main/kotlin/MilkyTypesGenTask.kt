@@ -27,8 +27,9 @@ abstract class MilkyTypesGenTask @Inject constructor(
         file.parentFile.mkdirs()
 
         execOperations.exec {
+            val prefix = if (System.getProperty("os.name").contains("Win")) "npx.cmd" else "npx"
             commandLine(
-                "npx", "milkygen", "generate", "kotlin/kotlinx-serialization",
+                prefix, "milkygen", "generate", "kotlin/kotlinx-serialization",
                 "--version", version.get(),
                 "--output", file.absolutePath
             )
