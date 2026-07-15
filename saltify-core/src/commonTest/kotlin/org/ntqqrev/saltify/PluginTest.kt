@@ -10,6 +10,7 @@ import org.ntqqrev.saltify.builtin.plugin.defaultLogging
 import org.ntqqrev.saltify.dsl.SaltifyPlugin
 import org.ntqqrev.saltify.extension.*
 import org.ntqqrev.saltify.model.event.EventConnectionType
+import org.ntqqrev.saltify.util.logger.info
 import kotlin.test.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
