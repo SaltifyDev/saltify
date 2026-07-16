@@ -54,8 +54,6 @@ public inline fun ApplicationContext.regex(
     }
 }
 
-private val spaceOrWordRegex = Regex("([^ ]+| +)")
-
 /**
  * 注册一个指令。
  */
@@ -84,25 +82,35 @@ public fun ApplicationContext.command(
     )
 
     return on<Event.MessageReceive> {
+        // 预处理 segments
+        // "hello world  foo" -> ["hello", "world", " foo"]
         val segments = event.segments.flatMap { segment ->
             if (segment is IncomingSegment.Text) {
-                spaceOrWordRegex.findAll(segment.text)
-                    .mapNotNull { match ->
-                        val str = match.value
+                val text = segment.text
+                val parts = mutableListOf<String>()
+                var pendingSpaces = ""
+                var i = 0
+                while (i < text.length) {
+                    val start = i
+                    val isSpace = text[i] == ' '
+                    while (i < text.length && (text[i] == ' ') == isSpace) i++
+                    val chunk = text.substring(start, i)
+                    if (isSpace) {
+                        pendingSpaces = chunk.drop(1)
+                    } else {
+                        parts.add(pendingSpaces + chunk)
+                        pendingSpaces = ""
+                    }
+                }
+                if (pendingSpaces.isNotEmpty()) parts.add(pendingSpaces)
 
-                        val processedStr = if (str.startsWith(" ")) str.drop(1) else str
-                        if (processedStr.isNotEmpty()) {
-                            IncomingSegment.Text(IncomingSegment.Text.Data(processedStr))
-                        } else {
-                            null
-                        }
-                    }.toList()
+                parts.map { IncomingSegment.Text(IncomingSegment.Text.Data(it)) }
             } else {
                 listOf(segment)
             }
         }
-        val leadingText = (segments[0] as? IncomingSegment.Text)?.text ?: return@on
 
+        val leadingText = (segments[0] as? IncomingSegment.Text)?.text ?: return@on
         if (!leadingText.startsWith("$prefix$name")) return@on
 
         CommandEngine.execute(
