@@ -3,7 +3,7 @@ kotlin = "2.4.20"
 coroutines = "1.11.0"
 serialization = "1.11.0"
 ktor = "3.6.0"
-logback = "1.6.3"
+logback = "1.6.4"
 
 maven-publish = "0.37.0"
 ksp = "2.3.12"
